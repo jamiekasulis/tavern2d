@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ItemQuantity
 {
-    public Item item;
+    [SerializeField] public Item item;
     [Range(1, 999)]
-    public int quantity;
+    [SerializeField] public int quantity;
 }

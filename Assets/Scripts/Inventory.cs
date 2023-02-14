@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 public class Inventory : MonoBehaviour
 {
-    public int stackCapacity { get; private set; } // Number of stacks the inventory can hold. This is NOT
+    public int StackCapacity { get; private set; } // Number of stacks the inventory can hold. This is NOT
     // the same as the quantity of items it can hold.
-    public List<ItemQuantity> stacks { get; private set; }
+    public List<ItemQuantity> Stacks { get; private set; }
 
     private void Awake()
     {
-        stacks = new(stackCapacity);
+        Stacks = new(StackCapacity);
+    }
+
+    public Inventory(int stackCapacity)
+    {
+        this.StackCapacity = stackCapacity;
+        Stacks = new();
     }
 
     /**
@@ -18,17 +24,17 @@ public class Inventory : MonoBehaviour
      */
     public int GetIndexInInventory(Item item)
     {
-        return InventoryUtils.GetIndexInInventory(item, stacks);
+        return InventoryUtils.GetIndexInInventory(item, Stacks);
     }
 
     public bool ContainsItem(Item item)
     {
-        return InventoryUtils.ContainsItem(item, stacks);
+        return InventoryUtils.ContainsItem(item, Stacks);
     }
 
     public void Add(ItemQuantity iq)
     {
-        InventoryUtils.Add(iq, stacks);
+        InventoryUtils.Add(iq, Stacks);
     }
 
     /**
@@ -37,16 +43,16 @@ public class Inventory : MonoBehaviour
      */
     public void Remove(ItemQuantity iq, bool strict)
     {
-        InventoryUtils.Remove(iq, stacks, strict);
+        InventoryUtils.Remove(iq, Stacks, strict);
     }
 
     public void Remove(ItemQuantity iq) {
-        InventoryUtils.Remove(iq, stacks, true);
+        InventoryUtils.Remove(iq, Stacks, true);
     }
 
     public bool HasAtLeast(ItemQuantity iq)
     {
-        return InventoryUtils.HasAtLeast(iq, stacks);
+        return InventoryUtils.HasAtLeast(iq, Stacks);
     }
 }
 
