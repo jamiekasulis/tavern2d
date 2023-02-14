@@ -22,6 +22,12 @@ public class InventoryUtils
         int idx = GetIndexInInventory(iq.item, inv);
         if (idx < 0)
         {
+            if (inv.Capacity == inv.Count)
+            {
+                // No more space to add a new stack
+                throw new InventoryFullException("Cannot add new stack to inventory. It is full!");
+            }
+
             inv.Add(iq);
         }
         else

@@ -129,6 +129,20 @@ public class InventoryUtilsTest
         Assert.AreEqual(inv[0].quantity, 2);
     }
 
+    [Test]
+    public void TestAdd_ThrowsException_IfInventoryIsFull()
+    {
+        List<ItemQuantity> inv = new(1);
+        inv.Add(new() { item = testItem1, quantity = 1 });
+
+        Assert.Throws<InventoryFullException>(() =>
+            InventoryUtils.Add(
+                new() { item = testItem2, quantity = 100 },
+                inv
+            )
+        );
+    }
+
     #endregion
 
     #region Remove
