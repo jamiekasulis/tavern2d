@@ -12,8 +12,7 @@ public class PlayerMovement : MonoBehaviour
         rigidBody = gameObject.GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         HandleMovement();
     }
@@ -39,10 +38,8 @@ public class PlayerMovement : MonoBehaviour
         {
             difference = Vector2.ClampMagnitude(difference, speed);
         }
-        Debug.Log("Difference magnitude = " + difference.magnitude);
-        Vector2 newPos = rigidBody.position + difference;
         
-        rigidBody.MovePosition(newPos);
+        rigidBody.MovePosition(rigidBody.position + difference);
         
     }
 }
