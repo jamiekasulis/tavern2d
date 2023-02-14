@@ -58,8 +58,10 @@ public class Inventory : MonoBehaviour
 
 public class InvalidQuantityException : Exception
 {
-    public InvalidQuantityException(string message): base(message)
-    {
+    public InvalidQuantityException(string message): base(message) { }
+}
 
-    }
+public class InventoryFullException : Exception
+{
+    public InventoryFullException(string message) : base(message) { }
 }
