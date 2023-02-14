@@ -32,9 +32,14 @@ public class Inventory : MonoBehaviour
         return InventoryUtils.ContainsItem(item, Stacks);
     }
 
+    public void Add(ItemQuantity iq, bool strict)
+    {
+        InventoryUtils.Add(iq, Stacks, strict);
+    }
+
     public void Add(ItemQuantity iq)
     {
-        InventoryUtils.Add(iq, Stacks);
+        InventoryUtils.Add(iq, Stacks, true);
     }
 
     /**
