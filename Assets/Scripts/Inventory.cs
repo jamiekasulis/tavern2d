@@ -12,10 +12,10 @@ public class Inventory : MonoBehaviour
         Stacks = new(StackCapacity);
     }
 
-    public Inventory(int stackCapacity)
+    public void Initialize(int stackCapacity)
     {
-        this.StackCapacity = stackCapacity;
-        Stacks = new();
+        StackCapacity = stackCapacity;
+        Stacks = new(StackCapacity);
     }
 
     /**
