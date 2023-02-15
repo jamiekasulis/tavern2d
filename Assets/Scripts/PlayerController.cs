@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,8 +15,8 @@ public class PlayerController : MonoBehaviour
     };
 
     // Item pickup
-    private Vector2 boxcastSize = new(3, 3);
-    private float boxcastDistance = 1;
+    public Vector2 boxcastSize = new(1, 1);
+    public float boxcastDistance = 1f;
 
     private void Awake()
     {
@@ -59,7 +58,7 @@ public class PlayerController : MonoBehaviour
             if (pickup != null)
             {
                 pickup.AddToPlayerInventory();
-                Debug.Log(InventoryManager.instance.PlayerInventory.ToString());
+                Debug.Log("Player Inventory: " + InventoryManager.instance.PlayerInventory.ToString());
             }
         }
     }

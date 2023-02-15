@@ -64,12 +64,13 @@ public class Inventory : MonoBehaviour
     public override string ToString()
     {
         StringBuilder builder = new();
+        builder.Append("[");
         foreach (ItemQuantity iq in Stacks)
         {
             builder.Append(iq.ToString());
             builder.Append(" ");
         }
-
+        builder.Append("]");
         return builder.ToString();
     }
 }
