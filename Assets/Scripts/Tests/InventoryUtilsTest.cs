@@ -105,7 +105,7 @@ public class InventoryUtilsTest
             }
         };
 
-        InventoryUtils.Add(new() { item = testItem2, quantity = 1 }, inv);
+        InventoryUtils.Add(new() { item = testItem2, quantity = 1 }, inv, false);
         Assert.AreEqual(inv.Count, 2);
         Assert.AreEqual(inv[1].item, testItem2);
         Assert.AreEqual(inv[1].quantity, 1);
@@ -123,14 +123,14 @@ public class InventoryUtilsTest
             }
         };
 
-        InventoryUtils.Add(new() { item = testItem1, quantity = 1 }, inv);
+        InventoryUtils.Add(new() { item = testItem1, quantity = 1 }, inv, false);
         Assert.AreEqual(inv.Count, 1);
         Assert.AreEqual(inv[0].item, testItem1);
         Assert.AreEqual(inv[0].quantity, 2);
     }
 
     [Test]
-    public void TestAdd_ThrowsException_IfInventoryIsFull()
+    public void TestAdd_ThrowsException_IfInventoryIsFull_AndIsStrict()
     {
         List<ItemQuantity> inv = new(1);
         inv.Add(new() { item = testItem1, quantity = 1 });
@@ -138,9 +138,25 @@ public class InventoryUtilsTest
         Assert.Throws<InventoryFullException>(() =>
             InventoryUtils.Add(
                 new() { item = testItem2, quantity = 100 },
-                inv
+                inv,
+                true
             )
         );
+    }
+
+    [Test]
+    public void TestAdd_DoesNotThrowException_IfUnstrict()
+    {
+        List<ItemQuantity> inv = new(1);
+        inv.Add(new() { item = testItem1, quantity = 1 });
+
+
+        InventoryUtils.Add(
+            new() { item = testItem2, quantity = 100 },
+            inv,
+            false
+        );
+        Assert.AreEqual(inv.Count, 1);
     }
 
     #endregion

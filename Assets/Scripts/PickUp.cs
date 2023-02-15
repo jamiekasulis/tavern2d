@@ -9,6 +9,6 @@ public class PickUp : MonoBehaviour
 
     public PickUp()
     {
-        InventoryManager.instance.PlayerInventory.Add()
+        InventoryManager.instance.PlayerInventory.Add(itemQuantity, false);
     }
 }
