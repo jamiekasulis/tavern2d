@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
@@ -22,7 +20,9 @@ public class InventoryManager : MonoBehaviour
         }
         DontDestroyOnLoad(this.gameObject);
 
-        PlayerInventory = new(10);
+        gameObject.AddComponent<Inventory>().Initialize(10);
+        PlayerInventory = gameObject.GetComponent<Inventory>();
+        PlayerInventory.Initialize(10);
         ActiveInventory = PlayerInventory;
     }
 }

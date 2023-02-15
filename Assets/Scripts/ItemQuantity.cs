@@ -1,8 +1,14 @@
 using UnityEngine;
 
+[System.Serializable]
 public class ItemQuantity
 {
-    [SerializeField] public Item item;
+    public Item item;
     [Range(1, 999)]
-    [SerializeField] public int quantity;
+    public int quantity;
+
+    public override string ToString()
+    {
+        return $"({item.itemName},{quantity})";
+    }
 }

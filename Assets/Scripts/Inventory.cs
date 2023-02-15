@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 public class Inventory : MonoBehaviour
@@ -12,10 +13,10 @@ public class Inventory : MonoBehaviour
         Stacks = new(StackCapacity);
     }
 
-    public Inventory(int stackCapacity)
+    public void Initialize(int stackCapacity)
     {
-        this.StackCapacity = stackCapacity;
-        Stacks = new();
+        StackCapacity = stackCapacity;
+        Stacks = new(StackCapacity);
     }
 
     /**
@@ -32,9 +33,14 @@ public class Inventory : MonoBehaviour
         return InventoryUtils.ContainsItem(item, Stacks);
     }
 
+    public void Add(ItemQuantity iq, bool strict)
+    {
+        InventoryUtils.Add(iq, Stacks, strict);
+    }
+
     public void Add(ItemQuantity iq)
     {
-        InventoryUtils.Add(iq, Stacks);
+        InventoryUtils.Add(iq, Stacks, true);
     }
 
     /**
@@ -53,6 +59,19 @@ public class Inventory : MonoBehaviour
     public bool HasAtLeast(ItemQuantity iq)
     {
         return InventoryUtils.HasAtLeast(iq, Stacks);
+    }
+
+    public override string ToString()
+    {
+        StringBuilder builder = new();
+        builder.Append("[");
+        foreach (ItemQuantity iq in Stacks)
+        {
+            builder.Append(iq.ToString());
+            builder.Append(" ");
+        }
+        builder.Append("]");
+        return builder.ToString();
     }
 }
 

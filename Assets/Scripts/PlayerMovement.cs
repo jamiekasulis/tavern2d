@@ -6,10 +6,12 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 0.07f;
     private float xDirection = 0, yDirection = 0;
     private Rigidbody2D rigidBody;
+    private PlayerController playerController;
 
     private void Awake()
     {
         rigidBody = gameObject.GetComponent<Rigidbody2D>();
+        playerController = gameObject.GetComponent<PlayerController>();
     }
 
     void FixedUpdate()
@@ -26,6 +28,8 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
+
+        playerController.SetFacedDirection(new(xDirection, yDirection));
 
         Vector2 difference = new (speed * xDirection, speed * yDirection);
 
