@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:IMGUIContainer name="RootContainer" style="height: 240px; width: 520px; align-items: center; justify-content: center; flex-wrap: nowrap; flex-direction: column;">
+        <ui:IMGUIContainer name="TopbarContainer" style="width: 100%; justify-content: center; align-items: center; height: 20%;">
+            <ui:Label text="Label" display-tooltip-when-elided="true" name="Title" style="justify-content: center; -unity-text-align: middle-center; font-size: 24px;" />
+        </ui:IMGUIContainer>
+        <ui:IMGUIContainer name="GridContainer" style="-unity-text-align: middle-center; justify-content: center; align-items: center; flex-wrap: wrap; height: 80%; width: 467px;" />
+    </ui:IMGUIContainer>
+</ui:UXML>
