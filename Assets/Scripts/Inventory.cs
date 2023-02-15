@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 public class Inventory : MonoBehaviour
@@ -58,6 +59,18 @@ public class Inventory : MonoBehaviour
     public bool HasAtLeast(ItemQuantity iq)
     {
         return InventoryUtils.HasAtLeast(iq, Stacks);
+    }
+
+    public override string ToString()
+    {
+        StringBuilder builder = new();
+        foreach (ItemQuantity iq in Stacks)
+        {
+            builder.Append(iq.ToString());
+            builder.Append(" ");
+        }
+
+        return builder.ToString();
     }
 }
 
