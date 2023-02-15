@@ -31,36 +31,47 @@ public class PlayerController : MonoBehaviour
 
     /**
      * Picks up all automatic pickup items in the boxcast.
-     * Sets the pickup variable if there is a manual pickup item.
+     * Sets the pickup variable to be the first hit in the boxcast.
+     * Sets the pickup variable to null if there are no hits.
      */
     private void DetectPickUpAndPickUpAutomatic()
     {
-        RaycastHit2D[] hits = Physics2D.BoxCastAll(gameObject.transform.position, boxcastSize, 0, facedDirection, boxcastDistance);
 
-        // Since we get hits as an array, the most space efficient way to do what
-        // we want is to iterate through the array looking for our hit and return
-        // once we find the first one. The alternative is to convert the arr to
-        // a list and filter, which is more readable but more memory to allocate.
-        for (int i = 0; i < hits.Length; i++)
+        RaycastHit2D[] hits = Physics2D.BoxCastAll(gameObject.transform.position, boxcastSize, 0, facedDirection, boxcastDistance);
+        if (hits.Length == 0)
         {
-            PickUp maybePickUp = hits[i].collider.gameObject.GetComponent<PickUp>();
-            if (maybePickUp != null)
+            pickup = null;
+            return;
+        }
+
+        /*
+         * We want to set the manual pick up item to be the FIRST non-automatic boxcast hit.
+         * There may be more readable ways to do this by getting a list of hits that are pickups,
+         * then filtering that by automatic-- but this seems like the most space- and time-efficient way
+         * to do it.
+         */
+        bool setManualPickup = false;
+        foreach (var hit in hits)
+        {
+            bool hasPickup = hit.collider.gameObject.TryGetComponent(out PickUp pu);
+            if (hasPickup)
             {
-                if (maybePickUp.automaticPickup)
+                if (pu.automaticPickup)
                 {
-                    maybePickUp.AddToPlayerInventory();
-                    Debug.Log("Automatically picked up " + maybePickUp.gameObject.name);
+                    pu.AddToPlayerInventory();
                 }
                 else
                 {
-                    pickup = maybePickUp;
-                    Debug.Log("Detected manual pickup " + pickup.gameObject.name);
-                    return;
+                    if (!setManualPickup)
+                    {
+                        pickup = pu;
+                        setManualPickup = true;
+                        Debug.Log("Set manual pickup to " + pu.gameObject.name);
+                    }
                 }
             }
         }
-        pickup = null;
-        return;
+
     }
 
     private void HandleManualPickup()
@@ -70,6 +81,7 @@ public class PlayerController : MonoBehaviour
             if (pickup != null)
             {
                 pickup.AddToPlayerInventory();
+                pickup = null;
                 Debug.Log("Player Inventory: " + InventoryManager.instance.PlayerInventory.ToString());
             }
         }
