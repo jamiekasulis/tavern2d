@@ -25,11 +25,15 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        DetectPickUp();
+        DetectPickUpAndPickUpAutomatic();
         HandleManualPickup();
     }
 
-    private void DetectPickUp()
+    /**
+     * Picks up all automatic pickup items in the boxcast.
+     * Sets the pickup variable if there is a manual pickup item.
+     */
+    private void DetectPickUpAndPickUpAutomatic()
     {
         RaycastHit2D[] hits = Physics2D.BoxCastAll(gameObject.transform.position, boxcastSize, 0, facedDirection, boxcastDistance);
 
@@ -42,9 +46,17 @@ public class PlayerController : MonoBehaviour
             PickUp maybePickUp = hits[i].collider.gameObject.GetComponent<PickUp>();
             if (maybePickUp != null)
             {
-                pickup = maybePickUp;
-                Debug.Log("Detected pickup " + pickup.gameObject.name);
-                return;
+                if (maybePickUp.automaticPickup)
+                {
+                    maybePickUp.AddToPlayerInventory();
+                    Debug.Log("Automatically picked up " + maybePickUp.gameObject.name);
+                }
+                else
+                {
+                    pickup = maybePickUp;
+                    Debug.Log("Detected manual pickup " + pickup.gameObject.name);
+                    return;
+                }
             }
         }
         pickup = null;
