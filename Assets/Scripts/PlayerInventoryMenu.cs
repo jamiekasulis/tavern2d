@@ -7,14 +7,12 @@ public class PlayerInventoryMenu : MonoBehaviour
 {
     public VisualTreeAsset CellTemplate;
     public static PlayerInventoryMenu Instance;
-    public string menuTitle = "Backpack";
 
     public ItemQuantity itemQuantity; // For testing only
 
     // UI Elements
     VisualElement root;
-    IMGUIContainer GridContainer, TopbarContainer;
-    Label TitleLabel;
+    IMGUIContainer GridContainer;
 
     private void Awake()
     {
@@ -29,20 +27,19 @@ public class PlayerInventoryMenu : MonoBehaviour
     {
         root = GetComponent<UIDocument>().rootVisualElement;
         GridContainer = root.Q<IMGUIContainer>("GridContainer");
-        TopbarContainer = root.Q<IMGUIContainer>("TopbarContainer");
-        TitleLabel = TopbarContainer.Q<Label>("Title");
-
-        TitleLabel.text = menuTitle;
 
         // Set up a single test item cell
-        var testCell = CellTemplate.Instantiate();
-        Label quantityLabel = testCell.Q<Label>("QuantityLabel");
-        Button rootButton = testCell.Q<Button>("RootButton");
+        for (int i = 0; i < 20; i++)
+        {
+            var testCell = CellTemplate.Instantiate();
+            Label quantityLabel = testCell.Q<Label>("QuantityLabel");
+            Button rootButton = testCell.Q<Button>("RootButton");
 
-        quantityLabel.text = itemQuantity.quantity.ToString();
-        rootButton.style.backgroundImage = new StyleBackground(itemQuantity.item.sprite);
+            quantityLabel.text = itemQuantity.quantity.ToString();
+            rootButton.style.backgroundImage = new StyleBackground(itemQuantity.item.sprite);
 
-        GridContainer.Add(testCell);
+            GridContainer.Add(testCell);
+        }
     }
 
     /**
@@ -53,10 +50,19 @@ public class PlayerInventoryMenu : MonoBehaviour
      */
     public void ToggleMenuOpen()
     {
-        // Toggle Enabled
+        ToggleEnabled();
+        ToggleVisibility();
+    }
+
+    private void ToggleEnabled()
+    {
         bool oldValue = root.enabledInHierarchy;
         root.SetEnabled(!oldValue);
-        // Toggle visibility
-        root.style.display = oldValue ? DisplayStyle.None : DisplayStyle.Flex;
+    }
+
+    private void ToggleVisibility()
+    {
+        StyleEnum<DisplayStyle> oldValue = root.style.display;
+        root.style.display = oldValue == DisplayStyle.None ? DisplayStyle.Flex : DisplayStyle.None;
     }
 }
