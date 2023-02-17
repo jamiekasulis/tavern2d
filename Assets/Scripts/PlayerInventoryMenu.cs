@@ -7,12 +7,10 @@ public class PlayerInventoryMenu : MonoBehaviour
 {
     public VisualTreeAsset CellTemplate;
     public static PlayerInventoryMenu Instance;
-
-    public ItemQuantity itemQuantity; // For testing only
-
     // UI Elements
     VisualElement root;
     IMGUIContainer GridContainer;
+    private TemplateContainer[] cells;
 
     private void Awake()
     {
@@ -21,48 +19,96 @@ public class PlayerInventoryMenu : MonoBehaviour
             Destroy(this);
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        root = GetComponent<UIDocument>().rootVisualElement;
+        GridContainer = root.Q<IMGUIContainer>("GridContainer");
+        root.style.display = DisplayStyle.None;
+        root.SetEnabled(false);
     }
 
     private void OnEnable()
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
-        GridContainer = root.Q<IMGUIContainer>("GridContainer");
+        Debug.Log("OnEnable");
+        DrawInventory();
+    }
 
-        // Set up a single test item cell
-        for (int i = 0; i < 20; i++)
+    private void DrawInventory()
+    {
+        // Test example
+        //for (int i = 0; i < 20; i++)
+        //{
+        //    var testCell = CellTemplate.Instantiate();
+        //    Label quantityLabel = testCell.Q<Label>("QuantityLabel");
+        //    Button rootButton = testCell.Q<Button>("RootButton");
+
+        //    quantityLabel.text = itemQuantity.quantity.ToString();
+        //    rootButton.style.backgroundImage = new StyleBackground(itemQuantity.item.sprite);
+
+        //    GridContainer.Add(testCell);
+        //}
+
+        // @TODO pick up here. Draw the inventory cells!
+        int stackSize = InventoryManager.Instance.PlayerInventory.StackCapacity;
+        cells = new TemplateContainer[stackSize];
+
+        // Create empty cells
+        for (int i = 0; i < stackSize; i++)
         {
-            var testCell = CellTemplate.Instantiate();
-            Label quantityLabel = testCell.Q<Label>("QuantityLabel");
-            Button rootButton = testCell.Q<Button>("RootButton");
-
-            quantityLabel.text = itemQuantity.quantity.ToString();
-            rootButton.style.backgroundImage = new StyleBackground(itemQuantity.item.sprite);
-
-            GridContainer.Add(testCell);
+            cells[i] = DrawEmptyCell();
         }
+
+        // Replace empty cells with items
+        for (int i = 0; i < InventoryManager.Instance.PlayerInventory.Stacks.Count; i++)
+        {
+            GridContainer.Remove(cells[i]);
+            cells[i] = DrawCellForItem(InventoryManager.Instance.PlayerInventory.Stacks[i]);
+        }
+    }
+
+    private TemplateContainer DrawCellForItem(ItemQuantity item)
+    {
+        var cell = CellTemplate.Instantiate();
+        Label quantityLabel = cell.Q<Label>("QuantityLabel");
+        Button rootButton = cell.Q<Button>("RootButton");
+        quantityLabel.text = item.quantity.ToString();
+        rootButton.style.backgroundImage = new StyleBackground(item.item.sprite);
+        GridContainer.Add(cell);
+        return cell;
+    }
+
+    private TemplateContainer DrawEmptyCell()
+    {
+        var cell = CellTemplate.Instantiate();
+        Label quantityLabel = cell.Q<Label>("QuantityLabel");
+        Button rootButton = cell.Q<Button>("RootButton");
+        quantityLabel.text = "";
+        rootButton.style.backgroundImage = new StyleBackground(StyleKeyword.None);
+        GridContainer.Add(cell);
+        return cell;
     }
 
     /**
      * Toggles both the enabled status and visibility of the menu.
-     * Enabled: This is important because it will stop listening for most events
-     * when disabled.
-     * Visibility: Obviously we want to control when it's in the way :P
      */
     public void ToggleMenuOpen()
     {
-        ToggleEnabled();
-        ToggleVisibility();
+        bool newEnabledValue = !root.enabledInHierarchy;
+        root.SetEnabled(newEnabledValue);
+        StyleEnum<DisplayStyle> oldDisplayStyle = root.style.display;
+        root.style.display = oldDisplayStyle == DisplayStyle.None ? DisplayStyle.Flex : DisplayStyle.None;
+
+        if (newEnabledValue)
+        {
+            Debug.Log("Toggled ON. Drawing Inventory...");
+            DrawInventory();
+        }
+        else
+        {
+            Debug.Log("Toggled OFF.");
+            GridContainer.Clear();
+        }
     }
 
-    private void ToggleEnabled()
-    {
-        bool oldValue = root.enabledInHierarchy;
-        root.SetEnabled(!oldValue);
-    }
-
-    private void ToggleVisibility()
-    {
-        StyleEnum<DisplayStyle> oldValue = root.style.display;
-        root.style.display = oldValue == DisplayStyle.None ? DisplayStyle.Flex : DisplayStyle.None;
-    }
+    
 }
