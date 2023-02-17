@@ -36,13 +36,11 @@ public class PlayerInventoryMenu : MonoBehaviour
 
         // Set up a single test item cell
         var testCell = CellTemplate.Instantiate();
-        Label QuantityLabel = testCell.Q<Label>("QuantityLabel");
-        VisualElement ItemSprite = testCell.Q<VisualElement>("ItemSprite");
+        Label quantityLabel = testCell.Q<Label>("QuantityLabel");
+        Button rootButton = testCell.Q<Button>("RootButton");
 
-        QuantityLabel.text = itemQuantity.quantity.ToString();
-        Image img = new();
-        img.sprite = itemQuantity.item.sprite;
-        ItemSprite.Add(img);
+        quantityLabel.text = itemQuantity.quantity.ToString();
+        rootButton.style.backgroundImage = new StyleBackground(itemQuantity.item.sprite);
 
         GridContainer.Add(testCell);
     }
