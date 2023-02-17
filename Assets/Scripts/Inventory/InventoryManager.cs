@@ -30,6 +30,6 @@ public class InventoryManager : MonoBehaviour
 
     public void TogglePlayerInventoryMenuEnabled()
     {
-        PlayerInventoryMenu.ToggleEnabled();
+        PlayerInventoryMenu.ToggleMenuOpen();
     }
 }

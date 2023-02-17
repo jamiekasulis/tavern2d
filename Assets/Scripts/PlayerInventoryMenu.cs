@@ -47,12 +47,18 @@ public class PlayerInventoryMenu : MonoBehaviour
         GridContainer.Add(testCell);
     }
 
-    public void ToggleEnabled()
+    /**
+     * Toggles both the enabled status and visibility of the menu.
+     * Enabled: This is important because it will stop listening for most events
+     * when disabled.
+     * Visibility: Obviously we want to control when it's in the way :P
+     */
+    public void ToggleMenuOpen()
     {
-        if (root == null)
-        {
-            root = GetComponent<UIDocument>().rootVisualElement; // @TODO Test if this line is needed here. Maybe OnEnabled is always called like Awake?
-        }
-        root.SetEnabled(!root.enabledInHierarchy);
+        // Toggle Enabled
+        bool oldValue = root.enabledInHierarchy;
+        root.SetEnabled(!oldValue);
+        // Toggle visibility
+        root.style.display = oldValue ? DisplayStyle.None : DisplayStyle.Flex;
     }
 }
