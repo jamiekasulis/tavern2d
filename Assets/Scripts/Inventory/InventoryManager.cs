@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class InventoryManager : MonoBehaviour
 {
-    public static InventoryManager instance;
+    public static InventoryManager Instance;
+    public PlayerInventoryMenu PlayerInventoryMenu;
     public Inventory PlayerInventory { get; private set; }
     // The current inventory to consider. This is usually the player inventory,
     // but if a chest is open or we are in a crafting room then this can change.
@@ -10,13 +12,13 @@ public class InventoryManager : MonoBehaviour
 
     void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(this);
         }
         else
         {
-            instance = this;
+            Instance = this;
         }
         DontDestroyOnLoad(this.gameObject);
 
@@ -24,5 +26,10 @@ public class InventoryManager : MonoBehaviour
         PlayerInventory = gameObject.GetComponent<Inventory>();
         PlayerInventory.Initialize(10);
         ActiveInventory = PlayerInventory;
+    }
+
+    public void TogglePlayerInventoryMenuEnabled()
+    {
+        PlayerInventoryMenu.ToggleEnabled();
     }
 }

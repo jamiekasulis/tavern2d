@@ -3355,12 +3355,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1808072329}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -1.1438315, y: 0.7592283, z: -0.07715691}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_Father: {fileID: 1977449619}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1808072332
 MonoBehaviour:
@@ -3375,6 +3375,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
+  menuTitle: Backpack
   itemQuantity:
     item: {fileID: 11400000, guid: 33b818554231144d7bbf395e939be279, type: 2}
     quantity: 3
@@ -3407,6 +3408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 240a07fe8b4db4b91b87d047026f7bc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerInventoryMenu: {fileID: 1808072332}
 --- !u!4 &1977449619
 Transform:
   m_ObjectHideFlags: 0
@@ -3418,7 +3420,8 @@ Transform:
   m_LocalPosition: {x: 1.1438315, y: -0.7592283, z: 0.07715691}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1808072331}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

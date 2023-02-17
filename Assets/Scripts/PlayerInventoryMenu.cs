@@ -6,7 +6,9 @@ using UnityEngine.UIElements;
 public class PlayerInventoryMenu : MonoBehaviour
 {
     public VisualTreeAsset CellTemplate;
-    public static PlayerInventoryMenu instance;
+    public static PlayerInventoryMenu Instance;
+    public string menuTitle = "Backpack";
+
     public ItemQuantity itemQuantity; // For testing only
 
     // UI Elements
@@ -16,12 +18,11 @@ public class PlayerInventoryMenu : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(this);
         }
-        instance = this;
-        DontDestroyOnLoad(gameObject);
+        Instance = this;
     }
 
     private void OnEnable()
@@ -31,7 +32,7 @@ public class PlayerInventoryMenu : MonoBehaviour
         TopbarContainer = root.Q<IMGUIContainer>("TopbarContainer");
         TitleLabel = TopbarContainer.Q<Label>("Title");
 
-        TitleLabel.text = "Backpack";
+        TitleLabel.text = menuTitle;
 
         // Set up a single test item cell
         var testCell = CellTemplate.Instantiate();
@@ -44,5 +45,14 @@ public class PlayerInventoryMenu : MonoBehaviour
         ItemSprite.Add(img);
 
         GridContainer.Add(testCell);
-}
+    }
+
+    public void ToggleEnabled()
+    {
+        if (root == null)
+        {
+            root = GetComponent<UIDocument>().rootVisualElement; // @TODO Test if this line is needed here. Maybe OnEnabled is always called like Awake?
+        }
+        root.SetEnabled(!root.enabledInHierarchy);
+    }
 }
