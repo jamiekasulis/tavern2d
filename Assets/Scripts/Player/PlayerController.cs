@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     {
         DetectPickUpAndPickUpAutomatic();
         HandleManualPickup();
+        HandleToggleInventoryMenu();
     }
 
     /**
@@ -82,7 +83,7 @@ public class PlayerController : MonoBehaviour
             {
                 pickup.AddToPlayerInventory();
                 pickup = null;
-                Debug.Log("Player Inventory: " + InventoryManager.instance.PlayerInventory.ToString());
+                Debug.Log("Player Inventory: " + InventoryManager.Instance.PlayerInventory.ToString());
             }
         }
     }
@@ -97,6 +98,14 @@ public class PlayerController : MonoBehaviour
         else
         {
             throw new InvalidDirectionException("Given direction " + direction.ToString() + " is not an accepted direction to face");
+        }
+    }
+
+    private void HandleToggleInventoryMenu()
+    {
+        if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_INVENTORY_MENU))
+        {
+            InventoryManager.Instance.TogglePlayerInventoryMenuEnabled();
         }
     }
 

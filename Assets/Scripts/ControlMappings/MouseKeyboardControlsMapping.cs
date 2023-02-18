@@ -15,6 +15,9 @@ public class MouseKeyboardControlsMapping : MonoBehaviour
     // Interaction
     public static KeyCode PICKUP_ITEM = KeyCode.E;
 
+    // Menus
+    public static KeyCode TOGGLE_INVENTORY_MENU = KeyCode.I;
+
     void Awake()
     {
         if (Instance != null && Instance != this)

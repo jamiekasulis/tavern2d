@@ -28,13 +28,13 @@ public class PickUp : MonoBehaviour
 
     private void AutomaticPickup()
     {
-        InventoryManager.instance.PlayerInventory.Add(itemQuantity, false);
+        InventoryManager.Instance.PlayerInventory.Add(itemQuantity, false);
         Destroy(this.gameObject); // @TODO Graceful despawn by vacuuming the item in & playing a sound effect
     }
 
     private void ManualPickup()
     {
-        InventoryManager.instance.PlayerInventory.Add(itemQuantity, false);
+        InventoryManager.Instance.PlayerInventory.Add(itemQuantity, false);
         Destroy(this.gameObject); // @TODO Play a sound effect
     }
 }
