@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class PlayerInventoryMenu : MonoBehaviour
 {
     public VisualTreeAsset CellTemplate;
-    public static PlayerInventoryMenu Instance;
+    public static PlayerInventoryMenu Instance { get; private set; }
     // UI Elements
     VisualElement root;
     IMGUIContainer GridContainer;
@@ -19,7 +19,6 @@ public class PlayerInventoryMenu : MonoBehaviour
             Destroy(this);
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
         root = GetComponent<UIDocument>().rootVisualElement;
         GridContainer = root.Q<IMGUIContainer>("GridContainer");
@@ -29,26 +28,11 @@ public class PlayerInventoryMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        Debug.Log("OnEnable");
         DrawInventory();
     }
 
     private void DrawInventory()
     {
-        // Test example
-        //for (int i = 0; i < 20; i++)
-        //{
-        //    var testCell = CellTemplate.Instantiate();
-        //    Label quantityLabel = testCell.Q<Label>("QuantityLabel");
-        //    Button rootButton = testCell.Q<Button>("RootButton");
-
-        //    quantityLabel.text = itemQuantity.quantity.ToString();
-        //    rootButton.style.backgroundImage = new StyleBackground(itemQuantity.item.sprite);
-
-        //    GridContainer.Add(testCell);
-        //}
-
-        // @TODO pick up here. Draw the inventory cells!
         int stackSize = InventoryManager.Instance.PlayerInventory.StackCapacity;
         cells = new TemplateContainer[stackSize];
 
@@ -62,18 +46,18 @@ public class PlayerInventoryMenu : MonoBehaviour
         for (int i = 0; i < InventoryManager.Instance.PlayerInventory.Stacks.Count; i++)
         {
             GridContainer.Remove(cells[i]);
-            cells[i] = DrawCellForItem(InventoryManager.Instance.PlayerInventory.Stacks[i]);
+            cells[i] = DrawCellForItem(i, InventoryManager.Instance.PlayerInventory.Stacks[i]);
         }
     }
 
-    private TemplateContainer DrawCellForItem(ItemQuantity item)
+    private TemplateContainer DrawCellForItem(int index, ItemQuantity item)
     {
         var cell = CellTemplate.Instantiate();
         Label quantityLabel = cell.Q<Label>("QuantityLabel");
         Button rootButton = cell.Q<Button>("RootButton");
         quantityLabel.text = item.quantity.ToString();
         rootButton.style.backgroundImage = new StyleBackground(item.item.sprite);
-        GridContainer.Add(cell);
+        GridContainer.Insert(index, cell);
         return cell;
     }
 
@@ -100,12 +84,10 @@ public class PlayerInventoryMenu : MonoBehaviour
 
         if (newEnabledValue)
         {
-            Debug.Log("Toggled ON. Drawing Inventory...");
             DrawInventory();
         }
         else
         {
-            Debug.Log("Toggled OFF.");
             GridContainer.Clear();
         }
     }
