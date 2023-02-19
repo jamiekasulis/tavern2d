@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class PlayerController : MonoBehaviour
     // Item pickup
     public Vector2 boxcastSize = new(1, 1);
     public float boxcastDistance = 1f;
+
+    // UnityEvent stuff
+    [SerializeField] private UnityEvent<PickUp> pickupEvent;
 
     private void Awake()
     {
@@ -67,7 +71,6 @@ public class PlayerController : MonoBehaviour
                     {
                         pickup = pu;
                         setManualPickup = true;
-                        Debug.Log("Set manual pickup to " + pu.gameObject.name);
                     }
                 }
             }
@@ -81,9 +84,8 @@ public class PlayerController : MonoBehaviour
         {
             if (pickup != null)
             {
-                pickup.AddToPlayerInventory();
+                pickupEvent.Invoke(pickup);
                 pickup = null;
-                Debug.Log("Player Inventory: " + InventoryManager.Instance.PlayerInventory.ToString());
             }
         }
     }

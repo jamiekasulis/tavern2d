@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -31,5 +30,35 @@ public class InventoryManager : MonoBehaviour
     public void TogglePlayerInventoryMenuEnabled()
     {
         PlayerInventoryMenu.ToggleMenuOpen();
+    }
+
+    public void PickupToPlayerInventory(PickUp pickup)
+    {
+        void pickupAndDestroy(PickUp pickup)
+        {
+            PlayerInventory.Add(pickup.itemQuantity);
+            Destroy(pickup.gameObject, 0);
+        }
+
+        Debug.Log("Invoked PickupToPlayerInventory with pickup = " + pickup.itemQuantity.item.itemName);
+        int idx = PlayerInventory.GetIndexInInventory(pickup.itemQuantity.item);
+        if (idx < 0)
+        {
+            // Check if there's space in player inventory
+            if (PlayerInventory.Stacks.Count < PlayerInventory.Stacks.Capacity)
+            {
+                pickupAndDestroy(pickup);
+            }
+            else
+            {
+                // There is no room
+                Debug.Log("Cannot pick up item. No room in backpack!");
+            }
+        }
+        else
+        {
+            // Currently there is no limit on each stack's quantity, so this is fine
+            pickupAndDestroy(pickup);
+        }
     }
 }
