@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
     public float boxcastDistance = 1f;
 
     // UnityEvent stuff
-    [SerializeField] private UnityEvent<PickUp> pickupEvent;
+    [SerializeField] private UnityEvent<PickUp> pickupEventTrigger;
 
     private void Awake()
     {
@@ -63,7 +63,8 @@ public class PlayerController : MonoBehaviour
             {
                 if (pu.automaticPickup)
                 {
-                    pu.AddToPlayerInventory();
+                    pickupEventTrigger.Invoke(pu);
+                    pickup = null;
                 }
                 else
                 {
@@ -84,7 +85,7 @@ public class PlayerController : MonoBehaviour
         {
             if (pickup != null)
             {
-                pickupEvent.Invoke(pickup);
+                pickupEventTrigger.Invoke(pickup);
                 pickup = null;
             }
         }

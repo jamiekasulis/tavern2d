@@ -8,7 +8,7 @@ public class Chest : MonoBehaviour
 
     private void Awake()
     {
-        inventory.Initialize(30);
+
     }
 
     public void Open()
