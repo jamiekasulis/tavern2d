@@ -34,6 +34,7 @@ public class PlayerInventoryMenu : MonoBehaviour
     public void DrawInventory(Inventory inventory)
     {
         int stackSize = inventory.StackCapacity;
+        GridContainer.Clear();
         cells = new TemplateContainer[stackSize];
 
         // Create empty cells
