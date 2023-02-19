@@ -5,4 +5,9 @@ using UnityEngine;
 public class ItemDatabase : ScriptableObject
 {
     public List<Item> allItems;
+
+    public Item? GetById(string id)
+    {
+        return allItems.Find(i => i.id == id);
+    }
 }
