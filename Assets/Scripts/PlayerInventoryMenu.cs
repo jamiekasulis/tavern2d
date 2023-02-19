@@ -28,12 +28,13 @@ public class PlayerInventoryMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        DrawInventory();
+        //DrawInventory();
     }
 
-    private void DrawInventory()
+    public void DrawInventory(Inventory inventory)
     {
-        int stackSize = InventoryManager.Instance.PlayerInventory.StackCapacity;
+        int stackSize = inventory.StackCapacity;
+        GridContainer.Clear();
         cells = new TemplateContainer[stackSize];
 
         // Create empty cells
@@ -43,10 +44,10 @@ public class PlayerInventoryMenu : MonoBehaviour
         }
 
         // Replace empty cells with items
-        for (int i = 0; i < InventoryManager.Instance.PlayerInventory.Stacks.Count; i++)
+        for (int i = 0; i < inventory.Stacks.Count; i++)
         {
             GridContainer.Remove(cells[i]);
-            cells[i] = DrawCellForItem(i, InventoryManager.Instance.PlayerInventory.Stacks[i]);
+            cells[i] = DrawCellForItem(i, inventory.Stacks[i]);
         }
     }
 
@@ -75,7 +76,7 @@ public class PlayerInventoryMenu : MonoBehaviour
     /**
      * Toggles both the enabled status and visibility of the menu.
      */
-    public void ToggleMenuOpen()
+    public void ToggleMenuOpen(Inventory inventory)
     {
         bool newEnabledValue = !root.enabledInHierarchy;
         root.SetEnabled(newEnabledValue);
@@ -84,7 +85,7 @@ public class PlayerInventoryMenu : MonoBehaviour
 
         if (newEnabledValue)
         {
-            DrawInventory();
+            DrawInventory(inventory);
         }
         else
         {
