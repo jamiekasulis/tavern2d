@@ -2,14 +2,17 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
-public class Inventory : MonoBehaviour
+
+[System.Serializable]
+public class Inventory
 {
     public int StackCapacity { get; private set; } // Number of stacks the inventory can hold. This is NOT
     // the same as the quantity of items it can hold.
     public List<ItemQuantity> Stacks { get; private set; }
 
-    private void Awake()
+    public Inventory(int stackCapacity)
     {
+        StackCapacity = stackCapacity;
         Stacks = new(StackCapacity);
     }
 

@@ -6,6 +6,8 @@ using UnityEngine.Events;
 public class PlayerController : MonoBehaviour
 {
     private PickUp pickup;
+    private Interactable interactable;
+
     public Vector2 facedDirection { get; private set; }
     private List<Vector2> validDirections = new(8)
     {
@@ -16,8 +18,12 @@ public class PlayerController : MonoBehaviour
     };
 
     // Item pickup
-    public Vector2 boxcastSize = new(1, 1);
-    public float boxcastDistance = 1f;
+    public Vector2 pickupBoxCastSize = new(1, 1);
+    public float pickupBoxCastDistance = 1f;
+
+    // Interaction
+    public Vector2 interactBoxCastSize = new(0.5f, 0.5f);
+    public float interactBoxCastDistance = 0.5f;
 
     // UnityEvent stuff
     [SerializeField] private UnityEvent<PickUp> pickupEventTrigger;
@@ -32,6 +38,9 @@ public class PlayerController : MonoBehaviour
         DetectPickUpAndPickUpAutomatic();
         HandleManualPickup();
         HandleToggleInventoryMenu();
+
+        DetectInteraction();
+        HandleInteraction();
     }
 
     /**
@@ -42,7 +51,7 @@ public class PlayerController : MonoBehaviour
     private void DetectPickUpAndPickUpAutomatic()
     {
 
-        RaycastHit2D[] hits = Physics2D.BoxCastAll(gameObject.transform.position, boxcastSize, 0, facedDirection, boxcastDistance);
+        RaycastHit2D[] hits = Physics2D.BoxCastAll(gameObject.transform.position, pickupBoxCastSize, 0, facedDirection, pickupBoxCastDistance);
         if (hits.Length == 0)
         {
             pickup = null;
@@ -77,6 +86,38 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+    }
+
+    private void DetectInteraction()
+    {
+        RaycastHit2D[] hits = Physics2D.BoxCastAll(gameObject.transform.position, interactBoxCastSize, 0, facedDirection, interactBoxCastDistance);
+
+        // No hits
+        if (hits.Length == 0)
+        {
+            interactable = null;
+            return;
+        }
+
+        // Check hits and let the select the one that is IInteractable
+        foreach (var hit in hits)
+        {
+            bool isInteractable = hit.collider.gameObject.TryGetComponent<Interactable>(out Interactable i);
+            if (isInteractable)
+            {
+                interactable = i;
+                Debug.Log($"Found interactable {interactable.gameObject.name}");
+                return;
+            }
+        }
+    }
+
+    private void HandleInteraction()
+    {
+        if (Input.GetKeyDown(MouseKeyboardControlsMapping.INTERACT) && interactable != null)
+        {
+            interactable.Interact();
+        }
     }
 
     private void HandleManualPickup()
