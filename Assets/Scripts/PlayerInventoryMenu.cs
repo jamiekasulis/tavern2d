@@ -10,6 +10,9 @@ public class PlayerInventoryMenu : MonoBehaviour
     // UI Elements
     VisualElement root;
     IMGUIContainer GridContainer;
+    Label title;
+    [SerializeField] private string menuTitle;
+
     private TemplateContainer[] cells;
 
     private void Awake()
@@ -22,6 +25,7 @@ public class PlayerInventoryMenu : MonoBehaviour
 
         root = GetComponent<UIDocument>().rootVisualElement;
         GridContainer = root.Q<IMGUIContainer>("GridContainer");
+        title = root.Q<Label>("Title");
         root.style.display = DisplayStyle.None;
         root.SetEnabled(false);
     }
@@ -33,8 +37,9 @@ public class PlayerInventoryMenu : MonoBehaviour
 
     public void DrawInventory(Inventory inventory)
     {
-        int stackSize = inventory.StackCapacity;
         GridContainer.Clear();
+        title.text = menuTitle;
+        int stackSize = inventory.StackCapacity;
         cells = new TemplateContainer[stackSize];
 
         // Create empty cells

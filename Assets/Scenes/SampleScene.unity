@@ -896,8 +896,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 444a152a645d54c3496034dbe3aeac95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boxcastSize: {x: 3, y: 3}
-  boxcastDistance: 0.5
+  pickupBoxCastSize: {x: 1, y: 1}
+  pickupBoxCastDistance: 1
+  interactBoxCastSize: {x: 0.5, y: 0.5}
+  interactBoxCastDistance: 0.5
   pickupEventTrigger:
     m_PersistentCalls:
       m_Calls:
@@ -3516,6 +3518,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
+  menuTitle: Backpack
 --- !u!1 &1977449617
 GameObject:
   m_ObjectHideFlags: 0
