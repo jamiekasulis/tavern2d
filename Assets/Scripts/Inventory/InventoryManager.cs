@@ -4,7 +4,7 @@ using UnityEngine.Events;
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
-    public PlayerInventoryMenu PlayerInventoryMenu;
+    [SerializeField] InventoryMenu PlayerInventoryMenu;
     public Inventory PlayerInventory { get; private set; }
     // The current inventory to consider. This is usually the player inventory,
     // but if a chest is open or we are in a crafting room then this can change.

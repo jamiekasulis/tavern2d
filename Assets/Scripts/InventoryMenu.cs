@@ -1,44 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class PlayerInventoryMenu : MonoBehaviour
+public class InventoryMenu : MonoBehaviour
 {
-    public VisualTreeAsset CellTemplate;
-    public static PlayerInventoryMenu Instance { get; private set; }
+    [SerializeField] private VisualTreeAsset CellTemplate;
+    [SerializeField] private string MenuTitle;
     // UI Elements
-    VisualElement root;
-    IMGUIContainer GridContainer;
-    Label title;
-    [SerializeField] private string menuTitle;
-
+    private VisualElement root;
+    private IMGUIContainer GridContainer;
+    private Label title;
     private TemplateContainer[] cells;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-        }
-        Instance = this;
-
         root = GetComponent<UIDocument>().rootVisualElement;
         GridContainer = root.Q<IMGUIContainer>("GridContainer");
         title = root.Q<Label>("Title");
+
         root.style.display = DisplayStyle.None;
         root.SetEnabled(false);
     }
 
     private void OnEnable()
     {
-        //DrawInventory();
+
     }
 
     public void DrawInventory(Inventory inventory)
     {
         GridContainer.Clear();
-        title.text = menuTitle;
+        title.text = MenuTitle;
         int stackSize = inventory.StackCapacity;
         cells = new TemplateContainer[stackSize];
 
@@ -79,8 +70,8 @@ public class PlayerInventoryMenu : MonoBehaviour
     }
 
     /**
-     * Toggles both the enabled status and visibility of the menu.
-     */
+    * Toggles both the enabled status and visibility of the menu.
+    */
     public void ToggleMenuOpen(Inventory inventory)
     {
         bool newEnabledValue = !root.enabledInHierarchy;
@@ -97,6 +88,4 @@ public class PlayerInventoryMenu : MonoBehaviour
             GridContainer.Clear();
         }
     }
-
-    
 }

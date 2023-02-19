@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca0ca825d5fd948c5af6e53101666123, type: 3}
   m_Name: WoodenCrate
   m_EditorClassIdentifier: 
-  id: 
-  itemName: 
-  description: 
-  sprite: {fileID: 0}
+  id: 2
+  itemName: Wooden Crate
+  description: It smells of salt and sawdust
+  sprite: {fileID: 21300000, guid: 8b8685546c6574344a6039408af69e42, type: 3}
