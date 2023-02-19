@@ -23,9 +23,7 @@ public class InventoryManager : MonoBehaviour
         }
         DontDestroyOnLoad(this.gameObject);
 
-        gameObject.AddComponent<Inventory>().Initialize(10);
-        PlayerInventory = gameObject.GetComponent<Inventory>();
-        PlayerInventory.Initialize(10);
+        PlayerInventory = new(10);
         ActiveInventory = PlayerInventory;
     }
 

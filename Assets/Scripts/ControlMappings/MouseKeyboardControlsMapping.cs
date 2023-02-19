@@ -12,8 +12,11 @@ public class MouseKeyboardControlsMapping : MonoBehaviour
     public static KeyCode MOVE_PLAYER_UP = KeyCode.W;
     public static KeyCode MOVE_PLAYER_DOWN = KeyCode.S;
 
-    // Interaction
+    // Pickup Item
     public static KeyCode PICKUP_ITEM = KeyCode.E;
+
+    // Interactions
+    public static KeyCode INTERACT = KeyCode.F;
 
     // Menus
     public static KeyCode TOGGLE_INVENTORY_MENU = KeyCode.I;
