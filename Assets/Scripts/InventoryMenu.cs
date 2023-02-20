@@ -15,7 +15,7 @@ public class InventoryMenu : MonoBehaviour
 
     // UI Elements
     private VisualElement root;
-    private IMGUIContainer GridContainer;
+    private ScrollView GridContainer;
     private Label title;
     private VisualElement[] rows; // GridRows
     private VisualElement[,] cellsByRow; // We assume these to be using InventoryCell.uxml
@@ -23,7 +23,7 @@ public class InventoryMenu : MonoBehaviour
     private void Awake()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
-        GridContainer = root.Q<IMGUIContainer>("GridContainer");
+        GridContainer = root.Q<ScrollView>("GridContainerScrollView");
         GridContainer.Clear(); // Do this since Awake() gets called 2x sometimes?
         title = root.Q<Label>("Title");
 
@@ -69,7 +69,6 @@ public class InventoryMenu : MonoBehaviour
      */
     public void DrawInventory(Inventory inventory)
     {
-        Debug.Log("Trying to draw inventory. " + inventory.ToString());
         title.text = MenuTitle;
 
         // Fill in each cell. This requires mapping from 1-dimensional
@@ -86,14 +85,12 @@ public class InventoryMenu : MonoBehaviour
             {
                 // Draw in the item info
                 ItemQuantity iq = inventory.Stacks[i];
-                Debug.Log($"Filling in item info for ({row},{col}). item={iq}");
                 qtyLabel.text = iq.quantity.ToString();
                 rootButton.style.backgroundImage = new StyleBackground(iq.item.sprite);
             }
             else
             {
                 // Draw empty cell
-                Debug.Log($"DRAWING EMPTY CELL FOR ({row},{col})!");
                 qtyLabel.text = "";
                 rootButton.style.backgroundImage = StyleKeyword.None;
             }
