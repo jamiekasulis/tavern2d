@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Linq;
 
 [RequireComponent(typeof(GridSizeSpecification))]
 public class InventoryMenu : MonoBehaviour
@@ -32,7 +33,7 @@ public class InventoryMenu : MonoBehaviour
             visualElement = cellVisualElement;
             this.itemData = itemData;
             this.row = row;
-            this.col = column;
+            col = column;
         }
     }
 
@@ -105,7 +106,7 @@ public class InventoryMenu : MonoBehaviour
             }
             else
             {
-                EmptyCell(row, col);
+                EmptyCell(row, col, false);
             }
         }
     }
@@ -119,16 +120,26 @@ public class InventoryMenu : MonoBehaviour
         cell.itemData = itemData;
         qtyLabel.text = itemData.quantity.ToString();
         rootButton.style.backgroundImage = new StyleBackground(itemData.item.sprite);
+        //rootButton.style.unityBackgroundImageTintColor = Color.clear;
+        rootButton.style.unityBackgroundImageTintColor = StyleKeyword.Null;
     }
 
-    private void EmptyCell(int row, int col)
+    private void EmptyCell(int row, int col, bool greyOut)
     {
         CellData cell = cellsByRow[row, col];
         Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
         Button rootButton = cell.visualElement.Q<Button>("RootButton");
 
-        qtyLabel.text = "";
-        rootButton.style.backgroundImage = StyleKeyword.None;
+        if (greyOut)
+        {
+            rootButton.style.unityBackgroundImageTintColor = Color.gray;
+        }
+        else
+        {
+            qtyLabel.text = "";
+            rootButton.style.backgroundImage = StyleKeyword.None;
+        }
+        
         cell.itemData = null;
     }
 
@@ -150,41 +161,44 @@ public class InventoryMenu : MonoBehaviour
 
     private void HandleCellClick(MouseDownEvent evt, CellData cell)
     {
-        Debug.Log($"Clicked on cell ({cell.row},{cell.col})");
         bool isHoldingItem = selectedCell != null;
         bool cellHasItem = cell.itemData != null;
 
         // No-op
         if (!isHoldingItem && !cellHasItem)
         {
-            Debug.Log("No-op");
             return;
         }
 
         // Picking up an item
-        // @TODO Turn cursor into the sprite or something to show you are holding it
         else if (!isHoldingItem && cellHasItem)
         {
-            Debug.Log($"Picking up {cell.itemData}");
             selectedCell = new CellData(cell.visualElement, cell.itemData, cell.row, cell.col);
-            EmptyCell(cell.row, cell.col);
+            EmptyCell(cell.row, cell.col, true);
         }
 
         // Placing an item
         // Subcase: Swap
         else if (isHoldingItem && cellHasItem)
         {
-            Debug.Log("Swapping");
             CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
             DrawCell(cell.row, cell.col, selectedCell.itemData);
-            selectedCell = temp;
+            DrawCell(selectedCell.row, selectedCell.col, temp.itemData);
+            selectedCell = null;
         }
 
         // Subcase: Place into empty slot
         else if (isHoldingItem && !cellHasItem)
         {
-            Debug.Log("Placing into empty spot");
-            DrawCell(cell.row, cell.col, selectedCell.itemData);
+            if (cell.row == selectedCell.row && cell.col == selectedCell.col)
+            {
+                // Has not moved
+                DrawCell(cell.row, cell.col, selectedCell.itemData);
+            } else
+            {
+                DrawCell(cell.row, cell.col, selectedCell.itemData);
+                EmptyCell(selectedCell.row, selectedCell.col, false);
+            }
             selectedCell = null;
         }
     }
