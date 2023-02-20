@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using System.Linq;
+using UnityEngine.Events;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(GridSizeSpecification))]
 public class InventoryMenu : MonoBehaviour
@@ -8,10 +9,12 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private VisualTreeAsset CellTemplate;
     [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
-    private CellData? selectedCell = null;
+    [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeTrigger;
 
-    // Grid size - See doc on GridSizeSpecification class for why I
-    // do it this way
+    private CellData? selectedCell = null;
+    private Inventory inventory;
+
+
     GridSizeSpecification gridSize;
 
 
@@ -91,24 +94,37 @@ public class InventoryMenu : MonoBehaviour
      */
     public void DrawInventory(Inventory inventory)
     {
+        this.inventory = inventory;
+
         title.text = MenuTitle;
 
         // Fill in each cell. This requires mapping from 1-dimensional
         // indices in inventory to 2-dimensional indices in cellsByRow.
         for (int i = 0; i < inventory.Stacks.Capacity; i++)
         {
-            int col = i % gridSize.GetNumCols();
-            int row = i / gridSize.GetNumCols();
+            (int, int) rowCol = InventoryToGridIndex(i);
 
             if (i < inventory.Stacks.Count)
             {
-                DrawCell(row, col, inventory.Stacks[i]);
+                DrawCell(rowCol.Item1, rowCol.Item2, inventory.Stacks[i]);
             }
             else
             {
-                EmptyCell(row, col, false);
+                EmptyCell(rowCol.Item1, rowCol.Item2, false);
             }
         }
+    }
+
+    private (int, int) InventoryToGridIndex(int inventoryIndex)
+    {
+        return (inventoryIndex / gridSize.GetNumCols(), inventoryIndex % gridSize.GetNumCols());
+    }
+
+    private int GridToInventoryIndex(int row, int col)
+    {
+        int result = gridSize.GetNumCols() * row + col;
+        Debug.Log($"Converted ({row},{col}) to {result}");
+        return result;
     }
 
     private void DrawCell(int row, int col, ItemQuantity itemData)
@@ -164,6 +180,12 @@ public class InventoryMenu : MonoBehaviour
         bool isHoldingItem = selectedCell != null;
         bool cellHasItem = cell.itemData != null;
 
+        // Tracks which indices of the INVENTORY object were changed,
+        // with the item quantity being what to change it to.
+        // This will be passed to a callback at the end which will
+        // reflect the visual changes in the UI to the actual Inv data.
+        List<(int, ItemQuantity)> changedIndices = new();
+
         // No-op
         if (!isHoldingItem && !cellHasItem)
         {
@@ -175,6 +197,11 @@ public class InventoryMenu : MonoBehaviour
         {
             selectedCell = new CellData(cell.visualElement, cell.itemData, cell.row, cell.col);
             EmptyCell(cell.row, cell.col, true);
+
+            changedIndices.Add((
+                GridToInventoryIndex(cell.row, cell.col),
+                null
+            ));
         }
 
         // Placing an item
@@ -184,6 +211,16 @@ public class InventoryMenu : MonoBehaviour
             CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
             DrawCell(cell.row, cell.col, selectedCell.itemData);
             DrawCell(selectedCell.row, selectedCell.col, temp.itemData);
+
+            changedIndices.Add((
+                GridToInventoryIndex(temp.row, temp.col),
+                selectedCell.itemData
+            ));
+            changedIndices.Add((
+                GridToInventoryIndex(selectedCell.row, selectedCell.col),
+                temp.itemData
+            ));
+
             selectedCell = null;
         }
 
@@ -199,7 +236,14 @@ public class InventoryMenu : MonoBehaviour
                 DrawCell(cell.row, cell.col, selectedCell.itemData);
                 EmptyCell(selectedCell.row, selectedCell.col, false);
             }
+
+            changedIndices.Add((
+                GridToInventoryIndex(cell.row, cell.col),
+                selectedCell.itemData
+            ));
             selectedCell = null;
         }
+
+        rearrangeTrigger.Invoke(inventory, changedIndices);
     }
 }

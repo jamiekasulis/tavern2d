@@ -188,6 +188,21 @@ MonoBehaviour:
   CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
   GridRowTemplate: {fileID: 9197481963319205126, guid: 8970577c214ce4dfeb783a9cf5397b23, type: 3}
   MenuTitle: Chest
+  rearrangeTrigger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1977449618}
+        m_TargetAssemblyTypeName: InventoryManager, GameScriptsAssemblyDefinition
+        m_MethodName: MakeChangesToInventory
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &309285814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3829,6 +3844,21 @@ MonoBehaviour:
   CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
   GridRowTemplate: {fileID: 9197481963319205126, guid: 8970577c214ce4dfeb783a9cf5397b23, type: 3}
   MenuTitle: Backpack
+  rearrangeTrigger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1977449618}
+        m_TargetAssemblyTypeName: InventoryManager, GameScriptsAssemblyDefinition
+        m_MethodName: MakeChangesToInventory
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1808072333
 MonoBehaviour:
   m_ObjectHideFlags: 0

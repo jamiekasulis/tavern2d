@@ -76,6 +76,29 @@ public class Inventory
         builder.Append("]");
         return builder.ToString();
     }
+
+    /**
+     * Used primarily as a callback supporting the UI.
+     * This will make all the changes to the inventory listed out
+     * in changedIndices.
+     * 
+     * Assume changedIndices[0] is the inventory index changed,
+     * and changedIndices[1] is the new value for that index.
+     * 
+     * Example of how this is used:
+     * - Player rearranges items in their inventory using the UI.
+     * - The UI records each of those changes to the cells, mapping
+     * them to indices in the inventory list.
+     * - The UI triggers this callback. The player's changes in the
+     * inventory UI are now effected in the backend as well.
+     */
+    public void MakeChanges(List<(int, ItemQuantity)> changedIndices)
+    {
+        foreach ((int, ItemQuantity) tuple in changedIndices)
+        {
+            Stacks[tuple.Item1] = tuple.Item2;
+        }
+    }
 }
 
 public class InvalidQuantityException : Exception

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections.Generic;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -61,5 +62,10 @@ public class InventoryManager : MonoBehaviour
             // Currently there is no limit on each stack's quantity, so this is fine
             handlePickup(pickup);
         }
+    }
+
+    public void MakeChangesToInventory(Inventory inv, List<(int, ItemQuantity)> changedIndices)
+    {
+        inv.MakeChanges(changedIndices);
     }
 }
