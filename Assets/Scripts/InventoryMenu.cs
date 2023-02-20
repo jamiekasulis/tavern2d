@@ -7,6 +7,7 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private VisualTreeAsset CellTemplate;
     [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
+    private CellData? selectedCell = null;
 
     // Grid size - See doc on GridSizeSpecification class for why I
     // do it this way
@@ -18,7 +19,22 @@ public class InventoryMenu : MonoBehaviour
     private ScrollView GridContainer;
     private Label title;
     private VisualElement[] rows; // GridRows
-    private VisualElement[,] cellsByRow; // We assume these to be using InventoryCell.uxml
+    private CellData[,] cellsByRow; // We assume these to be using InventoryCell.uxml
+
+    class CellData
+    {
+        public VisualElement visualElement;
+        public ItemQuantity? itemData;
+        public int row, column;
+
+        public CellData(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column)
+        {
+            visualElement = cellVisualElement;
+            this.itemData = itemData;
+            this.row = row;
+            this.column = column;
+        }
+    }
 
     private void Awake()
     {
@@ -34,21 +50,27 @@ public class InventoryMenu : MonoBehaviour
          * InventoryCell templates.
          */
         rows = new VisualElement[gridSize.GetNumRows()];
-        cellsByRow = new VisualElement[gridSize.GetNumRows(), gridSize.GetNumCols()];
+        cellsByRow = new CellData[gridSize.GetNumRows(), gridSize.GetNumCols()];
+
+        // Compose the 2D array of cells mapped to rows
+        // Create GridRows
         for (int r = 0; r < gridSize.GetNumRows(); r++)
         {
             rows[r] = GridRowTemplate.Instantiate();
             GridContainer.contentContainer.Add(rows[r]);
         }
 
-        // Compose the 2D array of cells mapped to rows
+        // Populate GridRows with InventoryCells
         for(int r = 0; r < gridSize.GetNumRows(); r++)
         {
             for (int c = 0; c < gridSize.GetNumCols(); c++)
             {
-                cellsByRow[r, c] = CellTemplate.Instantiate();
-                //rows[r].contentContainer.Add(cellsByRow[r,c]);
-                rows[r].Q<IMGUIContainer>("Row").Add(cellsByRow[r, c]);
+                CellData cell = new(CellTemplate.Instantiate(), null, r, c);
+                cellsByRow[r, c] = cell;
+                rows[r].Q<IMGUIContainer>("Row").Add(cellsByRow[r,c].visualElement);
+
+                // Register cell callbacks
+                cellsByRow[r, c].visualElement.RegisterCallback<MouseDownEvent, CellData>(CellClickCallback, cell);
             }
         }
 
@@ -78,23 +100,37 @@ public class InventoryMenu : MonoBehaviour
             int col = i % gridSize.GetNumCols();
             int row = i / gridSize.GetNumCols();
 
-            VisualElement cell = cellsByRow[row, col];
-            Label qtyLabel = cell.Q<Label>("QuantityLabel");
-            Button rootButton = cell.Q<Button>("RootButton");
             if (i < inventory.Stacks.Count)
             {
-                // Draw in the item info
-                ItemQuantity iq = inventory.Stacks[i];
-                qtyLabel.text = iq.quantity.ToString();
-                rootButton.style.backgroundImage = new StyleBackground(iq.item.sprite);
+                DrawCell(row, col, inventory.Stacks[i]);
             }
             else
             {
-                // Draw empty cell
-                qtyLabel.text = "";
-                rootButton.style.backgroundImage = StyleKeyword.None;
+                EmptyCell(row, col);
             }
         }
+    }
+
+    private void DrawCell(int row, int col, ItemQuantity itemData)
+    {
+        CellData cell = cellsByRow[row, col];
+        Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
+        Button rootButton = cell.visualElement.Q<Button>("RootButton");
+
+        cell.itemData = itemData;
+        qtyLabel.text = itemData.quantity.ToString();
+        rootButton.style.backgroundImage = new StyleBackground(itemData.item.sprite);
+    }
+
+    private void EmptyCell(int row, int col)
+    {
+        CellData cell = cellsByRow[row, col];
+        Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
+        Button rootButton = cell.visualElement.Q<Button>("RootButton");
+
+        qtyLabel.text = "";
+        rootButton.style.backgroundImage = StyleKeyword.None;
+        cell.itemData = null;
     }
 
     /**
@@ -110,6 +146,24 @@ public class InventoryMenu : MonoBehaviour
         if (newEnabledValue)
         {
             DrawInventory(inventory);
+        }
+    }
+
+    private void CellClickCallback(MouseDownEvent evt, CellData cell)
+    {
+        bool isHoldingItem = selectedCell == null;
+        bool clickedCellIsEmpty = cell.itemData == null;
+
+        if (!isHoldingItem && clickedCellIsEmpty)
+        {
+            return; // no-op
+        }
+
+        if (!isHoldingItem && !clickedCellIsEmpty)
+        {
+            // We are picking up an item
+            selectedCell = cell;
+            EmptyCell(cell.row, cell.column);
         }
     }
 }
