@@ -116,10 +116,6 @@ public class InventoryMenu : MonoBehaviour
         Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
         Button rootButton = cell.visualElement.Q<Button>("RootButton");
 
-        Debug.Log($"itemData null? " + itemData == null);
-        Debug.Log($"itemData.quantity null? " + itemData.quantity == null);
-        Debug.Log($"qtyLabel null? " + qtyLabel == null);
-
         cell.itemData = itemData;
         qtyLabel.text = itemData.quantity.ToString();
         rootButton.style.backgroundImage = new StyleBackground(itemData.item.sprite);
@@ -179,7 +175,9 @@ public class InventoryMenu : MonoBehaviour
         else if (isHoldingItem && cellHasItem)
         {
             Debug.Log("Swapping");
-            // @TODO
+            CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
+            DrawCell(cell.row, cell.col, selectedCell.itemData);
+            selectedCell = temp;
         }
 
         // Subcase: Place into empty slot
