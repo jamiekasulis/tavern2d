@@ -1,21 +1,56 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
+[RequireComponent(typeof(GridSizeSpecification))]
 public class InventoryMenu : MonoBehaviour
 {
     [SerializeField] private VisualTreeAsset CellTemplate;
+    [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
+
+    // Grid size - See doc on GridSizeSpecification class for why I
+    // do it this way
+    GridSizeSpecification gridSize;
+
+
     // UI Elements
     private VisualElement root;
-    private IMGUIContainer GridContainer;
+    private ScrollView GridContainer;
     private Label title;
-    private TemplateContainer[] cells;
+    private VisualElement[] rows; // GridRows
+    private VisualElement[,] cellsByRow; // We assume these to be using InventoryCell.uxml
 
     private void Awake()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
-        GridContainer = root.Q<IMGUIContainer>("GridContainer");
+        GridContainer = root.Q<ScrollView>("GridContainerScrollView");
+        GridContainer.Clear(); // Do this since Awake() gets called 2x sometimes?
         title = root.Q<Label>("Title");
+
+        gridSize = gameObject.GetComponent<GridSizeSpecification>();
+
+        /* Create the grid of cells.
+         * These are just some GridRow templates holding
+         * InventoryCell templates.
+         */
+        rows = new VisualElement[gridSize.GetNumRows()];
+        cellsByRow = new VisualElement[gridSize.GetNumRows(), gridSize.GetNumCols()];
+        for (int r = 0; r < gridSize.GetNumRows(); r++)
+        {
+            rows[r] = GridRowTemplate.Instantiate();
+            GridContainer.contentContainer.Add(rows[r]);
+        }
+
+        // Compose the 2D array of cells mapped to rows
+        for(int r = 0; r < gridSize.GetNumRows(); r++)
+        {
+            for (int c = 0; c < gridSize.GetNumCols(); c++)
+            {
+                cellsByRow[r, c] = CellTemplate.Instantiate();
+                //rows[r].contentContainer.Add(cellsByRow[r,c]);
+                rows[r].Q<IMGUIContainer>("Row").Add(cellsByRow[r, c]);
+            }
+        }
 
         root.style.display = DisplayStyle.None;
         root.SetEnabled(false);
@@ -26,47 +61,40 @@ public class InventoryMenu : MonoBehaviour
 
     }
 
+    /**
+     * Draws the inventory. We assume that the UIDocument already contains 
+     * a set of empty InventoryCell templates. This iterates over the inventory
+     * and replaces the data in each pre-existing cell to match what's stored
+     * at that index in the inventory.
+     */
     public void DrawInventory(Inventory inventory)
     {
-        GridContainer.Clear();
         title.text = MenuTitle;
-        int stackSize = inventory.StackCapacity;
-        cells = new TemplateContainer[stackSize];
 
-        // Create empty cells
-        for (int i = 0; i < stackSize; i++)
+        // Fill in each cell. This requires mapping from 1-dimensional
+        // indices in inventory to 2-dimensional indices in cellsByRow.
+        for (int i = 0; i < inventory.Stacks.Capacity; i++)
         {
-            cells[i] = DrawEmptyCell();
+            int col = i % gridSize.GetNumCols();
+            int row = i / gridSize.GetNumCols();
+
+            VisualElement cell = cellsByRow[row, col];
+            Label qtyLabel = cell.Q<Label>("QuantityLabel");
+            Button rootButton = cell.Q<Button>("RootButton");
+            if (i < inventory.Stacks.Count)
+            {
+                // Draw in the item info
+                ItemQuantity iq = inventory.Stacks[i];
+                qtyLabel.text = iq.quantity.ToString();
+                rootButton.style.backgroundImage = new StyleBackground(iq.item.sprite);
+            }
+            else
+            {
+                // Draw empty cell
+                qtyLabel.text = "";
+                rootButton.style.backgroundImage = StyleKeyword.None;
+            }
         }
-
-        // Replace empty cells with items
-        for (int i = 0; i < inventory.Stacks.Count; i++)
-        {
-            GridContainer.Remove(cells[i]);
-            cells[i] = DrawCellForItem(i, inventory.Stacks[i]);
-        }
-    }
-
-    private TemplateContainer DrawCellForItem(int index, ItemQuantity item)
-    {
-        var cell = CellTemplate.Instantiate();
-        Label quantityLabel = cell.Q<Label>("QuantityLabel");
-        Button rootButton = cell.Q<Button>("RootButton");
-        quantityLabel.text = item.quantity.ToString();
-        rootButton.style.backgroundImage = new StyleBackground(item.item.sprite);
-        GridContainer.Insert(index, cell);
-        return cell;
-    }
-
-    private TemplateContainer DrawEmptyCell()
-    {
-        var cell = CellTemplate.Instantiate();
-        Label quantityLabel = cell.Q<Label>("QuantityLabel");
-        Button rootButton = cell.Q<Button>("RootButton");
-        quantityLabel.text = "";
-        rootButton.style.backgroundImage = new StyleBackground(StyleKeyword.None);
-        GridContainer.Add(cell);
-        return cell;
     }
 
     /**
@@ -82,10 +110,6 @@ public class InventoryMenu : MonoBehaviour
         if (newEnabledValue)
         {
             DrawInventory(inventory);
-        }
-        else
-        {
-            GridContainer.Clear();
         }
     }
 }
