@@ -25,14 +25,14 @@ public class InventoryMenu : MonoBehaviour
     {
         public VisualElement visualElement;
         public ItemQuantity? itemData;
-        public int row, column;
+        public int row, col;
 
         public CellData(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column)
         {
             visualElement = cellVisualElement;
             this.itemData = itemData;
             this.row = row;
-            this.column = column;
+            this.col = column;
         }
     }
 
@@ -116,6 +116,10 @@ public class InventoryMenu : MonoBehaviour
         Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
         Button rootButton = cell.visualElement.Q<Button>("RootButton");
 
+        Debug.Log($"itemData null? " + itemData == null);
+        Debug.Log($"itemData.quantity null? " + itemData.quantity == null);
+        Debug.Log($"qtyLabel null? " + qtyLabel == null);
+
         cell.itemData = itemData;
         qtyLabel.text = itemData.quantity.ToString();
         rootButton.style.backgroundImage = new StyleBackground(itemData.item.sprite);
@@ -150,10 +154,9 @@ public class InventoryMenu : MonoBehaviour
 
     private void HandleCellClick(MouseDownEvent evt, CellData cell)
     {
+        Debug.Log($"Clicked on cell ({cell.row},{cell.col})");
         bool isHoldingItem = selectedCell != null;
         bool cellHasItem = cell.itemData != null;
-
-        Debug.Log($"Clicked cell. amHoldingItem={isHoldingItem}, cellHasItem={cellHasItem}");
 
         // No-op
         if (!isHoldingItem && !cellHasItem)
@@ -163,11 +166,12 @@ public class InventoryMenu : MonoBehaviour
         }
 
         // Picking up an item
+        // @TODO Turn cursor into the sprite or something to show you are holding it
         else if (!isHoldingItem && cellHasItem)
         {
             Debug.Log($"Picking up {cell.itemData}");
-            selectedCell = cell;
-            EmptyCell(cell.row, cell.column);
+            selectedCell = new CellData(cell.visualElement, cell.itemData, cell.row, cell.col);
+            EmptyCell(cell.row, cell.col);
         }
 
         // Placing an item
@@ -182,7 +186,8 @@ public class InventoryMenu : MonoBehaviour
         else if (isHoldingItem && !cellHasItem)
         {
             Debug.Log("Placing into empty spot");
-            // @TODO
+            DrawCell(cell.row, cell.col, selectedCell.itemData);
+            selectedCell = null;
         }
     }
 }
