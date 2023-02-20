@@ -1,8 +1,43 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <ui:IMGUIContainer name="RootContainer" style="height: 364px; width: 520px; align-items: center; justify-content: space-around; flex-wrap: nowrap; flex-direction: column; background-color: rgb(178, 172, 162);">
+    <ui:Template name="InventoryCell" src="project://database/Assets/UI/InventoryCell.uxml?fileID=9197481963319205126&amp;guid=f1d55eb66c8fa4ae6b9402f5066f0eac&amp;type=3#InventoryCell" />
+    <Style src="project://database/Assets/GridStyleSheet.uss?fileID=7433441132597879392&amp;guid=b1ef5dc83f8c7491e8486eb4910be74e&amp;type=3#GridStyleSheet" />
+    <ui:IMGUIContainer name="RootContainer" style="height: 376px; width: 520px; align-items: center; justify-content: space-around; flex-wrap: nowrap; flex-direction: column; background-color: rgb(178, 172, 162);">
         <ui:IMGUIContainer name="TopbarContainer" style="width: 100%; justify-content: center; align-items: center; height: 5%;">
             <ui:Label text="InventoryName" display-tooltip-when-elided="true" name="Title" style="justify-content: center; -unity-text-align: middle-center; font-size: 24px;" />
         </ui:IMGUIContainer>
-        <ui:IMGUIContainer name="GridContainer" class="grid-container" style="-unity-text-align: middle-center; justify-content: center; align-items: center; flex-wrap: wrap; height: 85%; width: 90%; background-color: rgb(190, 153, 91); padding-bottom: 0; bottom: auto; flex-direction: row;" />
+        <ui:IMGUIContainer name="GridContainer" class="grid-container" style="-unity-text-align: middle-center; justify-content: space-around; align-items: center; flex-wrap: wrap; height: 324px; width: 488px; background-color: rgb(190, 153, 91); padding-bottom: 0; bottom: auto; flex-direction: column; margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0; padding-top: 0;">
+            <ui:IMGUIContainer name="Row1" style="flex-direction: row;">
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+            </ui:IMGUIContainer>
+            <ui:IMGUIContainer name="Row2" style="flex-direction: row;">
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+            </ui:IMGUIContainer>
+            <ui:IMGUIContainer name="Row3" style="flex-direction: row;">
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+            </ui:IMGUIContainer>
+            <ui:IMGUIContainer name="Row4" style="flex-direction: row;">
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+                <ui:Instance template="InventoryCell" name="InventoryCell" style="padding-left: 4px; padding-right: 4px;" />
+            </ui:IMGUIContainer>
+        </ui:IMGUIContainer>
     </ui:IMGUIContainer>
 </ui:UXML>
