@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.Events;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(GridSizeSpecification))]
 public class InventoryMenu : MonoBehaviour
@@ -7,9 +9,12 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private VisualTreeAsset CellTemplate;
     [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
+    [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeTrigger;
 
-    // Grid size - See doc on GridSizeSpecification class for why I
-    // do it this way
+    private CellData? selectedCell = null;
+    private Inventory inventory;
+
+
     GridSizeSpecification gridSize;
 
 
@@ -18,7 +23,22 @@ public class InventoryMenu : MonoBehaviour
     private ScrollView GridContainer;
     private Label title;
     private VisualElement[] rows; // GridRows
-    private VisualElement[,] cellsByRow; // We assume these to be using InventoryCell.uxml
+    private CellData[,] cellsByRow; // We assume these to be using InventoryCell.uxml
+
+    class CellData
+    {
+        public VisualElement visualElement;
+        public ItemQuantity? itemData;
+        public int row, col;
+
+        public CellData(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column)
+        {
+            visualElement = cellVisualElement;
+            this.itemData = itemData;
+            this.row = row;
+            col = column;
+        }
+    }
 
     private void Awake()
     {
@@ -34,21 +54,26 @@ public class InventoryMenu : MonoBehaviour
          * InventoryCell templates.
          */
         rows = new VisualElement[gridSize.GetNumRows()];
-        cellsByRow = new VisualElement[gridSize.GetNumRows(), gridSize.GetNumCols()];
+        cellsByRow = new CellData[gridSize.GetNumRows(), gridSize.GetNumCols()];
+
+        // Compose the 2D array of cells mapped to rows
+        // Create GridRows
         for (int r = 0; r < gridSize.GetNumRows(); r++)
         {
             rows[r] = GridRowTemplate.Instantiate();
             GridContainer.contentContainer.Add(rows[r]);
         }
 
-        // Compose the 2D array of cells mapped to rows
+        // Populate GridRows with InventoryCells
         for(int r = 0; r < gridSize.GetNumRows(); r++)
         {
             for (int c = 0; c < gridSize.GetNumCols(); c++)
             {
-                cellsByRow[r, c] = CellTemplate.Instantiate();
-                //rows[r].contentContainer.Add(cellsByRow[r,c]);
-                rows[r].Q<IMGUIContainer>("Row").Add(cellsByRow[r, c]);
+                CellData cell = new(CellTemplate.Instantiate(), null, r, c);
+                cell.visualElement.RegisterCallback<MouseDownEvent, CellData>(HandleCellClick, cell, useTrickleDown: TrickleDown.TrickleDown);
+
+                cellsByRow[r, c] = cell;
+                rows[r].Q<IMGUIContainer>("Row").Add(cellsByRow[r,c].visualElement);
             }
         }
 
@@ -69,32 +94,70 @@ public class InventoryMenu : MonoBehaviour
      */
     public void DrawInventory(Inventory inventory)
     {
+        this.inventory = inventory;
+
         title.text = MenuTitle;
 
         // Fill in each cell. This requires mapping from 1-dimensional
         // indices in inventory to 2-dimensional indices in cellsByRow.
-        for (int i = 0; i < inventory.Stacks.Capacity; i++)
+        for (int i = 0; i < inventory.StackCapacity; i++)
         {
-            int col = i % gridSize.GetNumCols();
-            int row = i / gridSize.GetNumCols();
+            (int, int) rowCol = InventoryToGridIndex(i);
 
-            VisualElement cell = cellsByRow[row, col];
-            Label qtyLabel = cell.Q<Label>("QuantityLabel");
-            Button rootButton = cell.Q<Button>("RootButton");
-            if (i < inventory.Stacks.Count)
+            ItemQuantity? maybeItem = inventory.Stacks[i];
+            if (maybeItem != null)
             {
-                // Draw in the item info
-                ItemQuantity iq = inventory.Stacks[i];
-                qtyLabel.text = iq.quantity.ToString();
-                rootButton.style.backgroundImage = new StyleBackground(iq.item.sprite);
+                DrawCell(rowCol.Item1, rowCol.Item2, inventory.Stacks[i]);
             }
             else
             {
-                // Draw empty cell
-                qtyLabel.text = "";
-                rootButton.style.backgroundImage = StyleKeyword.None;
+                EmptyCell(rowCol.Item1, rowCol.Item2, false);
             }
         }
+    }
+
+    private (int, int) InventoryToGridIndex(int inventoryIndex)
+    {
+        return (inventoryIndex / gridSize.GetNumCols(), inventoryIndex % gridSize.GetNumCols());
+    }
+
+    private int GridToInventoryIndex(int row, int col)
+    {
+        int result = gridSize.GetNumCols() * row + col;
+        Debug.Log($"Converted ({row},{col}) to {result}");
+        return result;
+    }
+
+    private void DrawCell(int row, int col, ItemQuantity itemData)
+    {
+        CellData cell = cellsByRow[row, col];
+        Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
+        Button rootButton = cell.visualElement.Q<Button>("RootButton");
+
+        cell.itemData = itemData;
+        qtyLabel.text = itemData.quantity.ToString();
+        rootButton.style.backgroundImage = new StyleBackground(itemData.item.sprite);
+        //rootButton.style.unityBackgroundImageTintColor = Color.clear;
+        rootButton.style.unityBackgroundImageTintColor = StyleKeyword.Null;
+    }
+
+    private void EmptyCell(int row, int col, bool greyOut)
+    {
+        CellData cell = cellsByRow[row, col];
+        Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
+        Button rootButton = cell.visualElement.Q<Button>("RootButton");
+
+        if (greyOut)
+        {
+            rootButton.style.unityBackgroundImageTintColor = Color.gray;
+        }
+        else
+        {
+            qtyLabel.text = "";
+            rootButton.style.backgroundImage = StyleKeyword.None;
+        }
+        
+        cell.itemData = null;
     }
 
     /**
@@ -111,5 +174,77 @@ public class InventoryMenu : MonoBehaviour
         {
             DrawInventory(inventory);
         }
+    }
+
+    private void HandleCellClick(MouseDownEvent evt, CellData cell)
+    {
+        bool isHoldingItem = selectedCell != null;
+        bool cellHasItem = cell.itemData != null;
+
+        // Tracks which indices of the INVENTORY object were changed,
+        // with the item quantity being what to change it to.
+        // This will be passed to a callback at the end which will
+        // reflect the visual changes in the UI to the actual Inv data.
+        List<(int, ItemQuantity)> changedIndices = new();
+
+        // No-op
+        if (!isHoldingItem && !cellHasItem)
+        {
+            return;
+        }
+
+        // Picking up an item
+        else if (!isHoldingItem && cellHasItem)
+        {
+            selectedCell = new CellData(cell.visualElement, cell.itemData, cell.row, cell.col);
+            EmptyCell(cell.row, cell.col, true);
+
+            changedIndices.Add((
+                GridToInventoryIndex(cell.row, cell.col),
+                null
+            ));
+        }
+
+        // Placing an item
+        // Subcase: Swap
+        else if (isHoldingItem && cellHasItem)
+        {
+            CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
+            DrawCell(cell.row, cell.col, selectedCell.itemData);
+            DrawCell(selectedCell.row, selectedCell.col, temp.itemData);
+
+            changedIndices.Add((
+                GridToInventoryIndex(temp.row, temp.col),
+                selectedCell.itemData
+            ));
+            changedIndices.Add((
+                GridToInventoryIndex(selectedCell.row, selectedCell.col),
+                temp.itemData
+            ));
+
+            selectedCell = null;
+        }
+
+        // Subcase: Place into empty slot
+        else if (isHoldingItem && !cellHasItem)
+        {
+            if (cell.row == selectedCell.row && cell.col == selectedCell.col)
+            {
+                // Has not moved
+                DrawCell(cell.row, cell.col, selectedCell.itemData);
+            } else
+            {
+                DrawCell(cell.row, cell.col, selectedCell.itemData);
+                EmptyCell(selectedCell.row, selectedCell.col, false);
+            }
+
+            changedIndices.Add((
+                GridToInventoryIndex(cell.row, cell.col),
+                selectedCell.itemData
+            ));
+            selectedCell = null;
+        }
+
+        rearrangeTrigger.Invoke(inventory, changedIndices);
     }
 }

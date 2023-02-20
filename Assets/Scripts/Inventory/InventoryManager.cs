@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections.Generic;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -46,7 +47,7 @@ public class InventoryManager : MonoBehaviour
         if (idx < 0)
         {
             // Check if there's space in player inventory
-            if (PlayerInventory.Stacks.Count < PlayerInventory.Stacks.Capacity)
+            if (PlayerInventory.HasEmptySpace())
             {
                 handlePickup(pickup);
             }
@@ -61,5 +62,10 @@ public class InventoryManager : MonoBehaviour
             // Currently there is no limit on each stack's quantity, so this is fine
             handlePickup(pickup);
         }
+    }
+
+    public void MakeChangesToInventory(Inventory inv, List<(int, ItemQuantity)> changedIndices)
+    {
+        inv.MakeChanges(changedIndices);
     }
 }
