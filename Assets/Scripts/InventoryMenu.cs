@@ -66,11 +66,10 @@ public class InventoryMenu : MonoBehaviour
             for (int c = 0; c < gridSize.GetNumCols(); c++)
             {
                 CellData cell = new(CellTemplate.Instantiate(), null, r, c);
+                cell.visualElement.RegisterCallback<MouseDownEvent, CellData>(HandleCellClick, cell, useTrickleDown: TrickleDown.TrickleDown);
+
                 cellsByRow[r, c] = cell;
                 rows[r].Q<IMGUIContainer>("Row").Add(cellsByRow[r,c].visualElement);
-
-                // Register cell callbacks
-                cellsByRow[r, c].visualElement.RegisterCallback<MouseDownEvent, CellData>(CellClickCallback, cell);
             }
         }
 
@@ -149,21 +148,41 @@ public class InventoryMenu : MonoBehaviour
         }
     }
 
-    private void CellClickCallback(MouseDownEvent evt, CellData cell)
+    private void HandleCellClick(MouseDownEvent evt, CellData cell)
     {
-        bool isHoldingItem = selectedCell == null;
-        bool clickedCellIsEmpty = cell.itemData == null;
+        bool isHoldingItem = selectedCell != null;
+        bool cellHasItem = cell.itemData != null;
 
-        if (!isHoldingItem && clickedCellIsEmpty)
+        Debug.Log($"Clicked cell. amHoldingItem={isHoldingItem}, cellHasItem={cellHasItem}");
+
+        // No-op
+        if (!isHoldingItem && !cellHasItem)
         {
-            return; // no-op
+            Debug.Log("No-op");
+            return;
         }
 
-        if (!isHoldingItem && !clickedCellIsEmpty)
+        // Picking up an item
+        else if (!isHoldingItem && cellHasItem)
         {
-            // We are picking up an item
+            Debug.Log($"Picking up {cell.itemData}");
             selectedCell = cell;
             EmptyCell(cell.row, cell.column);
+        }
+
+        // Placing an item
+        // Subcase: Swap
+        else if (isHoldingItem && cellHasItem)
+        {
+            Debug.Log("Swapping");
+            // @TODO
+        }
+
+        // Subcase: Place into empty slot
+        else if (isHoldingItem && !cellHasItem)
+        {
+            Debug.Log("Placing into empty spot");
+            // @TODO
         }
     }
 }
