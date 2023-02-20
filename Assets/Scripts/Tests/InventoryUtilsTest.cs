@@ -96,19 +96,22 @@ public class InventoryUtilsTest
     [Test]
     public void TestAdd_WhenItemNotPresent()
     {
-        List<ItemQuantity> inv = new()
+        List<ItemQuantity> inv = new(2)
         {
             new ItemQuantity()
             {
                 item = testItem1,
                 quantity = 1
-            }
+            },
+            null
         };
 
+        Assert.AreEqual(1, InventoryUtils.Size(inv));
         InventoryUtils.Add(new() { item = testItem2, quantity = 1 }, inv, false);
         Assert.AreEqual(inv.Count, 2);
         Assert.AreEqual(inv[1].item, testItem2);
         Assert.AreEqual(inv[1].quantity, 1);
+        Assert.AreEqual(2, InventoryUtils.Size(inv));
     }
 
     [Test]
@@ -147,9 +150,9 @@ public class InventoryUtilsTest
     [Test]
     public void TestAdd_DoesNotThrowException_IfUnstrict()
     {
-        List<ItemQuantity> inv = new(1);
-        inv.Add(new() { item = testItem1, quantity = 1 });
-
+        List<ItemQuantity> inv = new(1) {
+            new() { item = testItem1, quantity = 1 }
+        };
 
         InventoryUtils.Add(
             new() { item = testItem2, quantity = 100 },
@@ -157,6 +160,7 @@ public class InventoryUtilsTest
             false
         );
         Assert.AreEqual(inv.Count, 1);
+        Assert.AreEqual(InventoryUtils.Size(inv), 1);
     }
 
     #endregion
@@ -180,7 +184,8 @@ public class InventoryUtilsTest
             inv,
             false
         );
-        Assert.AreEqual(inv.Count, 0);
+        Assert.AreEqual(inv.Count, 1);
+        Assert.AreEqual(0, InventoryUtils.Size(inv));
     }
 
     [Test]
@@ -242,7 +247,8 @@ public class InventoryUtilsTest
             inv,
             true
         );
-        Assert.AreEqual(inv.Count, 0);
+        Assert.AreEqual(inv.Count, 1);
+        Assert.AreEqual(0, InventoryUtils.Size(inv));
     } 
 
     [Test]
@@ -263,6 +269,7 @@ public class InventoryUtilsTest
             false
         );
         Assert.AreEqual(inv.Count, 1);
+        Assert.AreEqual(1, InventoryUtils.Size(inv));
     }
 
     #endregion
@@ -337,6 +344,56 @@ public class InventoryUtilsTest
                 inv
             )
         );
+    }
+
+    #endregion
+
+    #region Size
+
+    [Test]
+    public void TestSize_DoesNotCount_NullItems()
+    {
+        List<ItemQuantity> inv1 = new(10)
+        {
+            new() { item = testItem1, quantity = 10 },
+            new() { item = testItem2, quantity = 5 }
+        };
+        List<ItemQuantity> inv2 = new(10) { };
+        List<ItemQuantity> inv3 = new(1) {
+            new() { item = testItem1, quantity = 2}
+        };
+
+        // Size is the number of non-null elements.
+        Assert.AreEqual(2, InventoryUtils.Size(inv1));
+        Assert.AreEqual(0, InventoryUtils.Size(inv2));
+        Assert.AreEqual(1, InventoryUtils.Size(inv3));
+        
+    }
+
+    #endregion
+
+    #region HasEmptySpace
+
+    [Test]
+    public void TestHasEmptySpace()
+    {
+        List<ItemQuantity> inv1 = new(5)
+        {
+            new() { item = testItem1, quantity = 10 },
+            new() { item = testItem2, quantity = 5 },
+            null,
+            null,
+            null
+        };
+        List<ItemQuantity> inv2 = new(10) { };
+        List<ItemQuantity> inv3 = new(1)
+        {
+            new() { item = testItem1, quantity = 2 }
+        };
+
+        Assert.AreEqual(true, InventoryUtils.HasEmptySpace(inv1));
+        Assert.AreEqual(true, InventoryUtils.HasEmptySpace(inv2));
+        Assert.AreEqual(false, InventoryUtils.HasEmptySpace(inv3));
     }
 
     #endregion

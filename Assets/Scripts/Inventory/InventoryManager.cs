@@ -47,7 +47,7 @@ public class InventoryManager : MonoBehaviour
         if (idx < 0)
         {
             // Check if there's space in player inventory
-            if (PlayerInventory.Stacks.Count < PlayerInventory.Stacks.Capacity)
+            if (PlayerInventory.HasEmptySpace())
             {
                 handlePickup(pickup);
             }

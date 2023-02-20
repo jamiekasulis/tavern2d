@@ -9,7 +9,7 @@ public class InventoryUtils
 {
     public static int GetIndexInInventory(Item item, List<ItemQuantity> inv)
     {
-        return inv.FindIndex((iq) => iq.item.Equals(item));
+        return inv.FindIndex((iq) => iq != null && iq.item.Equals(item));
     }
 
     public static bool ContainsItem(Item item, List<ItemQuantity> inv)
@@ -22,7 +22,10 @@ public class InventoryUtils
         int idx = GetIndexInInventory(iq.item, inv);
         if (idx < 0)
         {
-            if (inv.Capacity == inv.Count)
+            if (HasEmptySpace(inv))
+            {
+                inv[FirstEmptyIndex(inv)] = iq;
+            } else
             {
                 // No more space to add a new stack
                 string msg = "Cannot add new stack " + iq.ToString() + " to inventory. It is full!";
@@ -36,8 +39,6 @@ public class InventoryUtils
                     return;
                 }
             }
-
-            inv.Add(iq);
         }
         else
         {
@@ -74,12 +75,12 @@ public class InventoryUtils
             else
             {
                 Debug.LogWarning(msg);
-                inv.RemoveAt(idx);
+                inv[idx] = null;
             }
         }
         else if (newQty == 0)
         {
-            inv.RemoveAt(idx);
+            inv[idx] = null;
         }
         else
         {
@@ -95,5 +96,22 @@ public class InventoryUtils
             return false;
         }
         return inv[idx].quantity >= iq.quantity;
+    }
+
+    private static int FirstEmptyIndex(List<ItemQuantity> inv)
+    {
+        return inv.FindIndex(iq => iq == null);
+    }
+
+    public static int Size(List<ItemQuantity?> inv)
+    {
+        return inv.FindAll(i => i != null).Count;
+    }
+
+    public static bool HasEmptySpace(List<ItemQuantity> inv)
+    {
+        bool result = Size(inv) < inv.Capacity;
+        Debug.Log($"HasRoom: True size={Size(inv)}, capacity={inv.Capacity}. HasRoom={result}");
+        return result;
     }
 }

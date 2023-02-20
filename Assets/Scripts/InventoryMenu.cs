@@ -100,11 +100,12 @@ public class InventoryMenu : MonoBehaviour
 
         // Fill in each cell. This requires mapping from 1-dimensional
         // indices in inventory to 2-dimensional indices in cellsByRow.
-        for (int i = 0; i < inventory.Stacks.Capacity; i++)
+        for (int i = 0; i < inventory.StackCapacity; i++)
         {
             (int, int) rowCol = InventoryToGridIndex(i);
 
-            if (i < inventory.Stacks.Count)
+            ItemQuantity? maybeItem = inventory.Stacks[i];
+            if (maybeItem != null)
             {
                 DrawCell(rowCol.Item1, rowCol.Item2, inventory.Stacks[i]);
             }

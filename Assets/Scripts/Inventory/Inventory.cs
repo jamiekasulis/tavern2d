@@ -1,25 +1,27 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using UnityEngine;
 
 [System.Serializable]
 public class Inventory
 {
     public int StackCapacity { get; private set; } // Number of stacks the inventory can hold. This is NOT
     // the same as the quantity of items it can hold.
-    public List<ItemQuantity> Stacks { get; private set; }
+    public List<ItemQuantity?> Stacks { get; private set; }
 
     public Inventory(int stackCapacity)
     {
         StackCapacity = stackCapacity;
         Stacks = new(StackCapacity);
+        while (Stacks.Count < Stacks.Capacity)
+        {
+            Stacks.Add(null);
+        }
     }
 
-    public void Initialize(int stackCapacity)
+    public int Size()
     {
-        StackCapacity = stackCapacity;
-        Stacks = new(StackCapacity);
+        return InventoryUtils.Size(Stacks);
     }
 
     /**
@@ -68,9 +70,9 @@ public class Inventory
     {
         StringBuilder builder = new();
         builder.Append("[");
-        foreach (ItemQuantity iq in Stacks)
+        foreach (ItemQuantity? iq in Stacks)
         {
-            builder.Append(iq.ToString());
+            builder.Append(iq != null ? iq.ToString() : "null");
             builder.Append(" ");
         }
         builder.Append("]");
@@ -98,6 +100,11 @@ public class Inventory
         {
             Stacks[tuple.Item1] = tuple.Item2;
         }
+    }
+
+    public bool HasEmptySpace()
+    {
+        return InventoryUtils.HasEmptySpace(Stacks);
     }
 }
 
