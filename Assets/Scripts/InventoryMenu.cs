@@ -216,20 +216,28 @@ public class InventoryMenu : MonoBehaviour
         }
 
         // Placing an item
-        // Subcase: Swap
+        // Subcase: Swapping and combining
         else if (isHoldingItem && cellHasItem)
         {
-            CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
+            if (cell.itemData.item == selectedCell.itemData.item)
+            {
+                // @TODO combine
+            }
+            else
+            {
+                // @TODO swap
+            }
+            CellData cellCopy = new(cell.visualElement, cell.itemData, cell.row, cell.col); // copy cell as it were
             DrawCell(cell.row, cell.col, selectedCell.itemData);
-            DrawCell(selectedCell.row, selectedCell.col, temp.itemData);
+            DrawCell(selectedCell.row, selectedCell.col, cellCopy.itemData);
 
             changedIndices.Add((
-                GridToInventoryIndex(temp.row, temp.col),
+                GridToInventoryIndex(cellCopy.row, cellCopy.col),
                 selectedCell.itemData
             ));
             changedIndices.Add((
                 GridToInventoryIndex(selectedCell.row, selectedCell.col),
-                temp.itemData
+                cellCopy.itemData
             ));
 
             selectedCell = null;
@@ -326,6 +334,20 @@ public class InventoryMenu : MonoBehaviour
             newPlacedIq
         ));
         Debug.Log($"Changed indices: {GridToInventoryIndex(cell.row, cell.col)}, {newPlacedIq}");
+    }
+
+    private void PlaceIntoOccupiedSlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
+    {
+        if (cell.itemData.item == selectedCell.itemData.item)
+        {
+            // Combine
+            int newSelectedQty = selectedCell.itemData.quantity - qtyToPlace;
+            cell.itemData.quantity += qtyToPlace;
+            if (newSelectedQty == 0)
+            {
+                // null out selected cell
+            }
+        }
     }
 
     private bool IsLeftClickOnly(MouseDownEvent evt)
