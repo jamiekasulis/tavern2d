@@ -188,7 +188,7 @@ MonoBehaviour:
   CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
   GridRowTemplate: {fileID: 9197481963319205126, guid: 8970577c214ce4dfeb783a9cf5397b23, type: 3}
   MenuTitle: Chest
-  rearrangeTrigger:
+  rearrangeInventoryTrigger:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1977449618}
@@ -3844,7 +3844,7 @@ MonoBehaviour:
   CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
   GridRowTemplate: {fileID: 9197481963319205126, guid: 8970577c214ce4dfeb783a9cf5397b23, type: 3}
   MenuTitle: Backpack
-  rearrangeTrigger:
+  rearrangeInventoryTrigger:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1977449618}

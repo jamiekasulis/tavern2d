@@ -9,7 +9,7 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private VisualTreeAsset CellTemplate;
     [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
-    [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeTrigger;
+    [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeInventoryTrigger;
 
     private CellData? selectedCell = null;
     private Inventory inventory;
@@ -194,6 +194,7 @@ public class InventoryMenu : MonoBehaviour
         // Picking up an item
         else if (!isHoldingItem && cellHasItem)
         {
+            Debug.Log("Picking up");
             if (evt.button == 2) // Middle mouse button click - Do nothing
             {
                 return;
@@ -201,7 +202,7 @@ public class InventoryMenu : MonoBehaviour
 
             if (IsLeftClickOnly(evt)) // Left click: select whole stack
             {
-                PickUpWholeStack(cell, changedIndices);
+                PickUpQuantity(cell, cell.itemData.quantity, changedIndices);
             }
             else if (IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
             {
@@ -237,28 +238,32 @@ public class InventoryMenu : MonoBehaviour
         // Subcase: Place into empty slot
         else if (isHoldingItem && !cellHasItem)
         {
-            if (cell.row == selectedCell.row && cell.col == selectedCell.col)
+            int qtyToPlace;
+            if (IsShiftLeftClick(evt))
             {
-                // Has not moved
-                DrawCell(cell.row, cell.col, selectedCell.itemData);
-            } else
+                qtyToPlace = selectedCell.itemData.quantity % 2 == 0 ? selectedCell.itemData.quantity / 2 : selectedCell.itemData.quantity / 2 + 1;
+            }
+            else if (IsLeftClickOnly(evt))
             {
-                DrawCell(cell.row, cell.col, selectedCell.itemData);
-                EmptyCell(selectedCell.row, selectedCell.col, false);
+                qtyToPlace = selectedCell.itemData.quantity;
+            }
+            else if (IsRightClick(evt))
+            {
+                qtyToPlace = 1;
+            }
+            else
+            {
+                return;
             }
 
-            changedIndices.Add((
-                GridToInventoryIndex(cell.row, cell.col),
-                selectedCell.itemData
-            ));
-            selectedCell = null;
-        }
-        else
-        {
-            return;
+            PlaceIntoEmptySlot(cell, qtyToPlace, changedIndices);
         }
 
-        rearrangeTrigger.Invoke(inventory, changedIndices);
+        if (changedIndices.Count > 0)
+        {
+            rearrangeInventoryTrigger.Invoke(inventory, changedIndices);
+            Debug.Log($"Rearranged inventory backend to {inventory}");
+        }
     }
 
     private void PickUpQuantity(CellData cell, int qtyToPickUp, List<(int, ItemQuantity?)> changedIndices)
@@ -274,73 +279,54 @@ public class InventoryMenu : MonoBehaviour
             return;
         }
 
+        selectedCell = new CellData(cell.visualElement, new() { item = cell.itemData.item, quantity = qtyToPickUp }, cell.row, cell.col);
 
         int qtyLeftBehind = cell.itemData.quantity - qtyToPickUp;
+        ItemQuantity updatedIq = new() { item = cell.itemData.item, quantity = qtyLeftBehind };
         if (qtyLeftBehind == 0)
         {
-            PickUpWholeStack(cell, changedIndices);
+            EmptyCell(cell.row, cell.col, true);
+        }
+        else
+        {
+            DrawCell(cell.row, cell.col, updatedIq);
+        }
+
+        changedIndices.Add((
+            GridToInventoryIndex(cell.row, cell.col),
+            qtyLeftBehind == 0 ? null : updatedIq
+        ));
+        var newVal = qtyLeftBehind == 0 ? null : updatedIq;
+        Debug.Log($"Changed indices: {GridToInventoryIndex(cell.row, cell.col)}, {newVal}");
+    }
+
+    private void PlaceIntoEmptySlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
+    {
+        if (cell.itemData != null)
+        {
+            Debug.LogWarning($"Requested to place into empty cell, but given cell ({cell.row},{cell.col}) is not empty!");
             return;
         }
-        selectedCell = new CellData(cell.visualElement, new() { item = cell.itemData.item, quantity = qtyToPickUp }, cell.row, cell.col);
-        ItemQuantity updatedIq = new() { item = cell.itemData.item, quantity = qtyLeftBehind };
-        DrawCell(cell.row, cell.col, updatedIq);
+
+        ItemQuantity newPlacedIq = new() { item = selectedCell.itemData.item, quantity = qtyToPlace };
+        int newSelectedQty = selectedCell.itemData.quantity - qtyToPlace;
+        if (newSelectedQty  <= 0)
+        {
+            EmptyCell(selectedCell.row, selectedCell.col, false);
+            selectedCell = null;
+        }
+        else
+        {
+            selectedCell.itemData.quantity = newSelectedQty;
+        }
+        DrawCell(cell.row, cell.col, newPlacedIq); // Draw needs to come AFTER potential EmptyCell call to cover the case where we place into its former slot.
+
         changedIndices.Add((
             GridToInventoryIndex(cell.row, cell.col),
-            updatedIq
+            newPlacedIq
         ));
+        Debug.Log($"Changed indices: {GridToInventoryIndex(cell.row, cell.col)}, {newPlacedIq}");
     }
-
-    private void PickUpWholeStack(CellData cell, List<(int, ItemQuantity?)> changedIndices)
-    {
-        selectedCell = new CellData(cell.visualElement, cell.itemData, cell.row, cell.col);
-        EmptyCell(cell.row, cell.col, true);
-        changedIndices.Add((
-            GridToInventoryIndex(cell.row, cell.col),
-            null
-        ));
-        Debug.Log($"Picked up " + selectedCell.itemData.ToString());
-    }
-
-    //private void PickUpHalfStack(CellData cell, List<(int, ItemQuantity?)> changedIndices)
-    //{
-    //    if (cell.itemData.quantity == 1)
-    //    {
-    //        PickUpWholeStack(cell, changedIndices);
-    //        return;
-    //    }
-    //    // Pick up half, rounded up
-    //    int amountPickedUp = cell.itemData.quantity % 2 == 0 ? cell.itemData.quantity / 2 : cell.itemData.quantity / 2 + 1;
-    //    int amountLeftBehind = cell.itemData.quantity - amountPickedUp;
-
-    //    selectedCell = new CellData(cell.visualElement, new() { item = cell.itemData.item, quantity = amountPickedUp }, cell.row, cell.col);
-    //    ItemQuantity updatedIq = new() { item = cell.itemData.item, quantity = amountLeftBehind };
-    //    DrawCell(cell.row, cell.col, updatedIq);
-    //    changedIndices.Add((
-    //        GridToInventoryIndex(cell.row, cell.col),
-    //        updatedIq
-    //    ));
-    //    Debug.Log($"Picked up " + selectedCell.itemData.ToString());
-    //}
-
-    //private void PickUpOne(CellData cell, List<(int, ItemQuantity?)> changedIndices)
-    //{
-    //    if (cell.itemData.quantity == 1)
-    //    {
-    //        PickUpWholeStack(cell, changedIndices);
-    //        return;
-    //    }
-
-    //    int amountLeftBehind = cell.itemData.quantity - 1;
-
-    //    selectedCell = new CellData(cell.visualElement, new() { item = cell.itemData.item, quantity = 1 }, cell.row, cell.col);
-    //    ItemQuantity updatedIq = new() { item = cell.itemData.item, quantity = amountLeftBehind };
-    //    DrawCell(cell.row, cell.col, updatedIq);
-    //    changedIndices.Add((
-    //        GridToInventoryIndex(cell.row, cell.col),
-    //        updatedIq
-    //    ));
-    //    Debug.Log($"Picked up " + selectedCell.itemData.ToString());
-    //}
 
     private bool IsLeftClickOnly(MouseDownEvent evt)
     {

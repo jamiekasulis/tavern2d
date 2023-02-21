@@ -111,7 +111,6 @@ public class InventoryUtils
     public static bool HasEmptySpace(List<ItemQuantity> inv)
     {
         bool result = Size(inv) < inv.Capacity;
-        Debug.Log($"HasRoom: True size={Size(inv)}, capacity={inv.Capacity}. HasRoom={result}");
         return result;
     }
 }
