@@ -1,41 +1,41 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
-[RequireComponent(typeof(RectTransform))]
+[RequireComponent(typeof(UIDocument))]
 public class RearrangeInventoryTooltip : MonoBehaviour
 {
-    private RectTransform rectTransform;
-    private Image image;
     private bool IsShowingImage;
+    private VisualElement mainElement, root;
 
     private void Awake()
     {
-        var backgroundTransform = transform.Find("Background");
-        rectTransform = backgroundTransform.GetComponent<RectTransform>();
-        image = backgroundTransform.GetComponent<Image>();
-        image.enabled = false;
+        root = GetComponent<UIDocument>().rootVisualElement;
+        mainElement = root.Q<VisualElement>("RootElement");
         IsShowingImage = false;
+        mainElement.style.unityBackgroundImageTintColor = Color.gray;
     }
 
     public void Draw(Sprite sprite)
     {
-        image.sprite = sprite;
-        image.enabled = true;
+        mainElement.style.backgroundImage = new StyleBackground(sprite);
         IsShowingImage = true;
+        mainElement.style.display = DisplayStyle.Flex;
     }
 
     public void Clear()
     {
-        image.sprite = null;
+        mainElement.style.display = DisplayStyle.None;
         IsShowingImage = false;
-        image.enabled = false;
     }
 
     private void Update()
     {
         if (IsShowingImage)
         {
-            rectTransform.position = Input.mousePosition + new Vector3(50, 50, 0); // Offset its position so it's not blocking the mouse from clicking other things
+            Vector2 mousePosition = Input.mousePosition;
+            Vector2 mousePositionCorrected = new Vector2(mousePosition.x, Screen.height - mousePosition.y - 150);
+            mousePositionCorrected = RuntimePanelUtils.ScreenToPanel(root.panel, mousePositionCorrected);
+            root.transform.position = mousePositionCorrected;
         }
     }
 }
