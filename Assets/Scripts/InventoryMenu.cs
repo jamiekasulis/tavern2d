@@ -10,6 +10,7 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
     [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeInventoryTrigger;
+    public RearrangeInventoryTooltip inventoryTooltip;
 
     private CellData? selectedCell = null;
     private Inventory inventory;
@@ -213,6 +214,8 @@ public class InventoryMenu : MonoBehaviour
             {
                 PickUpQuantity(cell, 1, changedIndices);
             }
+
+            inventoryTooltip.Draw(selectedCell.itemData.item.sprite);
         }
 
         // Placing an item
@@ -333,6 +336,7 @@ public class InventoryMenu : MonoBehaviour
             GridToInventoryIndex(cell.row, cell.col),
             newPlacedIq
         ));
+        inventoryTooltip.Clear();
         Debug.Log($"Changed indices: {GridToInventoryIndex(cell.row, cell.col)}, {newPlacedIq}");
     }
 
