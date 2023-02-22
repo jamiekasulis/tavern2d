@@ -203,14 +203,17 @@ public class InventoryMenu : MonoBehaviour
                 return;
             }
 
-            if (IsLeftClickOnly(evt)) // Left click: select whole stack
-            {
-                PickUpQuantity(cell, cell.itemData.quantity, changedIndices);
-            }
-            else if (IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
+
+            // Must check SHIFT+LeftClick before LeftClick only, for reasons I don't understand
+            // since both explicitly check if shift was held :(
+            if (IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
             {
                 int pickupQty = cell.itemData.quantity % 2 == 0 ? cell.itemData.quantity / 2 : cell.itemData.quantity / 2 + 1;
                 PickUpQuantity(cell, pickupQty, changedIndices);
+            }
+            else if (IsLeftClickOnly(evt)) // Left click: select whole stack
+            {
+                PickUpQuantity(cell, cell.itemData.quantity, changedIndices);
             }
             else if (IsRightClick(evt)) // Right click: select 1
             {
@@ -253,6 +256,7 @@ public class InventoryMenu : MonoBehaviour
             if (IsShiftLeftClick(evt))
             {
                 qtyToPlace = selectedCell.itemData.quantity % 2 == 0 ? selectedCell.itemData.quantity / 2 : selectedCell.itemData.quantity / 2 + 1;
+                Debug.Log($"Calculated quantity to place to be {qtyToPlace}");
             }
             else if (IsLeftClickOnly(evt))
             {
@@ -278,6 +282,7 @@ public class InventoryMenu : MonoBehaviour
 
     private void PickUpQuantity(CellData cell, int qtyToPickUp, List<(int, ItemQuantity?)> changedIndices)
     {
+        Debug.Log($"Called PickUpQuantity with qtyToPickUp={qtyToPickUp}");
         if (cell.itemData.quantity < qtyToPickUp)
         {
             Debug.LogWarning($"Requested to pick up {qtyToPickUp} from cell ({cell.row},{cell.col}) but there is only {cell.itemData.quantity} available!");
@@ -300,6 +305,7 @@ public class InventoryMenu : MonoBehaviour
         }
         else
         {
+            Debug.Log($"Drawing the old cell to have qty={qtyLeftBehind}");
             DrawCell(cell.row, cell.col, updatedIq);
         }
 
