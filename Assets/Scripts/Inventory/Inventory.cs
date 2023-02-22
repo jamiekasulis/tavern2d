@@ -73,7 +73,7 @@ public class Inventory
         foreach (ItemQuantity? iq in Stacks)
         {
             builder.Append(iq != null ? iq.ToString() : "null");
-            builder.Append(" ");
+            builder.Append(", ");
         }
         builder.Append("]");
         return builder.ToString();

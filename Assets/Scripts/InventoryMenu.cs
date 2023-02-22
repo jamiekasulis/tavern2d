@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using System;
 
 [RequireComponent(typeof(GridSizeSpecification))]
 public class InventoryMenu : MonoBehaviour
@@ -9,7 +10,8 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private VisualTreeAsset CellTemplate;
     [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
-    [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeTrigger;
+    [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeInventoryTrigger;
+    public RearrangeInventoryTooltip inventoryTooltip;
 
     private CellData? selectedCell = null;
     private Inventory inventory;
@@ -111,7 +113,7 @@ public class InventoryMenu : MonoBehaviour
             }
             else
             {
-                EmptyCell(rowCol.Item1, rowCol.Item2, false);
+                EmptyCell(rowCol.Item1, rowCol.Item2);
             }
         }
     }
@@ -124,10 +126,12 @@ public class InventoryMenu : MonoBehaviour
     private int GridToInventoryIndex(int row, int col)
     {
         int result = gridSize.GetNumCols() * row + col;
-        Debug.Log($"Converted ({row},{col}) to {result}");
         return result;
     }
 
+    /**
+     * Draws the given item data into the cell at the specified coordinates.
+     */
     private void DrawCell(int row, int col, ItemQuantity itemData)
     {
         CellData cell = cellsByRow[row, col];
@@ -137,25 +141,20 @@ public class InventoryMenu : MonoBehaviour
         cell.itemData = itemData;
         qtyLabel.text = itemData.quantity.ToString();
         rootButton.style.backgroundImage = new StyleBackground(itemData.item.sprite);
-        //rootButton.style.unityBackgroundImageTintColor = Color.clear;
         rootButton.style.unityBackgroundImageTintColor = StyleKeyword.Null;
     }
 
-    private void EmptyCell(int row, int col, bool greyOut)
+    /**
+     * Empties out the cell so that there is no image sprite or label shown.
+     */
+    private void EmptyCell(int row, int col)
     {
         CellData cell = cellsByRow[row, col];
         Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
         Button rootButton = cell.visualElement.Q<Button>("RootButton");
 
-        if (greyOut)
-        {
-            rootButton.style.unityBackgroundImageTintColor = Color.gray;
-        }
-        else
-        {
-            qtyLabel.text = "";
-            rootButton.style.backgroundImage = StyleKeyword.None;
-        }
+        qtyLabel.text = "";
+        rootButton.style.backgroundImage = StyleKeyword.None;
         
         cell.itemData = null;
     }
@@ -176,6 +175,10 @@ public class InventoryMenu : MonoBehaviour
         }
     }
 
+    /**
+     * Event callback for mouse activity. Handles the user rearranging inventory
+     * in the UI.
+     */
     private void HandleCellClick(MouseDownEvent evt, CellData cell)
     {
         bool isHoldingItem = selectedCell != null;
@@ -184,7 +187,7 @@ public class InventoryMenu : MonoBehaviour
         // Tracks which indices of the INVENTORY object were changed,
         // with the item quantity being what to change it to.
         // This will be passed to a callback at the end which will
-        // reflect the visual changes in the UI to the actual Inv data.
+        // reflect the visual changes in the UI to the backend inventory object.
         List<(int, ItemQuantity)> changedIndices = new();
 
         // No-op
@@ -196,55 +199,180 @@ public class InventoryMenu : MonoBehaviour
         // Picking up an item
         else if (!isHoldingItem && cellHasItem)
         {
-            selectedCell = new CellData(cell.visualElement, cell.itemData, cell.row, cell.col);
-            EmptyCell(cell.row, cell.col, true);
+            if (evt.button == 2) // Middle mouse button click - Do nothing
+            {
+                return;
+            }
 
-            changedIndices.Add((
-                GridToInventoryIndex(cell.row, cell.col),
-                null
-            ));
+            if (IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
+            {
+                int pickupQty = cell.itemData.quantity % 2 == 0 ? cell.itemData.quantity / 2 : cell.itemData.quantity / 2 + 1;
+                changedIndices = PickUpQuantity(cell, pickupQty);
+            }
+            else if (IsLeftClickOnly(evt)) // Left click: select whole stack
+            {
+                changedIndices = PickUpQuantity(cell, cell.itemData.quantity);
+            }
+            else if (IsRightClick(evt)) // Right click: select 1
+            {
+                changedIndices = PickUpQuantity(cell, 1);
+            }
         }
 
         // Placing an item
-        // Subcase: Swap
+        // Subcase: Swapping and combining
         else if (isHoldingItem && cellHasItem)
         {
-            CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
-            DrawCell(cell.row, cell.col, selectedCell.itemData);
-            DrawCell(selectedCell.row, selectedCell.col, temp.itemData);
-
-            changedIndices.Add((
-                GridToInventoryIndex(temp.row, temp.col),
-                selectedCell.itemData
-            ));
-            changedIndices.Add((
-                GridToInventoryIndex(selectedCell.row, selectedCell.col),
-                temp.itemData
-            ));
-
-            selectedCell = null;
+            if (IsLeftClickOnly(evt))
+            {
+                changedIndices = PlaceIntoOccupiedSlot(cell, selectedCell.itemData.quantity);
+            }
         }
 
         // Subcase: Place into empty slot
         else if (isHoldingItem && !cellHasItem)
         {
-            if (cell.row == selectedCell.row && cell.col == selectedCell.col)
+            int qtyToPlace;
+            if (IsShiftLeftClick(evt))
             {
-                // Has not moved
-                DrawCell(cell.row, cell.col, selectedCell.itemData);
-            } else
+                qtyToPlace = selectedCell.itemData.quantity % 2 == 0 ? selectedCell.itemData.quantity / 2 : selectedCell.itemData.quantity / 2 + 1;
+            }
+            else if (IsLeftClickOnly(evt))
             {
-                DrawCell(cell.row, cell.col, selectedCell.itemData);
-                EmptyCell(selectedCell.row, selectedCell.col, false);
+                qtyToPlace = selectedCell.itemData.quantity;
+            }
+            else if (IsRightClick(evt))
+            {
+                qtyToPlace = 1;
+            }
+            else
+            {
+                return;
             }
 
-            changedIndices.Add((
-                GridToInventoryIndex(cell.row, cell.col),
-                selectedCell.itemData
-            ));
+            changedIndices = PlaceIntoEmptySlot(cell, qtyToPlace);
+        }
+
+        if (selectedCell == null)
+        {
+            inventoryTooltip.Clear();
+        }
+        else
+        {
+            inventoryTooltip.Draw(selectedCell.itemData);
+        }
+
+        if (changedIndices.Count > 0)
+        {
+            rearrangeInventoryTrigger.Invoke(inventory, changedIndices);
+        }
+    }
+
+    private List<(int, ItemQuantity?)> PickUpQuantity(CellData cell, int qtyToPickUp)
+    {
+        if (cell.itemData.quantity < qtyToPickUp)
+        {
+            throw new InvalidQuantityException($"Requested to pick up {qtyToPickUp} from cell ({cell.row},{cell.col}) but there is only {cell.itemData.quantity} available!");
+        }
+        else if (qtyToPickUp <= 0)
+        {
+            throw new InvalidQuantityException($"Requested to pick up an invalid quantity: {qtyToPickUp}");
+        }
+
+        ItemQuantity selectedIq = new() { item = cell.itemData.item, quantity = qtyToPickUp };
+        selectedCell = new CellData(cell.visualElement, selectedIq, cell.row, cell.col);
+
+        int qtyLeftBehind = cell.itemData.quantity - qtyToPickUp;
+        ItemQuantity updatedIq = new() { item = cell.itemData.item, quantity = qtyLeftBehind };
+        if (qtyLeftBehind == 0)
+        {
+            EmptyCell(cell.row, cell.col);
+        }
+        else
+        {
+            DrawCell(cell.row, cell.col, updatedIq);
+        }
+
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            qtyLeftBehind == 0 ? null : updatedIq)
+        };
+    }
+
+    private List<(int, ItemQuantity?)> PlaceIntoEmptySlot(CellData cell, int qtyToPlace)
+    {
+        if (cell.itemData != null)
+        {
+            throw new CellNotEmptyException($"Requested to place into empty cell, but given cell ({cell.row},{cell.col}) is not empty!");
+        }
+
+        // Place into the clicked cell
+        ItemQuantity iqToPlace = new() { item = selectedCell.itemData.item, quantity = qtyToPlace };
+        DrawCell(cell.row, cell.col, iqToPlace);
+        selectedCell.itemData.quantity -= qtyToPlace;
+
+        // Check if the selectedCell is all used up/placed
+        if (selectedCell.itemData.quantity <= 0)
+        {
             selectedCell = null;
         }
 
-        rearrangeTrigger.Invoke(inventory, changedIndices);
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            iqToPlace)
+        };
     }
+
+    private List<(int, ItemQuantity?)> PlaceIntoOccupiedSlot(CellData cell, int qtyToPlace)
+    {
+        bool sameItem = selectedCell.itemData.item == cell.itemData.item;
+        ItemQuantity? newIq;
+        if (sameItem)
+        {
+            newIq = new() { item = cell.itemData.item, quantity = cell.itemData.quantity + qtyToPlace };
+            DrawCell(cell.row, cell.col, newIq);
+            selectedCell = null;
+        }
+        else // Swapping
+        {
+            // @TODO Do this without holding onto references that will then not be garbage-collected.
+            newIq = selectedCell.itemData;
+            CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
+            DrawCell(cell.row, cell.col, selectedCell.itemData);
+            selectedCell.row = cell.row;
+            selectedCell.col = cell.col;
+            selectedCell.itemData = temp.itemData;
+            selectedCell.visualElement = temp.visualElement;
+        }
+
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            newIq)
+        };
+    }
+
+    private bool IsLeftClickOnly(MouseDownEvent evt)
+    {
+        // Do not use evt.shiftKey as from my testing this is inaccurate 1/2 the time
+        return evt.button == 0 && !Input.GetKey(KeyCode.LeftShift);
+    }
+
+    private bool IsShiftLeftClick(MouseDownEvent evt)
+    {
+        // Do not use evt.shiftKey as from my testing this is inaccurate 1/2 the time
+        return evt.button == 0 && Input.GetKey(KeyCode.LeftShift);
+    }
+
+    private bool IsRightClick(MouseDownEvent evt)
+    {
+        return evt.button == 1;
+    }
+}
+
+public class CellNotEmptyException : Exception
+{
+    public CellNotEmptyException(string message) : base(message) { }
 }
