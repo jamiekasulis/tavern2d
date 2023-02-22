@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using System;
 
 [RequireComponent(typeof(GridSizeSpecification))]
 public class InventoryMenu : MonoBehaviour
@@ -209,15 +210,15 @@ public class InventoryMenu : MonoBehaviour
             if (IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
             {
                 int pickupQty = cell.itemData.quantity % 2 == 0 ? cell.itemData.quantity / 2 : cell.itemData.quantity / 2 + 1;
-                PickUpQuantity(cell, pickupQty, changedIndices);
+                changedIndices = PickUpQuantity(cell, pickupQty);
             }
             else if (IsLeftClickOnly(evt)) // Left click: select whole stack
             {
-                PickUpQuantity(cell, cell.itemData.quantity, changedIndices);
+                changedIndices = PickUpQuantity(cell, cell.itemData.quantity);
             }
             else if (IsRightClick(evt)) // Right click: select 1
             {
-                PickUpQuantity(cell, 1, changedIndices);
+                changedIndices = PickUpQuantity(cell, 1);
             }
         }
 
@@ -227,7 +228,7 @@ public class InventoryMenu : MonoBehaviour
         {
             if (IsLeftClickOnly(evt) && !IsShiftLeftClick(evt)) // For some reason, IsLeftClickOnly() doesn't work as expected. Check explicitly for shift key
             {
-                PlaceIntoOccupiedSlot(cell, selectedCell.itemData.quantity, changedIndices);
+                changedIndices = PlaceIntoOccupiedSlot(cell, selectedCell.itemData.quantity);
             }
         }
 
@@ -253,7 +254,7 @@ public class InventoryMenu : MonoBehaviour
                 return;
             }
 
-            PlaceIntoEmptySlot(cell, qtyToPlace, changedIndices);
+            changedIndices = PlaceIntoEmptySlot(cell, qtyToPlace);
         }
 
         if (selectedCell == null)
@@ -271,18 +272,16 @@ public class InventoryMenu : MonoBehaviour
         }
     }
 
-    private void PickUpQuantity(CellData cell, int qtyToPickUp, List<(int, ItemQuantity?)> changedIndices)
+    private List<(int, ItemQuantity?)> PickUpQuantity(CellData cell, int qtyToPickUp)
     {
         Debug.Log($"Called PickUpQuantity with qtyToPickUp={qtyToPickUp}");
         if (cell.itemData.quantity < qtyToPickUp)
         {
-            Debug.LogWarning($"Requested to pick up {qtyToPickUp} from cell ({cell.row},{cell.col}) but there is only {cell.itemData.quantity} available!");
-            return;
+            throw new InvalidQuantityException($"Requested to pick up {qtyToPickUp} from cell ({cell.row},{cell.col}) but there is only {cell.itemData.quantity} available!");
         }
         else if (qtyToPickUp <= 0)
         {
-            Debug.LogWarning($"Requested to pick up an invalid quantity: {qtyToPickUp}");
-            return;
+            throw new InvalidQuantityException($"Requested to pick up an invalid quantity: {qtyToPickUp}");
         }
 
         ItemQuantity selectedIq = new() { item = cell.itemData.item, quantity = qtyToPickUp };
@@ -300,18 +299,18 @@ public class InventoryMenu : MonoBehaviour
             DrawCell(cell.row, cell.col, updatedIq);
         }
 
-        changedIndices.Add((
-            GridToInventoryIndex(cell.row, cell.col),
-            qtyLeftBehind == 0 ? null : updatedIq
-        ));
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            qtyLeftBehind == 0 ? null : updatedIq)
+        };
     }
 
-    private void PlaceIntoEmptySlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
+    private List<(int, ItemQuantity?)> PlaceIntoEmptySlot(CellData cell, int qtyToPlace)
     {
         if (cell.itemData != null)
         {
-            Debug.LogWarning($"Requested to place into empty cell, but given cell ({cell.row},{cell.col}) is not empty!");
-            return;
+            throw new CellNotEmptyException($"Requested to place into empty cell, but given cell ({cell.row},{cell.col}) is not empty!");
         }
 
         // Place into the clicked cell
@@ -325,13 +324,14 @@ public class InventoryMenu : MonoBehaviour
             selectedCell = null;
         }
 
-        changedIndices.Add((
-            GridToInventoryIndex(cell.row, cell.col),
-            iqToPlace
-        ));
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            iqToPlace)
+        };
     }
 
-    private void PlaceIntoOccupiedSlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
+    private List<(int, ItemQuantity?)> PlaceIntoOccupiedSlot(CellData cell, int qtyToPlace)
     {
         bool sameItem = selectedCell.itemData.item && cell.itemData.item;
         ItemQuantity? newIq;
@@ -352,10 +352,11 @@ public class InventoryMenu : MonoBehaviour
             newIq = selectedCell.itemData;
         }
 
-        changedIndices.Add((
-            GridToInventoryIndex(cell.row, cell.col),
-            newIq
-        ));
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            newIq)
+        };
     }
 
     private bool IsLeftClickOnly(MouseDownEvent evt)
@@ -372,4 +373,9 @@ public class InventoryMenu : MonoBehaviour
     {
         return evt.button == 1;
     }
+}
+
+public class CellNotEmptyException : Exception
+{
+    public CellNotEmptyException(string message) : base(message) { }
 }
