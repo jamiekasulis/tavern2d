@@ -318,24 +318,22 @@ public class InventoryMenu : MonoBehaviour
             return;
         }
 
-        ItemQuantity newPlacedIq = new() { item = selectedCell.itemData.item, quantity = qtyToPlace };
-        int newSelectedQty = selectedCell.itemData.quantity - qtyToPlace;
-        if (newSelectedQty  <= 0)
+        // Place into the clicked cell
+        ItemQuantity iqToPlace = new() { item = selectedCell.itemData.item, quantity = qtyToPlace };
+        DrawCell(cell.row, cell.col, iqToPlace);
+        selectedCell.itemData.quantity -= qtyToPlace;
+
+        // Check if the selectedCell is all used up/placed
+        if (selectedCell.itemData.quantity <= 0)
         {
-            EmptyCell(selectedCell.row, selectedCell.col);
             selectedCell = null;
+            inventoryTooltip.Clear();
         }
-        else
-        {
-            selectedCell.itemData.quantity = newSelectedQty;
-        }
-        DrawCell(cell.row, cell.col, newPlacedIq); // Draw needs to come AFTER potential EmptyCell call to cover the case where we place into its former slot.
 
         changedIndices.Add((
             GridToInventoryIndex(cell.row, cell.col),
-            newPlacedIq
+            iqToPlace
         ));
-        inventoryTooltip.Clear();
     }
 
     private void PlaceIntoOccupiedSlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
