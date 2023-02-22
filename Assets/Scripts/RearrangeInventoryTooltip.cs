@@ -7,13 +7,15 @@ public class RearrangeInventoryTooltip : MonoBehaviour
     private bool IsShowingImage;
     private VisualElement rootButton, root;
     private Label quantityLabel;
+    private Color transparentGray = new Color(0.5f, 0.5f, 0.5f, 0.5f); // Gray with 50% transparency
 
     private void Awake()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
         rootButton = root.Q<Button>("RootButton");
         quantityLabel = rootButton.Q<Label>("QuantityLabel");
-        rootButton.style.unityBackgroundImageTintColor = Color.gray;
+        rootButton.style.unityBackgroundImageTintColor = transparentGray;
+        rootButton.style.backgroundColor = transparentGray;
 
         Clear();
     }
@@ -38,7 +40,7 @@ public class RearrangeInventoryTooltip : MonoBehaviour
         if (IsShowingImage)
         {
             Vector2 mousePosition = Input.mousePosition;
-            Vector2 mousePositionCorrected = new(mousePosition.x, Screen.height - mousePosition.y - 150);
+            Vector2 mousePositionCorrected = new(mousePosition.x, Screen.height - mousePosition.y);
             mousePositionCorrected = RuntimePanelUtils.ScreenToPanel(root.panel, mousePositionCorrected);
             root.transform.position = mousePositionCorrected;
         }

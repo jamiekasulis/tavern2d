@@ -273,7 +273,6 @@ public class InventoryMenu : MonoBehaviour
         if (changedIndices.Count > 0)
         {
             rearrangeInventoryTrigger.Invoke(inventory, changedIndices);
-            Debug.Log($"Rearranged inventory backend to {inventory}");
         }
     }
 
@@ -337,7 +336,6 @@ public class InventoryMenu : MonoBehaviour
             newPlacedIq
         ));
         inventoryTooltip.Clear();
-        Debug.Log($"Changed indices: {GridToInventoryIndex(cell.row, cell.col)}, {newPlacedIq}");
     }
 
     private void PlaceIntoOccupiedSlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
