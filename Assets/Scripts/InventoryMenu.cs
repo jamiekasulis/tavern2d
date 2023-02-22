@@ -274,6 +274,15 @@ public class InventoryMenu : MonoBehaviour
             PlaceIntoEmptySlot(cell, qtyToPlace, changedIndices);
         }
 
+        if (selectedCell == null)
+        {
+            inventoryTooltip.Clear();
+        }
+        else
+        {
+            inventoryTooltip.Draw(selectedCell.itemData);
+        }
+
         if (changedIndices.Count > 0)
         {
             rearrangeInventoryTrigger.Invoke(inventory, changedIndices);
@@ -313,7 +322,6 @@ public class InventoryMenu : MonoBehaviour
             GridToInventoryIndex(cell.row, cell.col),
             qtyLeftBehind == 0 ? null : updatedIq
         ));
-        inventoryTooltip.Draw(selectedIq);
     }
 
     private void PlaceIntoEmptySlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
