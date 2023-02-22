@@ -204,9 +204,6 @@ public class InventoryMenu : MonoBehaviour
                 return;
             }
 
-
-            // Must check SHIFT+LeftClick before LeftClick only, for reasons I don't understand
-            // since both explicitly check if shift was held :(
             if (IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
             {
                 int pickupQty = cell.itemData.quantity % 2 == 0 ? cell.itemData.quantity / 2 : cell.itemData.quantity / 2 + 1;
@@ -226,7 +223,7 @@ public class InventoryMenu : MonoBehaviour
         // Subcase: Swapping and combining
         else if (isHoldingItem && cellHasItem)
         {
-            if (IsLeftClickOnly(evt) && !IsShiftLeftClick(evt)) // For some reason, IsLeftClickOnly() doesn't work as expected. Check explicitly for shift key
+            if (IsLeftClickOnly(evt))
             {
                 changedIndices = PlaceIntoOccupiedSlot(cell, selectedCell.itemData.quantity);
             }
@@ -239,7 +236,6 @@ public class InventoryMenu : MonoBehaviour
             if (IsShiftLeftClick(evt))
             {
                 qtyToPlace = selectedCell.itemData.quantity % 2 == 0 ? selectedCell.itemData.quantity / 2 : selectedCell.itemData.quantity / 2 + 1;
-                Debug.Log($"Calculated quantity to place to be {qtyToPlace}");
             }
             else if (IsLeftClickOnly(evt))
             {
@@ -274,7 +270,6 @@ public class InventoryMenu : MonoBehaviour
 
     private List<(int, ItemQuantity?)> PickUpQuantity(CellData cell, int qtyToPickUp)
     {
-        Debug.Log($"Called PickUpQuantity with qtyToPickUp={qtyToPickUp}");
         if (cell.itemData.quantity < qtyToPickUp)
         {
             throw new InvalidQuantityException($"Requested to pick up {qtyToPickUp} from cell ({cell.row},{cell.col}) but there is only {cell.itemData.quantity} available!");
@@ -295,7 +290,6 @@ public class InventoryMenu : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Drawing the old cell to have qty={qtyLeftBehind}");
             DrawCell(cell.row, cell.col, updatedIq);
         }
 
@@ -362,12 +356,14 @@ public class InventoryMenu : MonoBehaviour
 
     private bool IsLeftClickOnly(MouseDownEvent evt)
     {
-        return evt.button == 0 && !evt.shiftKey;
+        // Do not use evt.shiftKey as from my testing this is inaccurate 1/2 the time
+        return evt.button == 0 && !Input.GetKey(KeyCode.LeftShift);
     }
 
     private bool IsShiftLeftClick(MouseDownEvent evt)
     {
-        return evt.button == 0 && evt.shiftKey;
+        // Do not use evt.shiftKey as from my testing this is inaccurate 1/2 the time
+        return evt.button == 0 && Input.GetKey(KeyCode.LeftShift);
     }
 
     private bool IsRightClick(MouseDownEvent evt)
