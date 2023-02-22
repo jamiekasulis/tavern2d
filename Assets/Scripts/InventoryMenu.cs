@@ -225,28 +225,10 @@ public class InventoryMenu : MonoBehaviour
         // Subcase: Swapping and combining
         else if (isHoldingItem && cellHasItem)
         {
-            if (cell.itemData.item == selectedCell.itemData.item)
+            if (IsLeftClickOnly(evt) && !IsShiftLeftClick(evt)) // For some reason, IsLeftClickOnly() doesn't work as expected. Check explicitly for shift key
             {
-                // @TODO combine
+                PlaceIntoOccupiedSlot(cell, selectedCell.itemData.quantity, changedIndices);
             }
-            else
-            {
-                // @TODO swap
-            }
-            CellData cellCopy = new(cell.visualElement, cell.itemData, cell.row, cell.col); // copy cell as it were
-            DrawCell(cell.row, cell.col, selectedCell.itemData);
-            DrawCell(selectedCell.row, selectedCell.col, cellCopy.itemData);
-
-            changedIndices.Add((
-                GridToInventoryIndex(cellCopy.row, cellCopy.col),
-                selectedCell.itemData
-            ));
-            changedIndices.Add((
-                GridToInventoryIndex(selectedCell.row, selectedCell.col),
-                cellCopy.itemData
-            ));
-
-            selectedCell = null;
         }
 
         // Subcase: Place into empty slot
@@ -341,7 +323,6 @@ public class InventoryMenu : MonoBehaviour
         if (selectedCell.itemData.quantity <= 0)
         {
             selectedCell = null;
-            inventoryTooltip.Clear();
         }
 
         changedIndices.Add((
@@ -352,16 +333,29 @@ public class InventoryMenu : MonoBehaviour
 
     private void PlaceIntoOccupiedSlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
     {
-        if (cell.itemData.item == selectedCell.itemData.item)
+        bool sameItem = selectedCell.itemData.item && cell.itemData.item;
+        ItemQuantity? newIq;
+        if (sameItem)
         {
-            // Combine
-            int newSelectedQty = selectedCell.itemData.quantity - qtyToPlace;
-            cell.itemData.quantity += qtyToPlace;
-            if (newSelectedQty == 0)
-            {
-                // null out selected cell
-            }
+            newIq = new() { item = cell.itemData.item, quantity = cell.itemData.quantity + qtyToPlace };
+            DrawCell(cell.row, cell.col, newIq);
+            selectedCell = null;
         }
+        else // Swapping
+        {
+            CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
+            DrawCell(cell.row, cell.col, selectedCell.itemData);
+            selectedCell.row = cell.row;
+            selectedCell.col = cell.col;
+            selectedCell.itemData = temp.itemData;
+            selectedCell.visualElement = temp.visualElement;
+            newIq = selectedCell.itemData;
+        }
+
+        changedIndices.Add((
+            GridToInventoryIndex(cell.row, cell.col),
+            newIq
+        ));
     }
 
     private bool IsLeftClickOnly(MouseDownEvent evt)
