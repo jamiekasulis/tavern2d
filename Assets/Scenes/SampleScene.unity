@@ -200,7 +200,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 9019957821194467657, guid: 83c8175cd29b94a11972f56c91237adf, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 9019957821194467657, guid: 83c8175cd29b94a11972f56c91237adf, type: 3}
       propertyPath: m_LocalPosition.x
@@ -731,7 +731,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0061416626, y: -0.00000017881393}
+  m_Offset: {x: -0.0061416626, y: -0.46933413}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -742,7 +742,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.004345, y: 3.3858624}
+  m_Size: {x: 2.004345, y: 2.4471946}
   m_EdgeRadius: 0
 --- !u!212 &836610044
 SpriteRenderer:
@@ -845,6 +845,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sortingOrderBase: 5000
+  offset: 10
   runOnlyOnce: 1
 --- !u!1 &937006372
 GameObject:
@@ -949,12 +950,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 937006372}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.27, y: 0, z: 0}
+  m_LocalPosition: {x: -4.9, y: 2.16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &937006377
 MonoBehaviour:
@@ -1013,9 +1014,9 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.082010865, y: 0.005467415}
-  m_Size: {x: 0.6360438, y: 2.5515652}
-  m_Direction: 0
+  m_Offset: {x: -0.100000046, y: -1.0926318}
+  m_Size: {x: 0.95716715, y: 0.4507802}
+  m_Direction: 1
 --- !u!114 &937006380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1029,6 +1030,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sortingOrderBase: 5000
+  offset: 10
   runOnlyOnce: 0
 --- !u!1 &1332848815
 GameObject:
@@ -1073,7 +1075,7 @@ Transform:
   m_Children:
   - {fileID: 1448022711}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1448022710
 GameObject:
