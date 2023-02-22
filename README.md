@@ -12,3 +12,6 @@ bool shiftLeftClick = evt.button == 0 && Input.GetKey(KeyCode.LEFT_SHIFT);
 // Do NOT
 bool shiftLeftClick = evt.button == 0 && evt.shiftKey;
 ```
+
+**2. Let the player rigidbody be DYNAMIC**
+Previously this was kinematic since I did not want the player to be subject to gravity and physics. However, having the rigidbody be anything other than dynamic means that generally the object will not collide except under specific circumstances. A better approach is to let the player rigidbody be dynamic but set the project's physics settings to have no gravity in Edit -> Project Settings -> Physics 2D.
