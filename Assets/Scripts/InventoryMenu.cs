@@ -112,7 +112,7 @@ public class InventoryMenu : MonoBehaviour
             }
             else
             {
-                EmptyCell(rowCol.Item1, rowCol.Item2, false);
+                EmptyCell(rowCol.Item1, rowCol.Item2);
             }
         }
     }
@@ -128,6 +128,9 @@ public class InventoryMenu : MonoBehaviour
         return result;
     }
 
+    /**
+     * Draws the given item data into the cell at the specified coordinates.
+     */
     private void DrawCell(int row, int col, ItemQuantity itemData)
     {
         CellData cell = cellsByRow[row, col];
@@ -140,21 +143,17 @@ public class InventoryMenu : MonoBehaviour
         rootButton.style.unityBackgroundImageTintColor = StyleKeyword.Null;
     }
 
-    private void EmptyCell(int row, int col, bool greyOut)
+    /**
+     * Empties out the cell so that there is no image sprite or label shown.
+     */
+    private void EmptyCell(int row, int col)
     {
         CellData cell = cellsByRow[row, col];
         Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
         Button rootButton = cell.visualElement.Q<Button>("RootButton");
 
-        if (greyOut)
-        {
-            rootButton.style.unityBackgroundImageTintColor = Color.gray;
-        }
-        else
-        {
-            qtyLabel.text = "";
-            rootButton.style.backgroundImage = StyleKeyword.None;
-        }
+        qtyLabel.text = "";
+        rootButton.style.backgroundImage = StyleKeyword.None;
         
         cell.itemData = null;
     }
@@ -175,6 +174,10 @@ public class InventoryMenu : MonoBehaviour
         }
     }
 
+    /**
+     * Event callback for mouse activity. Handles the user rearranging inventory
+     * in the UI.
+     */
     private void HandleCellClick(MouseDownEvent evt, CellData cell)
     {
         bool isHoldingItem = selectedCell != null;
@@ -183,7 +186,7 @@ public class InventoryMenu : MonoBehaviour
         // Tracks which indices of the INVENTORY object were changed,
         // with the item quantity being what to change it to.
         // This will be passed to a callback at the end which will
-        // reflect the visual changes in the UI to the actual Inv data.
+        // reflect the visual changes in the UI to the backend inventory object.
         List<(int, ItemQuantity)> changedIndices = new();
 
         // No-op
@@ -195,7 +198,6 @@ public class InventoryMenu : MonoBehaviour
         // Picking up an item
         else if (!isHoldingItem && cellHasItem)
         {
-            Debug.Log("Picking up");
             if (evt.button == 2) // Middle mouse button click - Do nothing
             {
                 return;
@@ -214,8 +216,6 @@ public class InventoryMenu : MonoBehaviour
             {
                 PickUpQuantity(cell, 1, changedIndices);
             }
-
-            inventoryTooltip.Draw(selectedCell.itemData.item.sprite);
         }
 
         // Placing an item
@@ -290,13 +290,14 @@ public class InventoryMenu : MonoBehaviour
             return;
         }
 
-        selectedCell = new CellData(cell.visualElement, new() { item = cell.itemData.item, quantity = qtyToPickUp }, cell.row, cell.col);
+        ItemQuantity selectedIq = new() { item = cell.itemData.item, quantity = qtyToPickUp };
+        selectedCell = new CellData(cell.visualElement, selectedIq, cell.row, cell.col);
 
         int qtyLeftBehind = cell.itemData.quantity - qtyToPickUp;
         ItemQuantity updatedIq = new() { item = cell.itemData.item, quantity = qtyLeftBehind };
         if (qtyLeftBehind == 0)
         {
-            EmptyCell(cell.row, cell.col, true);
+            EmptyCell(cell.row, cell.col);
         }
         else
         {
@@ -307,8 +308,7 @@ public class InventoryMenu : MonoBehaviour
             GridToInventoryIndex(cell.row, cell.col),
             qtyLeftBehind == 0 ? null : updatedIq
         ));
-        var newVal = qtyLeftBehind == 0 ? null : updatedIq;
-        Debug.Log($"Changed indices: {GridToInventoryIndex(cell.row, cell.col)}, {newVal}");
+        inventoryTooltip.Draw(selectedIq);
     }
 
     private void PlaceIntoEmptySlot(CellData cell, int qtyToPlace, List<(int, ItemQuantity?)> changedIndices)
@@ -323,7 +323,7 @@ public class InventoryMenu : MonoBehaviour
         int newSelectedQty = selectedCell.itemData.quantity - qtyToPlace;
         if (newSelectedQty  <= 0)
         {
-            EmptyCell(selectedCell.row, selectedCell.col, false);
+            EmptyCell(selectedCell.row, selectedCell.col);
             selectedCell = null;
         }
         else
