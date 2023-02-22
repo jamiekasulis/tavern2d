@@ -333,7 +333,7 @@ public class InventoryMenu : MonoBehaviour
 
     private List<(int, ItemQuantity?)> PlaceIntoOccupiedSlot(CellData cell, int qtyToPlace)
     {
-        bool sameItem = selectedCell.itemData.item && cell.itemData.item;
+        bool sameItem = selectedCell.itemData.item == cell.itemData.item;
         ItemQuantity? newIq;
         if (sameItem)
         {
@@ -343,13 +343,14 @@ public class InventoryMenu : MonoBehaviour
         }
         else // Swapping
         {
+            // @TODO Do this without holding onto references that will then not be garbage-collected.
+            newIq = selectedCell.itemData;
             CellData temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
             DrawCell(cell.row, cell.col, selectedCell.itemData);
             selectedCell.row = cell.row;
             selectedCell.col = cell.col;
             selectedCell.itemData = temp.itemData;
             selectedCell.visualElement = temp.visualElement;
-            newIq = selectedCell.itemData;
         }
 
         return new()
