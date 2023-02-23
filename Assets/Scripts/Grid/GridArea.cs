@@ -51,7 +51,8 @@ public class GridArea : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log($"Found {GetTiles(BuildableAreaTilemap).Length} tiles in GridArea");
+        TileBase[] tilesFound = GetTiles(BuildableAreaTilemap);
+        Debug.Log($"Found {tilesFound.Length} tiles.");
     }
 
     /**
@@ -78,9 +79,6 @@ public class GridArea : MonoBehaviour
                 return Mathf.CeilToInt(n);
             }
         }
-
-        bool xIsPos = transform.position.x > 0, yIsPos = transform.position.y > 0;
-
         Vector3Int startPosition = new ( // bottom left corner
             GetSnappedToWorldGridCoordinate(transform.position.x),
             GetSnappedToWorldGridCoordinate(transform.position.y - numRows * CellSize),
@@ -89,19 +87,20 @@ public class GridArea : MonoBehaviour
         Vector3Int size = new(
             Mathf.CeilToInt(numCols * CellSize),
             Mathf.CeilToInt(numRows * CellSize),
-            0
+            1 // BoundsInts NEEDS z of at least 1 for it to contain anything!
         );
         BoundsInt bounds = new(startPosition, size);
 
         if (drawDebugLines)
         {
             // Draw two lines to illustrate the bounds (in the tilemap's grid) that this grid area covers
-            Debug.DrawLine(bounds.position, bounds.position + new Vector3Int(bounds.size.x, 0, 0), Color.red, 2);
-            Debug.DrawLine(bounds.position, bounds.position + new Vector3Int(0, +bounds.size.y, 0), Color.red, 2);
+            Debug.DrawLine(bounds.position, bounds.position + new Vector3Int(bounds.size.x, 0, 0), Color.red, 2); // bottom
+            Debug.DrawLine(bounds.position, bounds.position + new Vector3Int(0, +bounds.size.y, 0), Color.red, 2); // left
+            Debug.DrawLine(bounds.max, bounds.max - new Vector3Int(0, bounds.size.y, 0), Color.red, 2); // right
+            Debug.DrawLine(bounds.max, bounds.max - new Vector3Int(bounds.size.x, 0, 0), Color.red, 2); // top
         }
 
-        TileBase[] tiles = tilemap.GetTilesBlock(bounds);
-        return tiles;
+        return tilemap.GetTilesBlock(bounds);
     }
 
     public TileBase[] GetTiles(Tilemap tilemap)
