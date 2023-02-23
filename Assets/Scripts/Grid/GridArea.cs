@@ -1,22 +1,18 @@
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class GridArea : MonoBehaviour
 {
     [SerializeField] public int numRows, numCols;
     public GridCell[,] Cells;
     [SerializeField] private float CellSize = 1;
+    [SerializeField] private Tilemap BuildableAreaTilemap;
 
     private void Awake()
     {
-        Debug.Log("Called Awake for GridArea.");
         transform.position.Set(transform.position.x, transform.position.y, 1f);
         Cells = new GridCell[numRows, numCols];
         FillInCells(new Coordinate { row = 0, col = 0 }, new Coordinate { row = numRows, col = numCols });
-    }
-
-    private void Start()
-    {
-        Debug.Log("Called Start for GridArea.");
     }
 
     public bool ContainsCoordinate(Coordinate coord)
@@ -53,6 +49,68 @@ public class GridArea : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        Debug.Log($"Found {GetTiles(BuildableAreaTilemap).Length} tiles in GridArea");
+    }
+
+    /**
+     * Returns the tiles from the world grid which this custom grid
+     * overlaps with.
+     * 
+     * Note: Even partial overlap will result in that tile being returned.
+     */
+    public TileBase[] GetTiles(Tilemap tilemap, bool drawDebugLines)
+    {
+
+        int GetSnappedToWorldGridCoordinate(float n)
+        {
+            if (n == 0)
+            {
+                return (int)n;
+            }
+            else if (n < 0)
+            {
+                return Mathf.FloorToInt(n);
+            }
+            else
+            {
+                return Mathf.CeilToInt(n);
+            }
+        }
+
+        bool xIsPos = transform.position.x > 0, yIsPos = transform.position.y > 0;
+
+        Vector3Int startPosition = new ( // bottom left corner
+            GetSnappedToWorldGridCoordinate(transform.position.x),
+            GetSnappedToWorldGridCoordinate(transform.position.y - numRows * CellSize),
+            (int)tilemap.layoutGrid.transform.position.z
+        );
+        Vector3Int size = new(
+            Mathf.CeilToInt(numCols * CellSize),
+            Mathf.CeilToInt(numRows * CellSize),
+            0
+        );
+        BoundsInt bounds = new(startPosition, size);
+
+        if (drawDebugLines)
+        {
+            // Draw two lines to illustrate the bounds (in the tilemap's grid) that this grid area covers
+            Debug.DrawLine(bounds.position, bounds.position + new Vector3Int(bounds.size.x, 0, 0), Color.red, 2);
+            Debug.DrawLine(bounds.position, bounds.position + new Vector3Int(0, +bounds.size.y, 0), Color.red, 2);
+        }
+
+        TileBase[] tiles = tilemap.GetTilesBlock(bounds);
+        return tiles;
+    }
+
+    public TileBase[] GetTiles(Tilemap tilemap)
+    {
+        return GetTiles(tilemap, true);
+    }
+
+    #region Debugging tools
+
     private void OnDrawGizmos()
     {
         DrawGridOutline();
@@ -88,4 +146,6 @@ public class GridArea : MonoBehaviour
             );
         }
     }
+
+    #endregion
 }
