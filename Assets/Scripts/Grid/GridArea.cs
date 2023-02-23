@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System.Linq;
+using System.Collections.Generic;
 
 public class GridArea : MonoBehaviour
 {
@@ -7,6 +9,8 @@ public class GridArea : MonoBehaviour
     public GridCell[,] Cells;
     [SerializeField] private float CellSize = 1;
     [SerializeField] private Tilemap BuildableAreaTilemap;
+    [SerializeField] private Sprite BuildableSprite;
+    
 
     private void Awake()
     {
@@ -25,7 +29,7 @@ public class GridArea : MonoBehaviour
      */
     private void FillInCells(Coordinate from, Coordinate to)
     {
-        if (from.row >= to.row || from.col >= to.col) // Can handle this later. But for now, fail. @TODO
+        if (from.row >= to.row || from.col >= to.col)
         {
             throw new System.Exception($"Given invalid args for 'from' and 'to' in FillInCells");
         }
@@ -51,37 +55,41 @@ public class GridArea : MonoBehaviour
 
     private void Update()
     {
-        TileBase[] tilesFound = GetTiles(BuildableAreaTilemap);
-        Debug.Log($"Found {tilesFound.Length} tiles.");
+        UpdateBuildableCells();
+
+        // Testing shit
+        for (int r = 0; r < numRows; r++)
+        {
+            for (int c = 0; c < numCols; c++)
+            {
+                if (Cells[r, c].buildable)
+                {
+                    // Draw a diagonal through all the buildable GridCells
+                    Debug.DrawLine(Cells[r, c].OriginWorldPosition, Cells[r, c].OriginWorldPosition + new Vector3(CellSize, -CellSize, 0));
+                }
+            }
+        }
+    }
+
+    private void UpdateBuildableCells()
+    {
+        TileBase[] buildableAreaTiles = GetTiles(BuildableAreaTilemap, false)
+            .Where(tb => tb.name == BuildableSprite.name)
+            .ToArray();
+
+        // Mark all the grid cells within buildableAreaTiles as buildable = true.
     }
 
     /**
-     * Returns the tiles from the world grid which this custom grid
-     * overlaps with.
+     * Returns the tiles belonging to the given tilemap that this GridArea overlaps with.
      * 
      * Note: Even partial overlap will result in that tile being returned.
      */
     public TileBase[] GetTiles(Tilemap tilemap, bool drawDebugLines)
     {
-
-        int GetSnappedToWorldGridCoordinate(float n)
-        {
-            if (n == 0)
-            {
-                return (int)n;
-            }
-            else if (n < 0)
-            {
-                return Mathf.FloorToInt(n);
-            }
-            else
-            {
-                return Mathf.CeilToInt(n);
-            }
-        }
         Vector3Int startPosition = new ( // bottom left corner
-            GetSnappedToWorldGridCoordinate(transform.position.x),
-            GetSnappedToWorldGridCoordinate(transform.position.y - numRows * CellSize),
+            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.x),
+            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.y - numRows * CellSize),
             (int)tilemap.layoutGrid.transform.position.z
         );
         Vector3Int size = new(
