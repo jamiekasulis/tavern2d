@@ -6,7 +6,6 @@ public class BuildMode : MonoBehaviour
     public GameObject testPrefab; // object to place
     [SerializeField] private Tilemap buildModeTilemap;
     [SerializeField] private Grid buildModeGrid;
-    [SerializeField] private Tilemap BuildableAreaTilemap;
     [SerializeField] private TileBase baseTile, okTile, badTile;
 
     private BuildableGridArea buildableGridArea;
@@ -68,10 +67,8 @@ public class BuildMode : MonoBehaviour
     private void PaintBuildableAreaTiles()
     {
         BoundsInt gridBounds = buildableGridArea.GetGridAreaBounds();
-        Debug.Log($"Discovered grid bounds to be {gridBounds}");
-
         TileBase[] tiles = buildableGridArea.GetTiles(buildModeTilemap);
-        Debug.Log($"Found {tiles.Length} tiles in the grid area."); // should be 64
+        Debug.Log($"Attempting to fill {tiles.Length} tiles in the bounds ({gridBounds} xMin={gridBounds.xMin}, xMax={gridBounds.xMax}, yMin={gridBounds.yMin}, yMax={gridBounds.yMax}), tilemapBounds={buildModeTilemap.cellBounds}");
         buildModeTilemap.BoxFill(gridBounds.position, baseTile, gridBounds.xMin, gridBounds.yMin, gridBounds.xMax, gridBounds.yMax);
     }
 
