@@ -120,6 +120,7 @@ public class BuildMode : MonoBehaviour
         placementArea = GetPlaceableObjFloorBoundsGrid();
 
         bool isWithinBuildableArea = tilemap.cellBounds.Contains(placementArea.min) && tilemap.cellBounds.Contains(placementArea.max);
+        Debug.Log($"isWithinBuildableArea = {isWithinBuildableArea}");
         if (isWithinBuildableArea)
         {
             // @TODO also account for collisions with other objects.
@@ -127,6 +128,8 @@ public class BuildMode : MonoBehaviour
         }
         else
         {
+            // Boxfilling outside of our bounds can still happen if the boxfilled area's
+            // starting/minimum position is outside of the bounds. Make sure to prevent this.
             placementArea.ClampToBounds(buildableGridArea.GetGridAreaBounds());
             PaintTiles(placementArea, badTile);
         }
