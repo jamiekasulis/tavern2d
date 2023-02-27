@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using System.Linq;
 
 [RequireComponent(typeof(BuildMode))]
 public class BuildableGridArea : GridArea

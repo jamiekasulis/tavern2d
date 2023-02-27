@@ -47,7 +47,11 @@ public class GridArea : MonoBehaviour
 
     public virtual void Update()
     {
-        // Testing shit
+        DebugDrawGridLines();
+    }
+
+    private void DebugDrawGridLines()
+    {
         for (int r = 0; r < numRows; r++)
         {
             for (int c = 0; c < numCols; c++)
@@ -60,8 +64,6 @@ public class GridArea : MonoBehaviour
             }
         }
     }
-
-    
 
     #region Public functions
 
@@ -93,11 +95,13 @@ public class GridArea : MonoBehaviour
 
     public BoundsInt GetGridAreaBounds()
     {
+        Debug.Log($"Calculating bounds using cell size {CellSize}, {numRows} rows, and {numCols} cols.");
         Vector3Int startPosition = new( // bottom left corner
             GridUtils.GetSnappedToWorldGridCoordinate(transform.position.x),
             GridUtils.GetSnappedToWorldGridCoordinate(transform.position.y - numRows * CellSize),
             0
         );
+        Debug.Log($"Calculated bounds minimum position to be {startPosition}");
         Vector3Int size = new(
             Mathf.CeilToInt(numCols * CellSize),
             Mathf.CeilToInt(numRows * CellSize),

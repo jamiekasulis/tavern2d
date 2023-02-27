@@ -29,6 +29,7 @@ public class BuildMode : MonoBehaviour
             Debug.Log("Build Mode " + (isEnabled ? "enabled." : "disabled."));
 
             InstantiateOrDestroyPlaceableObject();
+
             if (isEnabled)
             {
                 PaintBuildableAreaTiles();
@@ -46,13 +47,6 @@ public class BuildMode : MonoBehaviour
 
         mouseWorldPosition = GetMouseWorldPosition();
         UpdateObjectPosition();
-
-        if (Input.GetMouseButton(0))
-        {
-            // Place object
-            // Reparent to BuildableAreaGrid
-            // Set instantiatedPrefab to null
-        }
     }
 
     private void InstantiateOrDestroyPlaceableObject()
@@ -76,6 +70,8 @@ public class BuildMode : MonoBehaviour
         BoundsInt gridBounds = buildableGridArea.GetGridAreaBounds();
         Debug.Log($"Discovered grid bounds to be {gridBounds}");
 
+        TileBase[] tiles = buildableGridArea.GetTiles(buildModeTilemap);
+        Debug.Log($"Found {tiles.Length} tiles in the grid area."); // should be 64
         buildModeTilemap.BoxFill(gridBounds.position, baseTile, gridBounds.xMin, gridBounds.yMin, gridBounds.xMax, gridBounds.yMax);
     }
 

@@ -312,7 +312,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 399621412}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.9, y: 0.9, z: 0}
+  m_LocalPosition: {x: -3, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -867,6 +867,11 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &965655355 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9136770014896923556, guid: ab3abb1e8f2da4670a3e35df82eede1f, type: 3}
+  m_PrefabInstance: {fileID: 9136770013669001995}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1408510076
 GameObject:
   m_ObjectHideFlags: 0
@@ -877,6 +882,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1408510078}
   - component: {fileID: 1408510077}
+  - component: {fileID: 1408510079}
   m_Layer: 0
   m_Name: BuildModeGrid
   m_TagString: Untagged
@@ -913,6 +919,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1408510079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408510076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d7978f88f9c840aab47fcf3129f5906, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &1808072329
 GameObject:
   m_ObjectHideFlags: 0
@@ -1152,6 +1171,19 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &1910209087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 965655355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d7978f88f9c840aab47fcf3129f5906, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &1977449617
 GameObject:
   m_ObjectHideFlags: 0
