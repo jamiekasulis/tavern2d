@@ -191,6 +191,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &108998934 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4455161765800525321, guid: 201bccbf8063346b3b93065ec1a04b66, type: 3}
+  m_PrefabInstance: {fileID: 4455161765827579679}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &309285810
 GameObject:
   m_ObjectHideFlags: 0
@@ -331,8 +336,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9a6f8e2f08f4ad3a7a65b962222bdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numRows: 8
-  numCols: 8
+  numRows: 10
+  numCols: 10
   CellSize: 0.5
 --- !u!114 &399621416
 MonoBehaviour:
@@ -346,7 +351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9346bee2b8ac473ab16970181873934, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testPrefab: {fileID: 4455161765800525321, guid: 201bccbf8063346b3b93065ec1a04b66, type: 3}
+  testPrefab: {fileID: 108998934}
   tilemap: {fileID: 567657851}
   grid: {fileID: 1408510077}
   baseTile: {fileID: 11400000, guid: 0c592e6f5ea674037870292f16be9709, type: 2}
@@ -1219,11 +1224,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4455161765800525315, guid: 201bccbf8063346b3b93065ec1a04b66, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.27
+      value: -7.38
       objectReference: {fileID: 0}
     - target: {fileID: 4455161765800525315, guid: 201bccbf8063346b3b93065ec1a04b66, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.02
+      value: -2.68
       objectReference: {fileID: 0}
     - target: {fileID: 4455161765800525315, guid: 201bccbf8063346b3b93065ec1a04b66, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1257,6 +1262,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4455161765800525319, guid: 201bccbf8063346b3b93065ec1a04b66, type: 3}
+      propertyPath: tilemap
+      value: 
+      objectReference: {fileID: 567657851}
     - target: {fileID: 4455161765800525321, guid: 201bccbf8063346b3b93065ec1a04b66, type: 3}
       propertyPath: m_Name
       value: RusticWoodenTable

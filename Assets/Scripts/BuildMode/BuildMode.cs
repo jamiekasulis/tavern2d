@@ -32,7 +32,7 @@ public class BuildMode : MonoBehaviour
         }
         else
         {
-            PaintTiles(buildableGridArea.GetGridAreaBounds(), baseTile, true);
+            FillBuildableAreaOnEnabled();
             mouseWorldPosition = GetMouseWorldPosition();
             UpdateObjectPosition();
         }
@@ -47,7 +47,7 @@ public class BuildMode : MonoBehaviour
 
             if (isEnabled)
             {
-                PaintTiles(buildableGridArea.GetGridAreaBounds(), baseTile, true);
+                FillBuildableAreaOnEnabled();
                 UpdateMousePositions();
                 UpdateObjectPosition();
             }
@@ -86,15 +86,21 @@ public class BuildMode : MonoBehaviour
         mouseGridPosition = tilemap.layoutGrid.WorldToCell(mouseWorldPosition);
     }
 
-    private void PaintTiles(BoundsInt area, TileBase tile, bool stretchTilemapSizeToArea = false)
+    private void FillBuildableAreaOnEnabled()
+    {
+        BoundsInt area = buildableGridArea.GetGridAreaBounds();
+        tilemap.size = area.size; // Might need to stretch tilemap or else it will not boxfill the entire area.
+        tilemap.cellBounds.ClampToBounds(buildableGridArea.GetGridAreaBounds());
+        // Subtract 1 from x, y since boxfill is inclusive
+        tilemap.BoxFill(area.position, baseTile, area.xMin, area.yMin, area.xMax - 1, area.yMax - 1);
+    }
+
+    private void PaintTiles(BoundsInt area, TileBase tile)
     {
         // Whenever you clear the tilemap it resets the bounds to 0. Before filling it, we need to resize the tilemap
         // so that it will be able to fit the entire boxfill we do below.
-        if (stretchTilemapSizeToArea)
-        {
-            tilemap.size = area.size;
-        }
-        tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax -1, area.yMax -1);
+        tilemap.cellBounds.ClampToBounds(buildableGridArea.GetGridAreaBounds());
+        tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
     }
 
     private void UpdateObjectPosition()
@@ -113,11 +119,7 @@ public class BuildMode : MonoBehaviour
         placementArea = GetPlaceableObjFloorBoundsGrid();
 
         // @TODO Determine if you should use okTile or badTile based off of overlap detection
-        tilemap.BoxFill(
-            placementArea.position, okTile,
-            placementArea.xMin, placementArea.yMin,
-            placementArea.xMax, placementArea.yMax
-        );
+        PaintTiles(placementArea, okTile);
         
     }
 
@@ -128,17 +130,6 @@ public class BuildMode : MonoBehaviour
 
     public BoundsInt GetPlaceableObjFloorBoundsGrid()
     {
-        Bounds worldBounds = placeableObject.GetFloorWorldBoundsGrid();
-        Vector3Int gridPosMin = tilemap.layoutGrid.WorldToCell(worldBounds.min);
-        Vector3Int gridPosMax = tilemap.layoutGrid.WorldToCell(worldBounds.max);
-
-        BoundsInt result = new BoundsInt(
-            gridPosMin.x, gridPosMin.y, 0,
-            gridPosMax.x, gridPosMax.y, 0
-        );
-
-        Debug.Log($"Floor bounds (grid):\tworldBounds={worldBounds}, gridMin={gridPosMin}, gridMax={gridPosMax}, result={result}");
-
-        return result;
+        return placeableObject.GetFloorGridBounds(tilemap.layoutGrid, buildableGridArea.GetScaleFactor());
     }
 }

@@ -105,7 +105,7 @@ public class GridArea : MonoBehaviour
         Vector3Int size = new(
             Mathf.CeilToInt(numCols * CellSize * scaleFactor),
             Mathf.CeilToInt(numRows * CellSize * scaleFactor),
-            0 // BoundsInts NEEDS z of at least 1 for it to contain anything!
+            0
         );
         return new(startPosition, size);
     }
