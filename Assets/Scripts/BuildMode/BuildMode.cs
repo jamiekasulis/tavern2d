@@ -1,21 +1,24 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-[RequireComponent(typeof(Tilemap))]
 public class BuildMode : MonoBehaviour
 {
-    private bool isEnabled = false;
-    private Tilemap tilemap;
-    private Grid grid;
     public GameObject testPrefab; // object to place
+    [SerializeField] private Tilemap buildModeTilemap;
+    [SerializeField] private Grid buildModeGrid;
+    [SerializeField] private Tilemap BuildableAreaTilemap;
+    [SerializeField] private TileBase baseTile, okTile, badTile;
+
+    private BuildableGridArea buildableGridArea;
+
+    private bool isEnabled = false;
     private GameObject instantiatedPrefab = null;
     private Vector2 mouseWorldPosition;
     
 
     private void Awake()
     {
-        tilemap = gameObject.GetComponent<Tilemap>();
-        grid = tilemap.layoutGrid;
+        buildableGridArea = gameObject.GetComponent<BuildableGridArea>();
     }
 
     void Update()
@@ -25,17 +28,10 @@ public class BuildMode : MonoBehaviour
             isEnabled = !isEnabled;
             Debug.Log("Build Mode " + (isEnabled ? "enabled." : "disabled."));
 
+            InstantiateOrDestroyPlaceableObject();
             if (isEnabled)
             {
-                instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity);
-            }
-            else
-            {
-                if (instantiatedPrefab != null)
-                {
-                    Destroy(instantiatedPrefab.gameObject, 0);
-                    instantiatedPrefab = null;
-                }
+                PaintBuildableAreaTiles();
             }
         }
 
@@ -55,16 +51,35 @@ public class BuildMode : MonoBehaviour
         }
     }
 
+    private void InstantiateOrDestroyPlaceableObject()
+    {
+        if (isEnabled)
+        {
+            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity);
+        }
+        else
+        {
+            if (instantiatedPrefab != null)
+            {
+                Destroy(instantiatedPrefab, 0);
+                instantiatedPrefab = null;
+            }
+        }
+    }
+
+    private void PaintBuildableAreaTiles()
+    {
+        BoundsInt gridBounds = buildableGridArea.GetGridAreaBounds();
+        Debug.Log($"Discovered grid bounds to be {gridBounds}");
+
+        buildModeTilemap.BoxFill(gridBounds.position, baseTile, gridBounds.xMin, gridBounds.yMin, gridBounds.xMax, gridBounds.yMax);
+    }
+
     private void UpdateObjectPosition()
     {
         instantiatedPrefab.transform.position = mouseWorldPosition;
     }
 
-    // @TODO Move to MouseUtils
-    /**
-     * Returns the world position of the mouse, or Vector3.zero if it
-     * cannot be determined.
-     */
     public static Vector2 GetMouseWorldPosition()
     {
         return Camera.main.ScreenToWorldPoint(Input.mousePosition);

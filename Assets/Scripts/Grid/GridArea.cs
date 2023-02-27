@@ -77,17 +77,7 @@ public class GridArea : MonoBehaviour
      */
     public TileBase[] GetTiles(Tilemap tilemap, bool drawDebugLines)
     {
-        Vector3Int startPosition = new ( // bottom left corner
-            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.x),
-            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.y - numRows * CellSize),
-            (int)tilemap.layoutGrid.transform.position.z
-        );
-        Vector3Int size = new(
-            Mathf.CeilToInt(numCols * CellSize),
-            Mathf.CeilToInt(numRows * CellSize),
-            1 // BoundsInts NEEDS z of at least 1 for it to contain anything!
-        );
-        BoundsInt bounds = new(startPosition, size);
+        BoundsInt bounds = GetGridAreaBounds();
 
         if (drawDebugLines)
         {
@@ -99,6 +89,21 @@ public class GridArea : MonoBehaviour
         }
 
         return tilemap.GetTilesBlock(bounds);
+    }
+
+    public BoundsInt GetGridAreaBounds()
+    {
+        Vector3Int startPosition = new( // bottom left corner
+            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.x),
+            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.y - numRows * CellSize),
+            0
+        );
+        Vector3Int size = new(
+            Mathf.CeilToInt(numCols * CellSize),
+            Mathf.CeilToInt(numRows * CellSize),
+            1 // BoundsInts NEEDS z of at least 1 for it to contain anything!
+        );
+        return new(startPosition, size);
     }
 
     public TileBase[] GetTiles(Tilemap tilemap)
