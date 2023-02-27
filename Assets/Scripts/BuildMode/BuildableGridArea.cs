@@ -30,6 +30,4 @@ public class BuildableGridArea : GridArea
     {
         base.Update();
     }
-
-
 }

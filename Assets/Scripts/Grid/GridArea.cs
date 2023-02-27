@@ -6,7 +6,7 @@ public class GridArea : MonoBehaviour
 {
     [SerializeField] public int numRows, numCols;
     public GridCell[,] Cells;
-    [SerializeField] private float CellSize = 1;
+    [SerializeField] public float CellSize = 1;
     
 
     public virtual void Awake()

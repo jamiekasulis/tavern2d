@@ -109,7 +109,7 @@ public class BuildMode : MonoBehaviour
         {
             return; // Do nothing if the mouse is in the same cell
         }
-        instantiatedPrefab.transform.position = mouseWorldPosition;
+        instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
 
         // Update the tiles. Since the position has changed, un-paint any green or red tiles from the last position
         // before painting the new position green or red.
@@ -121,6 +121,18 @@ public class BuildMode : MonoBehaviour
         // @TODO Determine if you should use okTile or badTile based off of overlap detection
         PaintTiles(placementArea, okTile);
         
+    }
+
+    private Vector3 CenterInCell(Vector3 worldPos)
+    {
+        Vector3Int cellPos = tilemap.layoutGrid.WorldToCell(worldPos);
+        Vector3 centeredPos = new (
+            cellPos.x + 0.5f * buildableGridArea.CellSize,
+            cellPos.y + 0.5f * buildableGridArea.CellSize,
+            0
+        );
+        Debug.Log($"Calculated centered position of {worldPos} to be {centeredPos}");
+        return centeredPos;
     }
 
     public static Vector2 GetMouseWorldPosition()
