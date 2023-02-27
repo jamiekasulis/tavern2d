@@ -9,7 +9,7 @@ public class GridArea : MonoBehaviour
     [SerializeField] private float CellSize = 1;
     
 
-    private void Awake()
+    public virtual void Awake()
     {
         transform.position.Set(transform.position.x, transform.position.y, 1f);
         Cells = new GridCell[numRows, numCols];

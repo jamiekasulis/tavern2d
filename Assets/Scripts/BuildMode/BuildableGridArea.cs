@@ -7,20 +7,15 @@ using System.Linq;
 public class BuildableGridArea : GridArea
 {
     [SerializeField] private Tilemap BuildableAreaTilemap;
-    [SerializeField] private Sprite BuildableSprite;
+    [SerializeField] private Sprite BuildableAreaSprite, PlacementOKSprite, PlacementBadSprite;
 
-    private void UpdateBuildableCells()
+    public override void Awake()
     {
-        TileBase[] buildableAreaTiles = GetTiles(BuildableAreaTilemap, false)
-            .Where(tb => tb.name == BuildableSprite.name)
-            .ToArray();
-
-        // Mark all the grid cells within buildableAreaTiles as buildable = true.
+        base.Awake();
     }
 
     public override void Update()
     {
         base.Update();
-        UpdateBuildableCells();
     }
 }
