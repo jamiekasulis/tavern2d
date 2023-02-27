@@ -95,16 +95,17 @@ public class GridArea : MonoBehaviour
 
     public BoundsInt GetGridAreaBounds()
     {
-        Debug.Log($"Calculating bounds using cell size {CellSize}, {numRows} rows, and {numCols} cols.");
+        float scaleFactor = Mathf.RoundToInt(1 / CellSize);
+        Debug.Log($"scaleFactor={scaleFactor}");
         Vector3Int startPosition = new( // bottom left corner
-            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.x),
-            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.y - numRows * CellSize),
+            GridUtils.GetSnappedToWorldGridCoordinate(transform.position.x * scaleFactor),
+            GridUtils.GetSnappedToWorldGridCoordinate((transform.position.y - numRows * CellSize) * scaleFactor),
             0
         );
-        Debug.Log($"Calculated bounds minimum position to be {startPosition}");
+        
         Vector3Int size = new(
-            Mathf.CeilToInt(numCols * CellSize),
-            Mathf.CeilToInt(numRows * CellSize),
+            Mathf.CeilToInt(numCols * CellSize * scaleFactor),
+            Mathf.CeilToInt(numRows * CellSize * scaleFactor),
             1 // BoundsInts NEEDS z of at least 1 for it to contain anything!
         );
         return new(startPosition, size);
