@@ -99,9 +99,8 @@ public class BuildMode : MonoBehaviour
     {
         // Whenever you clear the tilemap it resets the bounds to 0. Before filling it, we need to resize the tilemap
         // so that it will be able to fit the entire boxfill we do below.
-        Debug.Log($"Painting tilemap with cell bounds {tilemap.cellBounds}");
         tilemap.cellBounds.ClampToBounds(buildableGridArea.GetGridAreaBounds());
-        tilemap.ResizeBounds(); // @TODO uncomment me after testing!
+        tilemap.ResizeBounds();
         tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
     }
 
@@ -120,8 +119,17 @@ public class BuildMode : MonoBehaviour
         prevPlacementArea = placementArea;
         placementArea = GetPlaceableObjFloorBoundsGrid();
 
-        // @TODO Determine if you should use okTile or badTile based off of overlap detection
-        PaintTiles(placementArea, okTile);
+        bool isWithinBuildableArea = tilemap.cellBounds.Contains(placementArea.min) && tilemap.cellBounds.Contains(placementArea.max);
+        if (isWithinBuildableArea)
+        {
+            // @TODO also account for collisions with other objects.
+            PaintTiles(placementArea, okTile);
+        }
+        else
+        {
+            placementArea.ClampToBounds(buildableGridArea.GetGridAreaBounds());
+            PaintTiles(placementArea, badTile);
+        }
         
     }
 
