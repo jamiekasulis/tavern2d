@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Linq;
-using System.Collections.Generic;
 
 public class GridArea : MonoBehaviour
 {
@@ -17,11 +16,6 @@ public class GridArea : MonoBehaviour
         transform.position.Set(transform.position.x, transform.position.y, 1f);
         Cells = new GridCell[numRows, numCols];
         FillInCells(new Coordinate { row = 0, col = 0 }, new Coordinate { row = numRows, col = numCols });
-    }
-
-    public bool ContainsCoordinate(Coordinate coord)
-    {
-        return coord.row >= 0 && coord.col >= 0 && coord.row < numRows && coord.col < numCols;
     }
 
     /**
@@ -80,6 +74,13 @@ public class GridArea : MonoBehaviour
         // Mark all the grid cells within buildableAreaTiles as buildable = true.
     }
 
+    #region Public functions
+
+    public bool ContainsCoordinate(Coordinate coord)
+    {
+        return coord.row >= 0 && coord.col >= 0 && coord.row < numRows && coord.col < numCols;
+    }
+
     /**
      * Returns the tiles belonging to the given tilemap that this GridArea overlaps with.
      * 
@@ -115,6 +116,8 @@ public class GridArea : MonoBehaviour
     {
         return GetTiles(tilemap, true);
     }
+
+    #endregion
 
     #region Debugging tools
 
