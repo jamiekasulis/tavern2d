@@ -1,14 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GridUtils
 {
-    // @TODO
-    //public static Coordinate WorldToGridArea(Vector3 worldPos, GridArea grid)
-    //{
-        
-    //}
 
     public static int GetSnappedToWorldGridCoordinate(float n)
     {

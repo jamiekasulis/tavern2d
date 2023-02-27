@@ -7,8 +7,6 @@ public class GridArea : MonoBehaviour
     [SerializeField] public int numRows, numCols;
     public GridCell[,] Cells;
     [SerializeField] private float CellSize = 1;
-    [SerializeField] private Tilemap BuildableAreaTilemap;
-    [SerializeField] private Sprite BuildableSprite;
     
 
     private void Awake()
@@ -47,10 +45,8 @@ public class GridArea : MonoBehaviour
         }
     }
 
-    private void Update()
+    public virtual void Update()
     {
-        UpdateBuildableCells();
-
         // Testing shit
         for (int r = 0; r < numRows; r++)
         {
@@ -65,14 +61,7 @@ public class GridArea : MonoBehaviour
         }
     }
 
-    private void UpdateBuildableCells()
-    {
-        TileBase[] buildableAreaTiles = GetTiles(BuildableAreaTilemap, false)
-            .Where(tb => tb.name == BuildableSprite.name)
-            .ToArray();
-
-        // Mark all the grid cells within buildableAreaTiles as buildable = true.
-    }
+    
 
     #region Public functions
 
