@@ -16,3 +16,4 @@ MonoBehaviour:
   itemName: Rustic Wooden Table
   description: Featured in Farmhouse Weekly
   sprite: {fileID: 21300000, guid: 9676db028d23c46db9f2a3c36b8f028d, type: 3}
+  buildMode: 1

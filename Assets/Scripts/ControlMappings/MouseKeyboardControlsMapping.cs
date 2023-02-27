@@ -21,6 +21,11 @@ public class MouseKeyboardControlsMapping : MonoBehaviour
     // Menus
     public static KeyCode TOGGLE_INVENTORY_MENU = KeyCode.I;
 
+    // Build mode
+    public static KeyCode TOGGLE_BUILD_MODE = KeyCode.B;
+    public static KeyCode ROTATE_LEFT = KeyCode.LeftBracket;
+    public static KeyCode ROTATE_RIGHT = KeyCode.RightBracket;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
