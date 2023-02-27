@@ -12,6 +12,7 @@ public class BuildMode : MonoBehaviour
 
     private bool isEnabled = false;
     private GameObject instantiatedPrefab = null;
+    private PlaceableObject placeableObject;
     private Vector2 mouseWorldPosition;
     
 
@@ -25,27 +26,20 @@ public class BuildMode : MonoBehaviour
         if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_BUILD_MODE))
         {
             isEnabled = !isEnabled;
-            Debug.Log("Build Mode " + (isEnabled ? "enabled." : "disabled."));
-
             InstantiateOrDestroyPlaceableObject();
 
             if (isEnabled)
             {
                 PaintBuildableAreaTiles();
+                mouseWorldPosition = GetMouseWorldPosition();
+                UpdateObjectPosition();
             }
             else
             {
                 buildModeTilemap.ClearAllTiles();
+                return;
             }
         }
-
-        if (!isEnabled)
-        {
-            return;
-        }
-
-        mouseWorldPosition = GetMouseWorldPosition();
-        UpdateObjectPosition();
     }
 
     private void InstantiateOrDestroyPlaceableObject()
@@ -53,6 +47,7 @@ public class BuildMode : MonoBehaviour
         if (isEnabled)
         {
             instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity);
+            placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
         }
         else
         {
@@ -76,6 +71,7 @@ public class BuildMode : MonoBehaviour
     private void UpdateObjectPosition()
     {
         instantiatedPrefab.transform.position = mouseWorldPosition;
+
     }
 
     public static Vector2 GetMouseWorldPosition()

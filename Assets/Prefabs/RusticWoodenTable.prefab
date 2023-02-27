@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1855785409772954769}
   - component: {fileID: 1855785409772954772}
   - component: {fileID: 1855785409772954773}
+  - component: {fileID: -9137070716184922748}
   m_Layer: 0
   m_Name: RusticWoodenTable
   m_TagString: Untagged
@@ -86,7 +87,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!61 &1855785409772954769
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -149,3 +150,15 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 10
   runOnlyOnce: 1
+--- !u!114 &-9137070716184922748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1855785409772954768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f74fb91ad1a44294a92b6925eb28a6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
