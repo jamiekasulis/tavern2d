@@ -1,14 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
+using UnityEngine.Tilemaps;
 using UnityEngine;
 
+[RequireComponent(typeof(BoxCollider2D))] // BoxCollider2D defines the floor space the object takes up.
 public class PlaceableObject : MonoBehaviour
 {
-    public CompositeCollider2D collider { get; private set; }
+    private BoxCollider2D collider;
+    [SerializeField] private Tilemap tilemap;
 
     private void Awake()
     {
-        collider = gameObject.GetComponent<CompositeCollider2D>();
+        collider = gameObject.GetComponent<BoxCollider2D>();
     }
 
+    public Bounds GetFloorWorldBoundsGrid()
+    {
+        return collider.bounds;
+    }
 }
