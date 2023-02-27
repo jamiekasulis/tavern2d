@@ -67,9 +67,10 @@ public class BuildMode : MonoBehaviour
     private void PaintBuildableAreaTiles()
     {
         BoundsInt gridBounds = buildableGridArea.GetGridAreaBounds();
-        TileBase[] tiles = buildableGridArea.GetTiles(buildModeTilemap);
-        Debug.Log($"Attempting to fill {tiles.Length} tiles in the bounds ({gridBounds} xMin={gridBounds.xMin}, xMax={gridBounds.xMax}, yMin={gridBounds.yMin}, yMax={gridBounds.yMax}), tilemapBounds={buildModeTilemap.cellBounds}");
-        buildModeTilemap.BoxFill(gridBounds.position, baseTile, gridBounds.xMin, gridBounds.yMin, gridBounds.xMax, gridBounds.yMax);
+        // Whenever you clear the tilemap it resets the bounds to 0. Before filling it, we need to resize the tilemap
+        // so that it will be able to fit the entire boxfill we do below.
+        buildModeTilemap.size = gridBounds.size;
+        buildModeTilemap.BoxFill(gridBounds.position, baseTile, gridBounds.xMin, gridBounds.yMin, gridBounds.xMax -1, gridBounds.yMax -1);
     }
 
     private void UpdateObjectPosition()
