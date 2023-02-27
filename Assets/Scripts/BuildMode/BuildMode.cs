@@ -33,6 +33,10 @@ public class BuildMode : MonoBehaviour
             {
                 PaintBuildableAreaTiles();
             }
+            else
+            {
+                buildModeTilemap.ClearAllTiles();
+            }
         }
 
         if (!isEnabled)
