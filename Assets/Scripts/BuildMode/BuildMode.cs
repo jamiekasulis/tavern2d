@@ -88,19 +88,19 @@ public class BuildMode : MonoBehaviour
 
     private void FillBuildableAreaOnEnabled()
     {
+        Debug.Log($"Tilemap bounds are ${tilemap.cellBounds}");
         BoundsInt area = buildableGridArea.GetGridAreaBounds();
         tilemap.size = area.size; // Might need to stretch tilemap or else it will not boxfill the entire area.
-        tilemap.cellBounds.ClampToBounds(buildableGridArea.GetGridAreaBounds());
         // Subtract 1 from x, y since boxfill is inclusive
         tilemap.BoxFill(area.position, baseTile, area.xMin, area.yMin, area.xMax - 1, area.yMax - 1);
+        tilemap.CompressBounds();
+        Debug.Log($"Tilemap bounds compressed to {tilemap.cellBounds}");
     }
 
     private void PaintTiles(BoundsInt area, TileBase tile)
     {
         // Whenever you clear the tilemap it resets the bounds to 0. Before filling it, we need to resize the tilemap
         // so that it will be able to fit the entire boxfill we do below.
-        tilemap.cellBounds.ClampToBounds(buildableGridArea.GetGridAreaBounds());
-        tilemap.ResizeBounds();
         tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
     }
 
