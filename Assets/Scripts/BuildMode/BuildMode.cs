@@ -120,6 +120,7 @@ public class BuildMode : MonoBehaviour
         placementArea = GetPlaceableObjFloorBoundsGrid();
 
         bool isWithinBuildableArea = tilemap.cellBounds.Contains(placementArea.min) && tilemap.cellBounds.Contains(placementArea.max);
+        Debug.Log($"isWithinBuildableArea = {isWithinBuildableArea}");
         if (isWithinBuildableArea)
         {
             // @TODO also account for collisions with other objects.
@@ -128,6 +129,7 @@ public class BuildMode : MonoBehaviour
         else
         {
             placementArea.ClampToBounds(buildableGridArea.GetGridAreaBounds());
+            
             PaintTiles(placementArea, badTile);
         }
         
