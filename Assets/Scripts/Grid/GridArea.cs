@@ -95,8 +95,12 @@ public class GridArea : MonoBehaviour
 
     public BoundsInt GetGridAreaBounds()
     {
+        // The scale factor helps map from the size of the grid area to the size of the
+        // actual game world grid. For example, the game world grid uses units of size 1 Unity unit
+        // and our custom grid might be using a 0.25 cell size. We would want to multiply all positions and
+        // sizes by a scale factor of 4 (0.25 * 4 = 1) to correctly map into the world space.
         float scaleFactor = Mathf.RoundToInt(1 / CellSize);
-        Debug.Log($"scaleFactor={scaleFactor}");
+        
         Vector3Int startPosition = new( // bottom left corner
             GridUtils.GetSnappedToWorldGridCoordinate(transform.position.x * scaleFactor),
             GridUtils.GetSnappedToWorldGridCoordinate((transform.position.y - numRows * CellSize) * scaleFactor),
