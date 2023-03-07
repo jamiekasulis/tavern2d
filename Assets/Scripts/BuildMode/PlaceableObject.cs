@@ -29,8 +29,6 @@ public class PlaceableObject : MonoBehaviour
      */
     public void Rotate(RotationDirectionEnum dir)
     {
-        RotateCollider();
-
         // FRONT - 0
         // LEFT - 1
         // BACK - 2
@@ -68,16 +66,24 @@ public class PlaceableObject : MonoBehaviour
         {
             renderer.sprite = item.spriteRight;
         }
-        
+
+        collider.size = new(collider.size.y, collider.size.x); // Swap extents to "rotate" the collider without affecting the sprite
+
+        /* 
+         * @TODO Close but not quite! We are basically trying to
+         * shift the entire object down, in order to move the collider down,
+         * so that the bottom of the collider is at the same y level as
+         * the sprite's pivot point.
+         */
+        gameObject.transform.position = new Vector3(
+            gameObject.transform.position.x,
+            renderer.transform.TransformPoint(renderer.sprite.pivot).y,
+            gameObject.transform.position.z
+        );
     }
 
     public enum RotationDirectionEnum
     {
         Left, Right
-    }
-
-    private void RotateCollider()
-    {
-        collider.size = new(collider.size.y, collider.size.x);
     }
 }

@@ -56,7 +56,7 @@ public class GridArea : MonoBehaviour
         {
             for (int c = 0; c < numCols; c++)
             {
-                if (Cells[r, c].buildable)
+                if (Cells[r,c] != null & Cells[r, c].buildable)
                 {
                     // Draw a diagonal through all the buildable GridCells
                     Debug.DrawLine(Cells[r, c].OriginWorldPosition, Cells[r, c].OriginWorldPosition + new Vector3(CellSize, -CellSize, 0));
