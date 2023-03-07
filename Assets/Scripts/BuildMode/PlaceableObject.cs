@@ -21,4 +21,20 @@ public class PlaceableObject : MonoBehaviour
         gridBounds.max = grid.WorldToCell(collider.bounds.max);
         return gridBounds;
     }
+
+    /**
+     * Rotates the object 90 degrees.
+     */
+    public void Rotate(RotationDirectionEnum dir)
+    {
+        // @TODO Swap sprites as well
+
+        int degrees = dir == RotationDirectionEnum.Left ? 90 : -90;
+        gameObject.transform.Rotate(new(0, 0, degrees));
+    }
+
+    public enum RotationDirectionEnum
+    {
+        Left, Right
+    }
 }

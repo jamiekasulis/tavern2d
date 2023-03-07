@@ -34,7 +34,8 @@ public class BuildMode : MonoBehaviour
             return;
         }
 
-        UpdateObjectPosition2();
+        UpdateObjectPosition();
+        HandleRotateObject();
     }
 
     private void HandleToggleBuildMode()
@@ -52,6 +53,18 @@ public class BuildMode : MonoBehaviour
             {
                 tilemap.ClearAllTiles();
             }
+        }
+    }
+
+    private void HandleRotateObject()
+    {
+        if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_LEFT))
+        {
+            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Left);
+        }
+        else if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_RIGHT))
+        {
+            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Right);
         }
     }
 
@@ -108,40 +121,7 @@ public class BuildMode : MonoBehaviour
         tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
     }
 
-    //private void UpdateObjectPosition()
-    //{
-    //    if (mouseGridPosition.Equals(prevMouseGridPosition))
-    //    {
-    //        return;
-    //    }
-
-    //    placementArea.ClampToBounds(buildableGridArea.GetGridAreaBounds());
-
-    //    instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
-
-    //    // Update the tiles. Since the position has changed, un-paint any green or red tiles from the last position
-    //    // before painting the new position green or red.
-    //    tilemap.FloodFill(prevPlacementArea.position, baseTile);
-
-    //    prevPlacementArea = placementArea;
-    //    placementArea = GetPlaceableObjFloorBoundsGrid();
-
-    //    bool isWithinBuildableArea = tilemap.cellBounds.Contains(placementArea.min) && tilemap.cellBounds.Contains(placementArea.max);
-        
-    //    if (isWithinBuildableArea)
-    //    {
-    //        // @TODO also account for collisions with other objects.
-    //        PaintTiles(placementArea, okTile);
-    //    }
-    //    else
-    //    {
-    //        // Boxfilling outside of our bounds can still happen if the boxfilled area's
-    //        // starting/minimum position is outside of the bounds. Make sure to prevent this.
-    //        PaintTiles(placementArea, badTile);
-    //    }
-    //}
-
-    private void UpdateObjectPosition2()
+    private void UpdateObjectPosition()
     {
         mouseWorldPosition = GetMouseWorldPosition();
         instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
