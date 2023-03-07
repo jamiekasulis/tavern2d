@@ -1,15 +1,17 @@
-using UnityEngine.Tilemaps;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))] // BoxCollider2D defines the floor space the object takes up.
 public class PlaceableObject : MonoBehaviour
 {
     private BoxCollider2D collider;
-    [SerializeField] private Tilemap tilemap;
+    private SpriteRenderer renderer;
+    [SerializeField] public Item item;
 
     private void Awake()
     {
         collider = gameObject.GetComponent<BoxCollider2D>();
+        renderer = gameObject.GetComponent<SpriteRenderer>();
+        renderer.sprite = item.spriteFront;
     }
 
     public BoundsInt GetFloorGridBounds(Grid grid)
@@ -27,10 +29,57 @@ public class PlaceableObject : MonoBehaviour
      */
     public void Rotate(RotationDirectionEnum dir)
     {
-        // @TODO Swap sprites as well
+        // FRONT - 0
+        // LEFT - 1
+        // BACK - 2
+        // RIGHT - 3
+        int initialSpriteDirection =
+            renderer.sprite == item.spriteFront ? 0
+            : renderer.sprite == item.spriteLeft ? 1
+            : renderer.sprite == item.spriteBack ? 2
+            : 3;
 
-        int degrees = dir == RotationDirectionEnum.Left ? 90 : -90;
-        gameObject.transform.Rotate(new(0, 0, degrees));
+        int newSpriteDirection = initialSpriteDirection
+            + (dir == RotationDirectionEnum.Left ? -1 : 1);
+        if (newSpriteDirection > 3)
+        {
+            newSpriteDirection = 0;
+        }
+        else if (newSpriteDirection < 0)
+        {
+            newSpriteDirection = 3;
+        }
+
+        if (newSpriteDirection == 0)
+        {
+            renderer.sprite = item.spriteFront;
+        }
+        else if (newSpriteDirection == 1)
+        {
+            renderer.sprite = item.spriteLeft;
+        }
+        else if (newSpriteDirection == 2)
+        {
+            renderer.sprite = item.spriteBack;
+        }
+        else
+        {
+            renderer.sprite = item.spriteRight;
+        }
+
+        collider.size = new(collider.size.y, collider.size.x); // Swap extents to "rotate" the collider without affecting the sprite
+
+        /* 
+         * @TODO Close but not quite! We are basically trying to
+         * shift the entire object down, in order to move the collider down,
+         * so that the bottom of the collider is at the same y level as
+         * the sprite's pivot point.
+         */
+        gameObject.transform.position = new Vector3(
+            gameObject.transform.position.x,
+            renderer.transform.TransformPoint(renderer.sprite.pivot).y,
+            gameObject.transform.position.z
+        );
     }
 
     public enum RotationDirectionEnum

@@ -22,7 +22,7 @@ public class RearrangeInventoryTooltip : MonoBehaviour
 
     public void Draw(ItemQuantity iq)
     {
-        rootButton.style.backgroundImage = new StyleBackground(iq.item.sprite);
+        rootButton.style.backgroundImage = new StyleBackground(iq.item.spriteFront);
         quantityLabel.text = iq.quantity.ToString();
         IsShowingImage = true;
         rootButton.style.display = DisplayStyle.Flex;

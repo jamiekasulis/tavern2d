@@ -140,7 +140,7 @@ public class InventoryMenu : MonoBehaviour
 
         cell.itemData = itemData;
         qtyLabel.text = itemData.quantity.ToString();
-        rootButton.style.backgroundImage = new StyleBackground(itemData.item.sprite);
+        rootButton.style.backgroundImage = new StyleBackground(itemData.item.spriteFront);
         rootButton.style.unityBackgroundImageTintColor = StyleKeyword.Null;
     }
 
