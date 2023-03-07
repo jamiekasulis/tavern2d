@@ -17,7 +17,7 @@ public class PlaceableObject : MonoBehaviour
         return collider.bounds;
     }
 
-    public BoundsInt GetFloorGridBounds(Grid grid, int scaleFactor)
+    public BoundsInt GetFloorGridBounds(Grid grid)
     {
         Bounds worldBounds = GetFloorWorldBounds();
         BoundsInt gridBounds = new(

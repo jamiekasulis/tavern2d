@@ -353,7 +353,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   testPrefab: {fileID: 108998934}
   tilemap: {fileID: 567657851}
-  grid: {fileID: 1408510077}
   baseTile: {fileID: 11400000, guid: 0c592e6f5ea674037870292f16be9709, type: 2}
   okTile: {fileID: 11400000, guid: 94d164819d60d4f0e9a3c71d057ef3fe, type: 2}
   badTile: {fileID: 11400000, guid: 9535a391fee044c7ab6ffa7ea8c58f36, type: 2}
