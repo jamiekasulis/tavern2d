@@ -15,4 +15,8 @@ MonoBehaviour:
   id: 1
   itemName: Wooden Log
   description: A chunk of wood
-  sprite: {fileID: 1735892704, guid: 0b4d5b9c59eea4638a7a811ce4fe87b8, type: 3}
+  spriteFront: {fileID: 1735892704, guid: 0b4d5b9c59eea4638a7a811ce4fe87b8, type: 3}
+  spriteBack: {fileID: 0}
+  spriteLeft: {fileID: 0}
+  spriteRight: {fileID: 0}
+  buildMode: 0
