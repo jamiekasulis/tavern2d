@@ -18,10 +18,12 @@ public class BuildMode : MonoBehaviour
     private Vector3Int prevMouseGridPosition;
 
     private BoundsInt prevPlacementArea, placementArea; // The current area on the grid where the active item would be placed
+    private BoundsInt buildAreaBounds;
 
     private void Awake()
     {
         buildableGridArea = gameObject.GetComponent<BuildableGridArea>();
+        buildAreaBounds = buildableGridArea.GetGridAreaBounds();
     }
 
     void Update()
@@ -32,6 +34,7 @@ public class BuildMode : MonoBehaviour
             return;
         }
 
+        UpdateObjectPosition2();
     }
 
     private void HandleToggleBuildMode()
@@ -80,58 +83,86 @@ public class BuildMode : MonoBehaviour
 
     private void FillBuildableAreaOnEnabled()
     {
-        BoundsInt buildAreaBounds = buildableGridArea.GetGridAreaBounds();
+        EnforceTilemapSize();
+        tilemap.FloodFill(buildAreaBounds.position, baseTile);
+    }
+
+    /**
+     * Unfortunately, the tilemap seems to keep getting resized when tiles
+     * are drawn.
+     * Run this before boxfilling to enforce the tilemap to have the
+     * correct size.
+     */
+    private void EnforceTilemapSize()
+    {
         tilemap.size = buildAreaBounds.size;
         tilemap.origin = buildAreaBounds.position;
         tilemap.ResizeBounds(); // Will affect the changes done by the last 2 lines.
-        tilemap.FloodFill(buildAreaBounds.position, baseTile);
-        tilemap.CompressBounds(); // For efficiency purposes.
     }
 
     private void PaintTiles(BoundsInt area, TileBase tile)
     {
         // Whenever you clear the tilemap it resets the bounds to 0. Before filling it, we need to resize the tilemap
         // so that it will be able to fit the entire boxfill we do below.
+        EnforceTilemapSize();
         tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
     }
 
-    private void UpdateObjectPosition()
-    {
-        Debug.Log($"Attempting to update obj position with mouseGridPos={mouseGridPosition}");
-        if (mouseGridPosition.Equals(prevMouseGridPosition))
-        {
-            return; // Do nothing if the mouse is in the same cell
-        }
+    //private void UpdateObjectPosition()
+    //{
+    //    if (mouseGridPosition.Equals(prevMouseGridPosition))
+    //    {
+    //        return;
+    //    }
 
-        placementArea.ClampToBounds(buildableGridArea.GetGridAreaBounds());
+    //    placementArea.ClampToBounds(buildableGridArea.GetGridAreaBounds());
 
-        instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
-        Debug.Log($"Centered object in cell. Position is now {instantiatedPrefab.transform.position}");
+    //    instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
 
-        // Update the tiles. Since the position has changed, un-paint any green or red tiles from the last position
-        // before painting the new position green or red.
-        tilemap.FloodFill(prevPlacementArea.position, baseTile);
+    //    // Update the tiles. Since the position has changed, un-paint any green or red tiles from the last position
+    //    // before painting the new position green or red.
+    //    tilemap.FloodFill(prevPlacementArea.position, baseTile);
 
-        prevPlacementArea = placementArea;
-        placementArea = GetPlaceableObjFloorBoundsGrid();
-        Debug.Log($"Calculated placementArea to be {placementArea}");
+    //    prevPlacementArea = placementArea;
+    //    placementArea = GetPlaceableObjFloorBoundsGrid();
 
-        bool isWithinBuildableArea = tilemap.cellBounds.Contains(placementArea.min) && tilemap.cellBounds.Contains(placementArea.max);
+    //    bool isWithinBuildableArea = tilemap.cellBounds.Contains(placementArea.min) && tilemap.cellBounds.Contains(placementArea.max);
         
-        if (isWithinBuildableArea)
+    //    if (isWithinBuildableArea)
+    //    {
+    //        // @TODO also account for collisions with other objects.
+    //        PaintTiles(placementArea, okTile);
+    //    }
+    //    else
+    //    {
+    //        // Boxfilling outside of our bounds can still happen if the boxfilled area's
+    //        // starting/minimum position is outside of the bounds. Make sure to prevent this.
+    //        PaintTiles(placementArea, badTile);
+    //    }
+    //}
+
+    private void UpdateObjectPosition2()
+    {
+        mouseWorldPosition = GetMouseWorldPosition();
+        instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
+
+        BoundsInt floorBounds = GetPlaceableObjFloorBoundsGrid();
+
+
+        // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
+        // This does not work, for whatever reason, when the z dimension is empty. I fuckin hate Unity. . .
+        bool objIsWithinBuildableArea =
+            floorBounds.min.x >= buildAreaBounds.min.x && floorBounds.min.y >= buildAreaBounds.min.y &&
+            floorBounds.max.x <= buildAreaBounds.max.x && floorBounds.max.y <= buildAreaBounds.max.y;
+        if (objIsWithinBuildableArea)
         {
-            // @TODO also account for collisions with other objects.
-            Debug.Log($"Placement is within buildable area. Painting OKTiles over {placementArea}");
-            PaintTiles(placementArea, okTile);
+            PaintTiles(floorBounds, okTile);
         }
         else
         {
-            Debug.Log($"Placement area is NOT within buildable area. Painting BadTiles over {placementArea}");
-            // Boxfilling outside of our bounds can still happen if the boxfilled area's
-            // starting/minimum position is outside of the bounds. Make sure to prevent this.
-            PaintTiles(placementArea, badTile);
+            PaintTiles(floorBounds, badTile);
         }
-        Debug.Log("Object position updated! FIN.");
+        
     }
 
     private Vector3 CenterInCell(Vector3 worldPos)

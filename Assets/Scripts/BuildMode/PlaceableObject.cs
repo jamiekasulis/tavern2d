@@ -12,18 +12,13 @@ public class PlaceableObject : MonoBehaviour
         collider = gameObject.GetComponent<BoxCollider2D>();
     }
 
-    public Bounds GetFloorWorldBounds()
-    {
-        return collider.bounds;
-    }
-
     public BoundsInt GetFloorGridBounds(Grid grid)
     {
-        Bounds worldBounds = GetFloorWorldBounds();
         BoundsInt gridBounds = new(
-            grid.WorldToCell(worldBounds.min),
-            grid.WorldToCell(worldBounds.size)
+            grid.WorldToCell(collider.bounds.min),
+            grid.WorldToCell(collider.bounds.size)
         );
+        gridBounds.max = grid.WorldToCell(collider.bounds.max);
         return gridBounds;
     }
 }
