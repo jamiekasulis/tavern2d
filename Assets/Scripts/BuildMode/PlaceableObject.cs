@@ -29,8 +29,7 @@ public class PlaceableObject : MonoBehaviour
      */
     public void Rotate(RotationDirectionEnum dir)
     {
-        int degrees = dir == RotationDirectionEnum.Left ? 90 : -90;
-        //gameObject.transform.Rotate(new(0, 0, degrees));
+        RotateCollider();
 
         // FRONT - 0
         // LEFT - 1
@@ -53,7 +52,6 @@ public class PlaceableObject : MonoBehaviour
             newSpriteDirection = 3;
         }
 
-        Debug.Log($"initialSpriteDirection={initialSpriteDirection}, newSpriteDirection={newSpriteDirection}");
         if (newSpriteDirection == 0)
         {
             renderer.sprite = item.spriteFront;
@@ -76,5 +74,10 @@ public class PlaceableObject : MonoBehaviour
     public enum RotationDirectionEnum
     {
         Left, Right
+    }
+
+    private void RotateCollider()
+    {
+        collider.size = new(collider.size.y, collider.size.x);
     }
 }
