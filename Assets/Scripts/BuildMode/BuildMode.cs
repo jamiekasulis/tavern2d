@@ -97,7 +97,7 @@ public class BuildMode : MonoBehaviour
     private void FillBuildableAreaOnEnabled()
     {
         EnforceTilemapSize();
-        tilemap.FloodFill(buildAreaBounds.position, baseTile);
+        PaintTiles(buildAreaBounds, baseTile, true);
     }
 
     /**
@@ -113,12 +113,23 @@ public class BuildMode : MonoBehaviour
         tilemap.ResizeBounds(); // Will affect the changes done by the last 2 lines.
     }
 
-    private void PaintTiles(BoundsInt area, TileBase tile)
+    /**
+     * This function works -- use it when needed!
+     */
+    private void PaintTiles(BoundsInt area, TileBase tile, bool floodFill = false)
     {
-        // Whenever you clear the tilemap it resets the bounds to 0. Before filling it, we need to resize the tilemap
+        // Whenever you clear the tilemap it resets the bounds to 0.
+        // Before filling it, we need to resize the tilemap
         // so that it will be able to fit the entire boxfill we do below.
-        //EnforceTilemapSize();
-        tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
+        EnforceTilemapSize();
+        if (floodFill)
+        {
+            tilemap.FloodFill(area.min, tile);
+        }
+        else
+        {
+            tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
+        }
     }
 
     private void UpdateObjectPosition()
