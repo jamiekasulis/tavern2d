@@ -7,6 +7,8 @@ public class BuildMode : MonoBehaviour
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private TileBase baseTile, okTile, badTile;
 
+    private Vector3Int mouseGridPosition;
+
     private BuildableGridArea buildableGridArea;
     private PlaceableObject placeableObject;
 
@@ -14,8 +16,10 @@ public class BuildMode : MonoBehaviour
     private GameObject instantiatedPrefab = null;
     
     private Vector2 mouseWorldPosition;
-    private Vector3Int mouseGridPosition;
     private BoundsInt buildAreaBounds;
+
+    private Color BAD_PLACEMENT_COLOR = Color.red;
+    private Color OK_PLACEMENT_COLOR = Color.green;
 
     private void Awake()
     {
@@ -33,7 +37,6 @@ public class BuildMode : MonoBehaviour
 
         UpdateObjectPosition();
         HandleRotateObject();
-        //DrawPlaceableObjectFloorPosition();
     }
 
     private void HandleToggleBuildMode()
@@ -63,26 +66,6 @@ public class BuildMode : MonoBehaviour
         else if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_RIGHT))
         {
             placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Right);
-        }
-    }
-
-    private void DrawPlaceableObjectFloorPosition()
-    {
-        BoundsInt floorBounds = GetPlaceableObjFloorBoundsGrid();
-
-
-        // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
-        // This does not work, for whatever reason, when the z dimension is empty.
-        bool objIsWithinBuildableArea =
-            floorBounds.min.x >= buildAreaBounds.min.x && floorBounds.min.y >= buildAreaBounds.min.y &&
-            floorBounds.max.x <= buildAreaBounds.max.x && floorBounds.max.y <= buildAreaBounds.max.y;
-        if (objIsWithinBuildableArea)
-        {
-            PaintTiles(floorBounds, okTile);
-        }
-        else
-        {
-            PaintTiles(floorBounds, badTile);
         }
     }
 
@@ -134,7 +117,7 @@ public class BuildMode : MonoBehaviour
     {
         // Whenever you clear the tilemap it resets the bounds to 0. Before filling it, we need to resize the tilemap
         // so that it will be able to fit the entire boxfill we do below.
-        EnforceTilemapSize();
+        //EnforceTilemapSize();
         tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
     }
 
@@ -142,6 +125,17 @@ public class BuildMode : MonoBehaviour
     {
         mouseWorldPosition = GetMouseWorldPosition();
         instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
+
+        if (placeableObject.IsContainedBy(buildAreaBounds, tilemap.layoutGrid))
+        {
+            // Actually, don't tint the object at all so they can see how it will
+            // really look in the space.
+             placeableObject.TintSprite(Color.white);
+        }
+        else
+        {
+            placeableObject.TintSprite(BAD_PLACEMENT_COLOR);
+        }
     }
 
     private Vector3 CenterInCell(Vector3 worldPos)

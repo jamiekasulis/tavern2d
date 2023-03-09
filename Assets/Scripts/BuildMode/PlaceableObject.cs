@@ -86,4 +86,26 @@ public class PlaceableObject : MonoBehaviour
     {
         Left, Right
     }
+
+    public void TintSprite(Color color)
+    {
+        renderer.color = color;
+    }
+
+    /**
+     * Returns whether the floor space of this placeable object is fully
+     * within the given bounds.
+     */
+    public bool IsContainedBy(BoundsInt area, Grid grid)
+    {
+        BoundsInt floorBounds = GetFloorGridBounds(grid);
+        
+        // Unfortunately we can't just do
+        // buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
+        // This does not work, for whatever reason, when the z dimension is empty.
+        // So instead we check that the min and max point's x and y coords
+        // are contained within the area.
+        return floorBounds.min.x >= area.min.x && floorBounds.min.y >= area.min.y &&
+            floorBounds.max.x <= area.max.x && floorBounds.max.y <= area.max.y;
+    }
 }
