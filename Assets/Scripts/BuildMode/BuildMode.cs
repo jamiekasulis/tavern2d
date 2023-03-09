@@ -7,8 +7,6 @@ public class BuildMode : MonoBehaviour
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private TileBase baseTile, okTile, badTile;
 
-    private Vector3Int mouseGridPosition;
-
     private BuildableGridArea buildableGridArea;
     private PlaceableObject placeableObject;
 
@@ -19,7 +17,6 @@ public class BuildMode : MonoBehaviour
     private BoundsInt buildAreaBounds;
 
     private Color BAD_PLACEMENT_COLOR = Color.red;
-    private Color OK_PLACEMENT_COLOR = Color.green;
 
     private void Awake()
     {
@@ -37,6 +34,56 @@ public class BuildMode : MonoBehaviour
 
         UpdateObjectPosition();
         HandleRotateObject();
+    }
+
+    #region Main functions
+
+    /**
+     * Paints the entire buildable area with the base (blue) tiles.
+     */
+    private void FillBuildableAreaOnEnabled()
+    {
+        EnforceTilemapSize();
+        PaintTiles(buildAreaBounds, baseTile, true);
+    }
+
+    private void InstantiateOrDestroyPlaceableObject()
+    {
+        if (isEnabled)
+        {
+            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity);
+            placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
+        }
+        else
+        {
+            if (instantiatedPrefab != null || placeableObject != null)
+            {
+                Destroy(instantiatedPrefab, 0);
+                instantiatedPrefab = null;
+                Destroy(placeableObject);
+                placeableObject = null;
+            }
+        }
+    }
+
+    /**
+     * Uses the latest mouse position to position the placeable object.
+     * The object will be centered in the cell and color tinted according to whether
+     * it is in a valid location or not.
+     */
+    private void UpdateObjectPosition()
+    {
+        mouseWorldPosition = MouseUtils.GetMouseWorldPosition();
+        instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
+
+        if (placeableObject.IsContainedBy(buildAreaBounds, tilemap.layoutGrid))
+        {
+            placeableObject.TintSprite(Color.white);
+        }
+        else
+        {
+            placeableObject.TintSprite(BAD_PLACEMENT_COLOR);
+        }
     }
 
     private void HandleToggleBuildMode()
@@ -69,48 +116,19 @@ public class BuildMode : MonoBehaviour
         }
     }
 
-    private void InstantiateOrDestroyPlaceableObject()
-    {
-        if (isEnabled)
-        {
-            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity);
-            placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
-        }
-        else
-        {
-            if (instantiatedPrefab != null || placeableObject != null)
-            {
-                Destroy(instantiatedPrefab, 0);
-                instantiatedPrefab = null;
-                Destroy(placeableObject);
-                placeableObject = null;
-            }
-        }
-    }
+    #endregion
 
-    private void UpdateMousePositions()
-    {
-        mouseWorldPosition = GetMouseWorldPosition();
-        mouseGridPosition = tilemap.layoutGrid.WorldToCell(mouseWorldPosition);
-    }
+    #region Supporting functions
 
-    private void FillBuildableAreaOnEnabled()
+    private Vector3 CenterInCell(Vector3 worldPos)
     {
-        EnforceTilemapSize();
-        PaintTiles(buildAreaBounds, baseTile, true);
-    }
-
-    /**
-     * Unfortunately, the tilemap seems to keep getting resized when tiles
-     * are drawn.
-     * Run this before boxfilling to enforce the tilemap to have the
-     * correct size.
-     */
-    private void EnforceTilemapSize()
-    {
-        tilemap.size = buildAreaBounds.size;
-        tilemap.origin = buildAreaBounds.position;
-        tilemap.ResizeBounds(); // Will affect the changes done by the last 2 lines.
+        Vector3Int cellPos = tilemap.layoutGrid.WorldToCell(worldPos);
+        Vector3 centeredPos = new(
+            cellPos.x + 0.5f * buildableGridArea.CellSize,
+            cellPos.y + 0.5f * buildableGridArea.CellSize,
+            0
+        );
+        return centeredPos;
     }
 
     /**
@@ -132,41 +150,18 @@ public class BuildMode : MonoBehaviour
         }
     }
 
-    private void UpdateObjectPosition()
+    /**
+     * Unfortunately, the tilemap seems to keep getting resized when tiles
+     * are drawn.
+     * Run this before boxfilling to enforce the tilemap to have the
+     * correct size.
+     */
+    private void EnforceTilemapSize()
     {
-        mouseWorldPosition = GetMouseWorldPosition();
-        instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
-
-        if (placeableObject.IsContainedBy(buildAreaBounds, tilemap.layoutGrid))
-        {
-            // Actually, don't tint the object at all so they can see how it will
-            // really look in the space.
-             placeableObject.TintSprite(Color.white);
-        }
-        else
-        {
-            placeableObject.TintSprite(BAD_PLACEMENT_COLOR);
-        }
+        tilemap.size = buildAreaBounds.size;
+        tilemap.origin = buildAreaBounds.position;
+        tilemap.ResizeBounds(); // Will affect the changes done by the last 2 lines.
     }
 
-    private Vector3 CenterInCell(Vector3 worldPos)
-    {
-        Vector3Int cellPos = tilemap.layoutGrid.WorldToCell(worldPos);
-        Vector3 centeredPos = new (
-            cellPos.x + 0.5f * buildableGridArea.CellSize,
-            cellPos.y + 0.5f * buildableGridArea.CellSize,
-            0
-        );
-        return centeredPos;
-    }
-
-    public static Vector2 GetMouseWorldPosition()
-    {
-        return Camera.main.ScreenToWorldPoint(Input.mousePosition);
-    }
-
-    public BoundsInt GetPlaceableObjFloorBoundsGrid()
-    {
-        return placeableObject.GetFloorGridBounds(tilemap.layoutGrid);
-    }
+    #endregion
 }
