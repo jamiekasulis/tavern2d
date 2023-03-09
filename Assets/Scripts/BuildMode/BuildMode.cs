@@ -15,9 +15,6 @@ public class BuildMode : MonoBehaviour
     
     private Vector2 mouseWorldPosition;
     private Vector3Int mouseGridPosition;
-    private Vector3Int prevMouseGridPosition;
-
-    private BoundsInt prevPlacementArea, placementArea; // The current area on the grid where the active item would be placed
     private BoundsInt buildAreaBounds;
 
     private void Awake()
@@ -36,6 +33,7 @@ public class BuildMode : MonoBehaviour
 
         UpdateObjectPosition();
         HandleRotateObject();
+        //DrawPlaceableObjectFloorPosition();
     }
 
     private void HandleToggleBuildMode()
@@ -68,6 +66,26 @@ public class BuildMode : MonoBehaviour
         }
     }
 
+    private void DrawPlaceableObjectFloorPosition()
+    {
+        BoundsInt floorBounds = GetPlaceableObjFloorBoundsGrid();
+
+
+        // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
+        // This does not work, for whatever reason, when the z dimension is empty.
+        bool objIsWithinBuildableArea =
+            floorBounds.min.x >= buildAreaBounds.min.x && floorBounds.min.y >= buildAreaBounds.min.y &&
+            floorBounds.max.x <= buildAreaBounds.max.x && floorBounds.max.y <= buildAreaBounds.max.y;
+        if (objIsWithinBuildableArea)
+        {
+            PaintTiles(floorBounds, okTile);
+        }
+        else
+        {
+            PaintTiles(floorBounds, badTile);
+        }
+    }
+
     private void InstantiateOrDestroyPlaceableObject()
     {
         if (isEnabled)
@@ -90,7 +108,6 @@ public class BuildMode : MonoBehaviour
     private void UpdateMousePositions()
     {
         mouseWorldPosition = GetMouseWorldPosition();
-        prevMouseGridPosition = mouseGridPosition;
         mouseGridPosition = tilemap.layoutGrid.WorldToCell(mouseWorldPosition);
     }
 
@@ -125,24 +142,6 @@ public class BuildMode : MonoBehaviour
     {
         mouseWorldPosition = GetMouseWorldPosition();
         instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
-
-        BoundsInt floorBounds = GetPlaceableObjFloorBoundsGrid();
-
-
-        // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
-        // This does not work, for whatever reason, when the z dimension is empty. I fuckin hate Unity. . .
-        bool objIsWithinBuildableArea =
-            floorBounds.min.x >= buildAreaBounds.min.x && floorBounds.min.y >= buildAreaBounds.min.y &&
-            floorBounds.max.x <= buildAreaBounds.max.x && floorBounds.max.y <= buildAreaBounds.max.y;
-        if (objIsWithinBuildableArea)
-        {
-            PaintTiles(floorBounds, okTile);
-        }
-        else
-        {
-            PaintTiles(floorBounds, badTile);
-        }
-        
     }
 
     private Vector3 CenterInCell(Vector3 worldPos)
