@@ -5,7 +5,7 @@ public class BuildMode : MonoBehaviour
 {
     public GameObject testPrefab; // object to place. @TODO Select this from Inventory.
     [SerializeField] private Tilemap tilemap;
-    [SerializeField] private TileBase baseTile, okTile, badTile;
+    [SerializeField] private TileBase baseTile;
 
     private BuildableGridArea buildableGridArea;
     private PlaceableObject placeableObject;
@@ -14,16 +14,15 @@ public class BuildMode : MonoBehaviour
     private GameObject instantiatedPrefab = null;
     
     private Vector2 mouseWorldPosition;
-    private Vector3Int mouseGridPosition;
-    private Vector3Int prevMouseGridPosition;
-
-    private BoundsInt prevPlacementArea, placementArea; // The current area on the grid where the active item would be placed
     private BoundsInt buildAreaBounds;
+
+    private Color OK_COLOR = Color.green, BAD_COLOR = Color.red;
 
     private void Awake()
     {
         buildableGridArea = gameObject.GetComponent<BuildableGridArea>();
         buildAreaBounds = buildableGridArea.GetGridAreaBounds();
+        mouseWorldPosition = Vector3.zero;
     }
 
     void Update()
@@ -60,11 +59,11 @@ public class BuildMode : MonoBehaviour
     {
         if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_LEFT))
         {
-            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Left);
+            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Left, mouseWorldPosition);
         }
         else if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_RIGHT))
         {
-            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Right);
+            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Right, mouseWorldPosition);
         }
     }
 
@@ -72,8 +71,9 @@ public class BuildMode : MonoBehaviour
     {
         if (isEnabled)
         {
-            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity);
+            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity, gameObject.transform);
             placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
+            placeableObject.Initialize();
         }
         else
         {
@@ -85,13 +85,6 @@ public class BuildMode : MonoBehaviour
                 placeableObject = null;
             }
         }
-    }
-
-    private void UpdateMousePositions()
-    {
-        mouseWorldPosition = GetMouseWorldPosition();
-        prevMouseGridPosition = mouseGridPosition;
-        mouseGridPosition = tilemap.layoutGrid.WorldToCell(mouseWorldPosition);
     }
 
     private void FillBuildableAreaOnEnabled()
@@ -136,11 +129,11 @@ public class BuildMode : MonoBehaviour
             floorBounds.max.x <= buildAreaBounds.max.x && floorBounds.max.y <= buildAreaBounds.max.y;
         if (objIsWithinBuildableArea)
         {
-            PaintTiles(floorBounds, okTile);
+            placeableObject.TintSprite(OK_COLOR);
         }
         else
         {
-            PaintTiles(floorBounds, badTile);
+            placeableObject.TintSprite(BAD_COLOR);
         }
         
     }
