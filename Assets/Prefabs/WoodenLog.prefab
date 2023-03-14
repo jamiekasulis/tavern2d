@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 9019957821194467656}
   - component: {fileID: 9019957821194467659}
   - component: {fileID: 9019957821194467670}
-  - component: {fileID: 9019957821194467671}
   m_Layer: 0
   m_Name: WoodenLog
   m_TagString: Untagged
@@ -129,17 +128,3 @@ MonoBehaviour:
   itemQuantity:
     item: {fileID: 11400000, guid: 33b818554231144d7bbf395e939be279, type: 2}
     quantity: 1
---- !u!114 &9019957821194467671
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9019957821194467658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad3870f632ad7457ea59ab4d55c59ba1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sortingOrderBase: 5000
-  runOnlyOnce: 1

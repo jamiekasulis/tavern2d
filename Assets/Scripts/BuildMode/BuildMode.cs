@@ -35,6 +35,7 @@ public class BuildMode : MonoBehaviour
 
         UpdateObjectPosition();
         HandleRotateObject();
+        HandlePlaceObject();
     }
 
     private void HandleToggleBuildMode()
@@ -46,13 +47,23 @@ public class BuildMode : MonoBehaviour
 
             if (isEnabled)
             {
-                FillBuildableAreaOnEnabled();
+                OnBuildModeEnabled();
             }
             else
             {
-                tilemap.ClearAllTiles();
+                OnBuildModeDisabled();
             }
         }
+    }
+
+    private void OnBuildModeEnabled()
+    {
+        FillBuildableArea();
+    }
+
+    private void OnBuildModeDisabled()
+    {
+        tilemap.ClearAllTiles();
     }
 
     private void HandleRotateObject()
@@ -64,6 +75,17 @@ public class BuildMode : MonoBehaviour
         else if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_RIGHT))
         {
             placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Right, mouseWorldPosition);
+        }
+    }
+
+    private void HandlePlaceObject()
+    {
+        if (Input.GetMouseButtonDown(0)) // Left click
+        {
+            instantiatedPrefab = null;
+            placeableObject = null;
+            isEnabled = false;
+            OnBuildModeDisabled();
         }
     }
 
@@ -87,7 +109,7 @@ public class BuildMode : MonoBehaviour
         }
     }
 
-    private void FillBuildableAreaOnEnabled()
+    private void FillBuildableArea()
     {
         EnforceTilemapSize();
         tilemap.FloodFill(buildAreaBounds.position, baseTile);
