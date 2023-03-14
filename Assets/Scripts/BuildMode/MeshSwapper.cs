@@ -13,6 +13,7 @@ public class MeshSwapper : MonoBehaviour
     private void Awake()
     {
         Current = Instantiate(Default, new Vector3(0, 0, 1), Quaternion.identity, gameObject.transform);
+        Current.transform.localPosition = Vector3.zero;
     }
 
     public void LoadMeshForDirection(DirectionEnum newMeshDir, Vector3 position)
@@ -37,6 +38,7 @@ public class MeshSwapper : MonoBehaviour
 
         Destroy(Current.gameObject, 0);
         Current = Instantiate(meshToInstantiate, position, Quaternion.identity, gameObject.transform);
+        Current.transform.localPosition = Vector3.zero;
     }
 }
 

@@ -312,7 +312,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 399621412}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3, y: 5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -331,10 +331,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9a6f8e2f08f4ad3a7a65b962222bdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numRows: 20
-  numCols: 20
+  numRows: 1
+  numCols: 1
   CellSize: 0.5
-  debugDraw: 0
+  debugDraw: 1
 --- !u!114 &399621416
 MonoBehaviour:
   m_ObjectHideFlags: 0
