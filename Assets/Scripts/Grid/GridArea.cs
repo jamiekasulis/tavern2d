@@ -1,12 +1,12 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using System.Linq;
 
 public class GridArea : MonoBehaviour
 {
     [SerializeField] public int numRows, numCols;
     public GridCell[,] Cells;
     [SerializeField] public float CellSize = 1;
+    public bool debugDraw = true;
     
 
     public virtual void Awake()
@@ -47,7 +47,10 @@ public class GridArea : MonoBehaviour
 
     public virtual void Update()
     {
-        DebugDrawGridLines();
+        if (debugDraw)
+        {
+            DebugDrawGridLines();
+        }
     }
 
     private void DebugDrawGridLines()
@@ -81,7 +84,7 @@ public class GridArea : MonoBehaviour
     {
         BoundsInt bounds = GetGridAreaBounds();
 
-        if (drawDebugLines)
+        if (drawDebugLines && debugDraw)
         {
             // Draw two lines to illustrate the bounds (in the tilemap's grid) that this grid area covers
             Debug.DrawLine(bounds.position, bounds.position + new Vector3Int(bounds.size.x, 0, 0), Color.red, 2); // bottom
@@ -131,8 +134,11 @@ public class GridArea : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        DrawGridOutline();
-        DrawGridLines();
+        if (debugDraw)
+        {
+            DrawGridOutline();
+            DrawGridLines();
+        }
     }
 
     private void DrawGridOutline()
