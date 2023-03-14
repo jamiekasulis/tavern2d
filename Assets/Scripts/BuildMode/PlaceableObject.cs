@@ -24,10 +24,14 @@ public class PlaceableObject : MonoBehaviour
      * Returns the BoundsInt representing the floor space this placeable
      * object is currently taking up.
      */
-    public Bounds GetFloorGridBounds(Grid grid)
+    public Bounds GetFloorGridBounds(Grid grid, float scaleFactor)
     {
         BoxCollider2D col = MeshSwapper.Current.GetComponent<BoxCollider2D>();
-        return col.bounds;
+        //return col.bounds * scaleFactor;
+        Bounds scaledBounds = new();
+        scaledBounds.min = col.bounds.min * new Vector2(scaleFactor, scaleFactor);
+        scaledBounds.max = col.bounds.max * new Vector2(scaleFactor, scaleFactor);
+        return scaledBounds;
     }
 
     /**
@@ -71,5 +75,10 @@ public class PlaceableObject : MonoBehaviour
     public void TintSprite(Color color)
     {
         Renderer.color = color;
+    }
+
+    public bool PlacementIsValid(Vector3 centerWorld)
+    {
+        return false;
     }
 }
