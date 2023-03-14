@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[ExecuteInEditMode]
 [RequireComponent(typeof(MeshSwapper))]
 public class PlaceableObject : MonoBehaviour
 {
