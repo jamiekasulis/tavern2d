@@ -4,28 +4,39 @@ using UnityEngine;
  * Responsible for replacing the "mesh" (which actually refers to a game object with
  * a sprite and collider) according to rotations.
  */
+[ExecuteInEditMode]
 public class MeshSwapper : MonoBehaviour
 {
     [SerializeField] public Mesh2D Front, Back, Left, Right, Default;
+    public Mesh2D Current { get; private set; }
 
-    public Mesh2D LoadMeshForDirection(DirectionEnum newMeshDir)
+    private void Awake()
     {
+        Current = Instantiate(Default, new Vector3(0, 0, 1), Quaternion.identity, gameObject.transform);
+    }
+
+    public void LoadMeshForDirection(DirectionEnum newMeshDir, Vector3 position)
+    {
+        Mesh2D meshToInstantiate;
         if (newMeshDir == DirectionEnum.front)
         {
-            return Front;
+            meshToInstantiate = Front;
         }
         else if (newMeshDir == DirectionEnum.back)
         {
-            return Back;
+            meshToInstantiate = Back;
         }
         else if (newMeshDir == DirectionEnum.left)
         {
-            return Left;
+            meshToInstantiate = Left;
         }
         else
         {
-            return Right;
+            meshToInstantiate = Right;
         }
+
+        Destroy(Current, 0);
+        Current = Instantiate(meshToInstantiate, position, Quaternion.identity, gameObject.transform.parent);
     }
 }
 

@@ -22,6 +22,7 @@ public class BuildMode : MonoBehaviour
     {
         buildableGridArea = gameObject.GetComponent<BuildableGridArea>();
         buildAreaBounds = buildableGridArea.GetGridAreaBounds();
+        mouseWorldPosition = Vector3.zero;
     }
 
     void Update()
@@ -58,11 +59,11 @@ public class BuildMode : MonoBehaviour
     {
         if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_LEFT))
         {
-            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Left);
+            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Left, mouseWorldPosition);
         }
         else if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_RIGHT))
         {
-            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Right);
+            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Right, mouseWorldPosition);
         }
     }
 
@@ -70,8 +71,10 @@ public class BuildMode : MonoBehaviour
     {
         if (isEnabled)
         {
-            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity);
+            Debug.Log($"testPrefab {testPrefab.name}, mousePos {mouseWorldPosition}, instantiatedPrefab {instantiatedPrefab}");
+            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity, buildableGridArea.transform);
             placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
+            placeableObject.Initialize();
         }
         else
         {

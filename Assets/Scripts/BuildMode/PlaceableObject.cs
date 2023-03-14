@@ -4,9 +4,8 @@ using UnityEngine;
 [RequireComponent(typeof(MeshSwapper))]
 public class PlaceableObject : MonoBehaviour
 {
-    private SpriteRenderer Renderer;
+    public SpriteRenderer Renderer;
     private MeshSwapper MeshSwapper;
-    private Mesh2D Mesh;
 
     [SerializeField] public Item item;
 
@@ -14,10 +13,12 @@ public class PlaceableObject : MonoBehaviour
     {
         MeshSwapper = gameObject.GetComponent<MeshSwapper>();
         Renderer = gameObject.GetComponent<SpriteRenderer>();
+    }
 
-        Mesh = Instantiate(MeshSwapper.Default, new Vector3(0,0,1), Quaternion.identity, gameObject.transform);
-        Debug.Log($"Instantiated sprite with direction {Mesh.direction} and sprite {Mesh.sprite.name}");
-        Renderer.sprite = Mesh.sprite;
+    public void Initialize()
+    {
+        Debug.Log($"Initializing PlaceableObject with sprite {MeshSwapper.Current.sprite.name}");
+        Renderer.sprite = MeshSwapper.Current.sprite;
     }
 
     /**
@@ -26,7 +27,7 @@ public class PlaceableObject : MonoBehaviour
      */
     public BoundsInt GetFloorGridBounds(Grid grid)
     {
-        BoxCollider2D col = Mesh.GetComponent<BoxCollider2D>();
+        BoxCollider2D col = MeshSwapper.Current.GetComponent<BoxCollider2D>();
         BoundsInt gridBounds = new(
             grid.WorldToCell(col.bounds.min),
             grid.WorldToCell(col.bounds.size)
@@ -40,7 +41,7 @@ public class PlaceableObject : MonoBehaviour
      * MeshSwapper to swap out the current mesh for the one facing in the
      * direction we rotate to.
      */
-    public void Rotate(RotationDirectionEnum dir)
+    public void Rotate(RotationDirectionEnum dir, Vector3 centerPositionWorld)
     {
         // FRONT - 0
         // LEFT - 1
@@ -64,8 +65,8 @@ public class PlaceableObject : MonoBehaviour
             newSpriteDirection = 3;
         }
 
-        Mesh = MeshSwapper.LoadMeshForDirection((DirectionEnum)newSpriteDirection);
-        Renderer.sprite = Mesh.sprite;
+        MeshSwapper.LoadMeshForDirection((DirectionEnum)newSpriteDirection, centerPositionWorld);
+        Renderer.sprite = MeshSwapper.Current.sprite;
     }
 
     public enum RotationDirectionEnum
