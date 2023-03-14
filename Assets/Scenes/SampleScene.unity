@@ -334,7 +334,7 @@ MonoBehaviour:
   numRows: 10
   numCols: 10
   CellSize: 0.5
-  debugDraw: 1
+  debugDraw: 0
 --- !u!114 &399621416
 MonoBehaviour:
   m_ObjectHideFlags: 0

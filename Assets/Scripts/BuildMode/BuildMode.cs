@@ -129,7 +129,6 @@ public class BuildMode : MonoBehaviour
             floorBounds.max.x * buildableGridArea.GetScaleFactor() <= buildAreaBounds.max.x &&
             floorBounds.max.y * buildableGridArea.GetScaleFactor() <= buildAreaBounds.max.y;
 
-        Debug.Log($"FloorBounds: {floorBounds.min} -> {floorBounds.max}\tbuildBounds: {buildAreaBounds.min} -> {buildAreaBounds.max}");
         if (objIsWithinBuildableArea)
         {
             placeableObject.TintSprite(OK_COLOR);
