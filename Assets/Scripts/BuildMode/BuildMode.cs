@@ -82,7 +82,7 @@ public class BuildMode : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0)) // Left click
         {
-            if (placeableObject.PlacementIsValid(mouseWorldPosition))
+            if (placeableObject.PlacementIsValid(buildableGridArea))
             {
                 instantiatedPrefab = null;
                 placeableObject = null;
@@ -152,13 +152,8 @@ public class BuildMode : MonoBehaviour
 
         // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
         // This does not work, for whatever reason, when the z dimension is empty. I fuckin hate Unity. . .
-        bool objIsWithinBuildableArea =
-            floorBounds.min.x >= buildAreaBounds.min.x &&
-            floorBounds.min.y >= buildAreaBounds.min.y &&
-            floorBounds.max.x <= buildAreaBounds.max.x &&
-            floorBounds.max.y <= buildAreaBounds.max.y;
-
-        if (objIsWithinBuildableArea)
+        bool placementOK = placeableObject.PlacementIsValid(buildableGridArea);
+        if (placementOK)
         {
             placeableObject.TintSprite(OK_COLOR);
         }
@@ -187,6 +182,6 @@ public class BuildMode : MonoBehaviour
 
     public Bounds GetPlaceableObjFloorBoundsGrid()
     {
-        return placeableObject.GetFloorGridBounds(tilemap.layoutGrid, buildableGridArea.GetScaleFactor());
+        return placeableObject.GetFloorGridBounds(buildableGridArea);
     }
 }

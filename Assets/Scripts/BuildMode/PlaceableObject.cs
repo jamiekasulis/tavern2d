@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(MeshSwapper))]
@@ -24,10 +26,10 @@ public class PlaceableObject : MonoBehaviour
      * Returns the BoundsInt representing the floor space this placeable
      * object is currently taking up.
      */
-    public Bounds GetFloorGridBounds(Grid grid, float scaleFactor)
+    public Bounds GetFloorGridBounds(GridArea buildableAreaGrid)
     {
         BoxCollider2D col = MeshSwapper.Current.GetComponent<BoxCollider2D>();
-        //return col.bounds * scaleFactor;
+        int scaleFactor = buildableAreaGrid.GetScaleFactor();
         Bounds scaledBounds = new();
         scaledBounds.min = col.bounds.min * new Vector2(scaleFactor, scaleFactor);
         scaledBounds.max = col.bounds.max * new Vector2(scaleFactor, scaleFactor);
@@ -77,8 +79,52 @@ public class PlaceableObject : MonoBehaviour
         Renderer.color = color;
     }
 
-    public bool PlacementIsValid(Vector3 centerWorld)
+    /**
+     * Determines if the object's current position is a valid placement position
+     * for the placeable object. It will check for collisions against other 
+     * placeable objects in the given GridArea.
+     */
+    public bool PlacementIsValid(GridArea buildableAreaGrid)
     {
-        return false;
+        Bounds objBounds = GetFloorGridBounds(buildableAreaGrid);
+        BoundsInt buildBounds = buildableAreaGrid.GetGridAreaBounds();
+
+        // Object is contained within the buildable area
+        if (!(
+            objBounds.min.x >= buildBounds.min.x &&
+            objBounds.min.y >= buildBounds.min.y &&
+            objBounds.max.x <= buildBounds.max.x &&
+            objBounds.max.y <= buildBounds.max.y
+        ))
+        {
+            return false;
+        }
+
+        // Object does not collide with other placeable object colliders.
+        PlaceableObject[] placeableObjsInGrid = buildableAreaGrid.GetComponentsInChildren<PlaceableObject>();
+        //foreach (PlaceableObject po in placeableObjsInGrid)
+        //{
+        //    MeshSwapper ms = po.GetComponent<MeshSwapper>();
+        //    BoxCollider2D col = m.collider;
+        //    if (col.IsTouching(MeshSwapper.Current.collider))
+        //    {
+        //        Debug.Log($"Colliders are touching");
+        //        return false;
+        //    }
+        //}
+        //return true;
+        List<Collider2D> overlappingColliders = new(100);
+        MeshSwapper.Current.collider.OverlapCollider(new ContactFilter2D().NoFilter(), overlappingColliders);
+        Debug.Log($"Found {overlappingColliders.Count} collisions");
+        foreach (Collider2D col in overlappingColliders)
+        {
+            // Check if these belong to a placeable object
+            Transform parent = col.gameObject.transform.parent;
+            if (parent.TryGetComponent<PlaceableObject>(out PlaceableObject p))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }
