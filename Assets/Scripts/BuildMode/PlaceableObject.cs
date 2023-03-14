@@ -15,7 +15,8 @@ public class PlaceableObject : MonoBehaviour
         MeshSwapper = gameObject.GetComponent<MeshSwapper>();
         Renderer = gameObject.GetComponent<SpriteRenderer>();
 
-        Mesh = MeshSwapper.Default;
+        Mesh = Instantiate(MeshSwapper.Default, new Vector3(0,0,1), Quaternion.identity, gameObject.transform);
+        Debug.Log($"Instantiated sprite with direction {Mesh.direction} and sprite {Mesh.sprite.name}");
         Renderer.sprite = Mesh.sprite;
     }
 
@@ -63,7 +64,7 @@ public class PlaceableObject : MonoBehaviour
             newSpriteDirection = 3;
         }
 
-        Mesh = MeshSwapper.GetMeshForDirection((DirectionEnum)newSpriteDirection);
+        Mesh = MeshSwapper.LoadMeshForDirection((DirectionEnum)newSpriteDirection);
         Renderer.sprite = Mesh.sprite;
     }
 

@@ -16,7 +16,6 @@ public class Mesh2D : MonoBehaviour
 
     private void Awake()
     {
-        sprite = gameObject.GetComponent<Sprite>();
         collider = gameObject.GetComponent<BoxCollider2D>();
     }
 }

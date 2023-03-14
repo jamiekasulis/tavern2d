@@ -8,7 +8,7 @@ public class MeshSwapper : MonoBehaviour
 {
     [SerializeField] public Mesh2D Front, Back, Left, Right, Default;
 
-    public Mesh2D GetMeshForDirection(DirectionEnum newMeshDir)
+    public Mesh2D LoadMeshForDirection(DirectionEnum newMeshDir)
     {
         if (newMeshDir == DirectionEnum.front)
         {
