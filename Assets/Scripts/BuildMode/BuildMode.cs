@@ -71,8 +71,7 @@ public class BuildMode : MonoBehaviour
     {
         if (isEnabled)
         {
-            Debug.Log($"testPrefab {testPrefab.name}, mousePos {mouseWorldPosition}, instantiatedPrefab {instantiatedPrefab}");
-            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity, buildableGridArea.transform);
+            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity, gameObject.transform);
             placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
             placeableObject.Initialize();
         }
@@ -91,7 +90,6 @@ public class BuildMode : MonoBehaviour
     private void FillBuildableAreaOnEnabled()
     {
         EnforceTilemapSize();
-        Debug.Log($"Filling in buildable area {buildAreaBounds}");
         tilemap.FloodFill(buildAreaBounds.position, baseTile);
     }
 

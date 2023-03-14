@@ -17,7 +17,6 @@ public class PlaceableObject : MonoBehaviour
 
     public void Initialize()
     {
-        Debug.Log($"Initializing PlaceableObject with sprite {MeshSwapper.Current.sprite.name}");
         Renderer.sprite = MeshSwapper.Current.sprite;
     }
 

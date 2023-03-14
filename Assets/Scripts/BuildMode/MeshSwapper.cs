@@ -35,8 +35,8 @@ public class MeshSwapper : MonoBehaviour
             meshToInstantiate = Right;
         }
 
-        Destroy(Current, 0);
-        Current = Instantiate(meshToInstantiate, position, Quaternion.identity, gameObject.transform.parent);
+        Destroy(Current.gameObject, 0);
+        Current = Instantiate(meshToInstantiate, position, Quaternion.identity, gameObject.transform);
     }
 }
 
