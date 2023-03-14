@@ -1,31 +1,42 @@
 using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider2D))] // BoxCollider2D defines the floor space the object takes up.
+[RequireComponent(typeof(MeshSwapper))]
 public class PlaceableObject : MonoBehaviour
 {
-    private BoxCollider2D collider;
-    private SpriteRenderer renderer;
+    private SpriteRenderer Renderer;
+    private MeshSwapper MeshSwapper;
+    private Mesh2D Mesh;
+
     [SerializeField] public Item item;
 
     private void Awake()
     {
-        collider = gameObject.GetComponent<BoxCollider2D>();
-        renderer = gameObject.GetComponent<SpriteRenderer>();
-        renderer.sprite = item.spriteFront;
+        MeshSwapper = gameObject.GetComponent<MeshSwapper>();
+        Renderer = gameObject.GetComponent<SpriteRenderer>();
+
+        Mesh = MeshSwapper.Default;
+        Renderer.sprite = Mesh.sprite;
     }
 
+    /**
+     * Returns the BoundsInt representing the floor space this placeable
+     * object is currently taking up.
+     */
     public BoundsInt GetFloorGridBounds(Grid grid)
     {
+        BoxCollider2D col = Mesh.GetComponent<BoxCollider2D>();
         BoundsInt gridBounds = new(
-            grid.WorldToCell(collider.bounds.min),
-            grid.WorldToCell(collider.bounds.size)
+            grid.WorldToCell(col.bounds.min),
+            grid.WorldToCell(col.bounds.size)
         );
-        gridBounds.max = grid.WorldToCell(collider.bounds.max);
+        gridBounds.max = grid.WorldToCell(col.bounds.max);
         return gridBounds;
     }
 
     /**
-     * Rotates the object 90 degrees.
+     * Rotates the object 90 degrees. Under the hood, this will use the
+     * MeshSwapper to swap out the current mesh for the one facing in the
+     * direction we rotate to.
      */
     public void Rotate(RotationDirectionEnum dir)
     {
@@ -34,13 +45,14 @@ public class PlaceableObject : MonoBehaviour
         // BACK - 2
         // RIGHT - 3
         int initialSpriteDirection =
-            renderer.sprite == item.spriteFront ? 0
-            : renderer.sprite == item.spriteLeft ? 1
-            : renderer.sprite == item.spriteBack ? 2
+            Renderer.sprite == item.spriteFront ? 0
+            : Renderer.sprite == item.spriteLeft ? 1
+            : Renderer.sprite == item.spriteBack ? 2
             : 3;
 
         int newSpriteDirection = initialSpriteDirection
             + (dir == RotationDirectionEnum.Left ? -1 : 1);
+
         if (newSpriteDirection > 3)
         {
             newSpriteDirection = 0;
@@ -50,36 +62,8 @@ public class PlaceableObject : MonoBehaviour
             newSpriteDirection = 3;
         }
 
-        if (newSpriteDirection == 0)
-        {
-            renderer.sprite = item.spriteFront;
-        }
-        else if (newSpriteDirection == 1)
-        {
-            renderer.sprite = item.spriteLeft;
-        }
-        else if (newSpriteDirection == 2)
-        {
-            renderer.sprite = item.spriteBack;
-        }
-        else
-        {
-            renderer.sprite = item.spriteRight;
-        }
-
-        collider.size = new(collider.size.y, collider.size.x); // Swap extents to "rotate" the collider without affecting the sprite
-
-        /* 
-         * @TODO Close but not quite! We are basically trying to
-         * shift the entire object down, in order to move the collider down,
-         * so that the bottom of the collider is at the same y level as
-         * the sprite's pivot point.
-         */
-        gameObject.transform.position = new Vector3(
-            gameObject.transform.position.x,
-            renderer.transform.TransformPoint(renderer.sprite.pivot).y,
-            gameObject.transform.position.z
-        );
+        Mesh = MeshSwapper.GetMeshForDirection((DirectionEnum)newSpriteDirection);
+        Renderer.sprite = Mesh.sprite;
     }
 
     public enum RotationDirectionEnum

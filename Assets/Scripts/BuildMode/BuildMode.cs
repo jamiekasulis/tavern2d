@@ -15,9 +15,6 @@ public class BuildMode : MonoBehaviour
     
     private Vector2 mouseWorldPosition;
     private Vector3Int mouseGridPosition;
-    private Vector3Int prevMouseGridPosition;
-
-    private BoundsInt prevPlacementArea, placementArea; // The current area on the grid where the active item would be placed
     private BoundsInt buildAreaBounds;
 
     private void Awake()
@@ -90,7 +87,6 @@ public class BuildMode : MonoBehaviour
     private void UpdateMousePositions()
     {
         mouseWorldPosition = GetMouseWorldPosition();
-        prevMouseGridPosition = mouseGridPosition;
         mouseGridPosition = tilemap.layoutGrid.WorldToCell(mouseWorldPosition);
     }
 
