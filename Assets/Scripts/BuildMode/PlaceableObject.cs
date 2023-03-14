@@ -24,15 +24,10 @@ public class PlaceableObject : MonoBehaviour
      * Returns the BoundsInt representing the floor space this placeable
      * object is currently taking up.
      */
-    public BoundsInt GetFloorGridBounds(Grid grid)
+    public Bounds GetFloorGridBounds(Grid grid)
     {
         BoxCollider2D col = MeshSwapper.Current.GetComponent<BoxCollider2D>();
-        BoundsInt gridBounds = new(
-            grid.WorldToCell(col.bounds.min),
-            grid.WorldToCell(col.bounds.size)
-        );
-        gridBounds.max = grid.WorldToCell(col.bounds.max);
-        return gridBounds;
+        return col.bounds;
     }
 
     /**

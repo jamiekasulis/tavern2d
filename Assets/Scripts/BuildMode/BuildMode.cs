@@ -119,14 +119,16 @@ public class BuildMode : MonoBehaviour
         mouseWorldPosition = GetMouseWorldPosition();
         instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
 
-        BoundsInt floorBounds = GetPlaceableObjFloorBoundsGrid();
-
+        Bounds floorBounds = GetPlaceableObjFloorBoundsGrid();
 
         // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
         // This does not work, for whatever reason, when the z dimension is empty. I fuckin hate Unity. . .
         bool objIsWithinBuildableArea =
-            floorBounds.min.x >= buildAreaBounds.min.x && floorBounds.min.y >= buildAreaBounds.min.y &&
-            floorBounds.max.x <= buildAreaBounds.max.x && floorBounds.max.y <= buildAreaBounds.max.y;
+            floorBounds.min.x * buildableGridArea.GetScaleFactor() >= buildAreaBounds.min.x &&
+            floorBounds.min.y * buildableGridArea.GetScaleFactor() >= buildAreaBounds.min.y &&
+            floorBounds.max.x * buildableGridArea.GetScaleFactor() <= buildAreaBounds.max.x &&
+            floorBounds.max.y * buildableGridArea.GetScaleFactor() <= buildAreaBounds.max.y;
+
         if (objIsWithinBuildableArea)
         {
             placeableObject.TintSprite(OK_COLOR);
@@ -154,7 +156,7 @@ public class BuildMode : MonoBehaviour
         return Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
-    public BoundsInt GetPlaceableObjFloorBoundsGrid()
+    public Bounds GetPlaceableObjFloorBoundsGrid()
     {
         return placeableObject.GetFloorGridBounds(tilemap.layoutGrid);
     }
