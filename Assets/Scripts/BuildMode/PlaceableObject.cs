@@ -71,4 +71,9 @@ public class PlaceableObject : MonoBehaviour
     {
         Left, Right
     }
+
+    public void TintSprite(Color color)
+    {
+        Renderer.color = color;
+    }
 }

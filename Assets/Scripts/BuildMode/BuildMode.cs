@@ -5,7 +5,7 @@ public class BuildMode : MonoBehaviour
 {
     public GameObject testPrefab; // object to place. @TODO Select this from Inventory.
     [SerializeField] private Tilemap tilemap;
-    [SerializeField] private TileBase baseTile, okTile, badTile;
+    [SerializeField] private TileBase baseTile;
 
     private BuildableGridArea buildableGridArea;
     private PlaceableObject placeableObject;
@@ -14,8 +14,9 @@ public class BuildMode : MonoBehaviour
     private GameObject instantiatedPrefab = null;
     
     private Vector2 mouseWorldPosition;
-    private Vector3Int mouseGridPosition;
     private BoundsInt buildAreaBounds;
+
+    private Color OK_COLOR = Color.green, BAD_COLOR = Color.red;
 
     private void Awake()
     {
@@ -84,15 +85,10 @@ public class BuildMode : MonoBehaviour
         }
     }
 
-    private void UpdateMousePositions()
-    {
-        mouseWorldPosition = GetMouseWorldPosition();
-        mouseGridPosition = tilemap.layoutGrid.WorldToCell(mouseWorldPosition);
-    }
-
     private void FillBuildableAreaOnEnabled()
     {
         EnforceTilemapSize();
+        Debug.Log($"Filling in buildable area {buildAreaBounds}");
         tilemap.FloodFill(buildAreaBounds.position, baseTile);
     }
 
@@ -132,11 +128,11 @@ public class BuildMode : MonoBehaviour
             floorBounds.max.x <= buildAreaBounds.max.x && floorBounds.max.y <= buildAreaBounds.max.y;
         if (objIsWithinBuildableArea)
         {
-            PaintTiles(floorBounds, okTile);
+            placeableObject.TintSprite(OK_COLOR);
         }
         else
         {
-            PaintTiles(floorBounds, badTile);
+            placeableObject.TintSprite(BAD_COLOR);
         }
         
     }
