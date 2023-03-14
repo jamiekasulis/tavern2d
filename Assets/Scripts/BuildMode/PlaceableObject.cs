@@ -101,21 +101,8 @@ public class PlaceableObject : MonoBehaviour
         }
 
         // Object does not collide with other placeable object colliders.
-        PlaceableObject[] placeableObjsInGrid = buildableAreaGrid.GetComponentsInChildren<PlaceableObject>();
-        //foreach (PlaceableObject po in placeableObjsInGrid)
-        //{
-        //    MeshSwapper ms = po.GetComponent<MeshSwapper>();
-        //    BoxCollider2D col = m.collider;
-        //    if (col.IsTouching(MeshSwapper.Current.collider))
-        //    {
-        //        Debug.Log($"Colliders are touching");
-        //        return false;
-        //    }
-        //}
-        //return true;
         List<Collider2D> overlappingColliders = new(100);
         MeshSwapper.Current.collider.OverlapCollider(new ContactFilter2D().NoFilter(), overlappingColliders);
-        Debug.Log($"Found {overlappingColliders.Count} collisions");
         foreach (Collider2D col in overlappingColliders)
         {
             // Check if these belong to a placeable object
