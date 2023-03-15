@@ -84,6 +84,11 @@ public class InventoryManager : MonoBehaviour
 
     public void ToggleBuildModeCallback()
     {
+        if (!PlayerInventoryMenu.IsOpen())
+        {
+            // Optimization
+            return;
+        }
         var data = PlayerInventoryMenu.GetItemToVisualElementMapping();
         buildModeToggledTrigger.Invoke(data);
     }

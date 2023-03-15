@@ -47,6 +47,12 @@ public class InventoryMenu : MonoBehaviour
         }
     }
 
+    public bool IsOpen()
+    {
+        return root.style.display != DisplayStyle.None &&
+            root.enabledInHierarchy;
+    }
+
     private void Awake()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
