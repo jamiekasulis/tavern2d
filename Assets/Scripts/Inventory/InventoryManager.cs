@@ -12,6 +12,11 @@ public class InventoryManager : MonoBehaviour
     public Inventory ActiveInventory { get; private set; }
     [SerializeField] private UnityEvent<Inventory> redrawInventoryTrigger;
 
+    // For testing only - delete later
+    [SerializeField] public List<ItemQuantity> testInventoryToLoad;
+
+    public bool ingestTestPlayerInventory = false;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,6 +31,12 @@ public class InventoryManager : MonoBehaviour
 
         PlayerInventory = new(10);
         ActiveInventory = PlayerInventory;
+
+        // For testing only
+        foreach(ItemQuantity iq in testInventoryToLoad)
+        {
+            PlayerInventory.Add(iq);
+        }
     }
 
     public void TogglePlayerInventoryMenuEnabled()
