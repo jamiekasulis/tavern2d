@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using UnityEngine.Events;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 [RequireComponent(typeof(GridSizeSpecification))]
 public class InventoryMenu : MonoBehaviour
@@ -29,9 +30,9 @@ public class InventoryMenu : MonoBehaviour
     private ScrollView GridContainer;
     private Label title;
     private VisualElement[] rows; // GridRows
-    private CellData[,] cellsByRow; // We assume these to be using InventoryCell.uxml
+    public CellData[,] cellsByRow { get; private set; } // We assume these to be using InventoryCell.uxml
 
-    class CellData
+    public class CellData
     {
         public VisualElement visualElement;
         public ItemQuantity? itemData;
@@ -114,6 +115,7 @@ public class InventoryMenu : MonoBehaviour
             {
                 e = EmptyCell(rowCol.Item1, rowCol.Item2);
             }
+
             buildModeDrawCellTrigger.Invoke(maybeItem?.item, e);
         }
     }
@@ -371,6 +373,19 @@ public class InventoryMenu : MonoBehaviour
     private bool IsRightClick(MouseDownEvent evt)
     {
         return evt.button == 1;
+    }
+
+    public List<(Item?, VisualElement)> GetItemToVisualElementMapping()
+    {
+        List<(Item?, VisualElement)> data = new(cellsByRow.Length);
+        foreach (var cellData in cellsByRow)
+        {
+            data.Add((
+                cellData.itemData?.item,
+                cellData.visualElement
+            ));
+        }
+        return data;
     }
 }
 

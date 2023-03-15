@@ -22,6 +22,8 @@ public class BuildMode : MonoBehaviour
 
     private Color OK_COLOR = Color.green, BAD_COLOR = Color.red;
 
+    [SerializeField] private UnityEvent inventoryManagerTrigger;
+
     private void Awake()
     {
         if (Instance != null & Instance != this)
@@ -66,6 +68,8 @@ public class BuildMode : MonoBehaviour
             {
                 OnBuildModeDisabled();
             }
+
+            inventoryManagerTrigger.Invoke();
         }
     }
 
