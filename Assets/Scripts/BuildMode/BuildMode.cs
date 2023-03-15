@@ -1,18 +1,22 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.Events;
 
 public class BuildMode : MonoBehaviour
 {
+    public static BuildMode Instance;
+
     public GameObject testPrefab; // object to place. @TODO Select this from Inventory.
+
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private TileBase baseTile;
 
+    [SerializeField] private UnityEvent<bool> toggleBuildModeTrigger;
+
     private BuildableGridArea buildableGridArea;
     private PlaceableObject placeableObject;
-
-    private bool isEnabled = false;
+    public bool IsEnabled { get; private set; } = false;
     private GameObject instantiatedPrefab = null;
-    
     private Vector2 mouseWorldPosition;
     private BoundsInt buildAreaBounds;
 
@@ -20,6 +24,15 @@ public class BuildMode : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null & Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            Instance = this;
+        }
+
         buildableGridArea = gameObject.GetComponent<BuildableGridArea>();
         buildAreaBounds = buildableGridArea.GetGridAreaBounds();
         mouseWorldPosition = Vector3.zero;
@@ -28,7 +41,7 @@ public class BuildMode : MonoBehaviour
     void Update()
     {
         HandleToggleBuildMode();
-        if (!isEnabled)
+        if (!IsEnabled)
         {
             return;
         }
@@ -42,10 +55,10 @@ public class BuildMode : MonoBehaviour
     {
         if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_BUILD_MODE))
         {
-            isEnabled = !isEnabled;
+            IsEnabled = !IsEnabled;
             InstantiateOrDestroyPlaceableObject();
 
-            if (isEnabled)
+            if (IsEnabled)
             {
                 OnBuildModeEnabled();
             }
@@ -86,7 +99,7 @@ public class BuildMode : MonoBehaviour
             {
                 instantiatedPrefab = null;
                 placeableObject = null;
-                isEnabled = false;
+                IsEnabled = false;
                 OnBuildModeDisabled();
             }
             else
@@ -98,7 +111,7 @@ public class BuildMode : MonoBehaviour
 
     private void InstantiateOrDestroyPlaceableObject()
     {
-        if (isEnabled)
+        if (IsEnabled)
         {
             instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity, gameObject.transform);
             placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();

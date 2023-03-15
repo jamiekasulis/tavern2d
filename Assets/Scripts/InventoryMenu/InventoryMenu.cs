@@ -10,12 +10,16 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private VisualTreeAsset CellTemplate;
     [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
+
     [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeInventoryTrigger;
+    [SerializeField] private UnityEvent<Item?, VisualElement> buildModeDrawCellTrigger;
+
     public RearrangeInventoryTooltip inventoryTooltip;
 
     private CellData? selectedCell = null;
     private Inventory inventory;
 
+    public static Color HighlightColor { get; private set; } = new Color(255, 215, 25);
 
     GridSizeSpecification gridSize;
 
@@ -83,11 +87,6 @@ public class InventoryMenu : MonoBehaviour
         root.SetEnabled(false);
     }
 
-    private void OnEnable()
-    {
-
-    }
-
     /**
      * Draws the inventory. We assume that the UIDocument already contains 
      * a set of empty InventoryCell templates. This iterates over the inventory
@@ -97,9 +96,8 @@ public class InventoryMenu : MonoBehaviour
     public void DrawInventory(Inventory inventory)
     {
         this.inventory = inventory;
-
         title.text = MenuTitle;
-
+        
         // Fill in each cell. This requires mapping from 1-dimensional
         // indices in inventory to 2-dimensional indices in cellsByRow.
         for (int i = 0; i < inventory.StackCapacity; i++)
@@ -107,14 +105,16 @@ public class InventoryMenu : MonoBehaviour
             (int, int) rowCol = InventoryToGridIndex(i);
 
             ItemQuantity? maybeItem = inventory.Stacks[i];
+            VisualElement e;
             if (maybeItem != null)
             {
-                DrawCell(rowCol.Item1, rowCol.Item2, inventory.Stacks[i]);
+                e = DrawCell(rowCol.Item1, rowCol.Item2, inventory.Stacks[i]);
             }
             else
             {
-                EmptyCell(rowCol.Item1, rowCol.Item2);
+                e = EmptyCell(rowCol.Item1, rowCol.Item2);
             }
+            buildModeDrawCellTrigger.Invoke(maybeItem?.item, e);
         }
     }
 
@@ -132,7 +132,7 @@ public class InventoryMenu : MonoBehaviour
     /**
      * Draws the given item data into the cell at the specified coordinates.
      */
-    private void DrawCell(int row, int col, ItemQuantity itemData)
+    private VisualElement DrawCell(int row, int col, ItemQuantity itemData)
     {
         CellData cell = cellsByRow[row, col];
         Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
@@ -142,12 +142,13 @@ public class InventoryMenu : MonoBehaviour
         qtyLabel.text = itemData.quantity.ToString();
         rootButton.style.backgroundImage = new StyleBackground(itemData.item.spriteFront);
         rootButton.style.unityBackgroundImageTintColor = StyleKeyword.Null;
+        return rootButton;
     }
 
     /**
      * Empties out the cell so that there is no image sprite or label shown.
      */
-    private void EmptyCell(int row, int col)
+    private VisualElement EmptyCell(int row, int col)
     {
         CellData cell = cellsByRow[row, col];
         Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
@@ -157,6 +158,7 @@ public class InventoryMenu : MonoBehaviour
         rootButton.style.backgroundImage = StyleKeyword.None;
         
         cell.itemData = null;
+        return rootButton;
     }
 
     /**
