@@ -20,3 +20,4 @@ MonoBehaviour:
   spriteLeft: {fileID: 0}
   spriteRight: {fileID: 0}
   buildMode: 1
+  prefab: {fileID: 171469709158765957, guid: 89d18da05656d41dea465109a10fb924, type: 3}

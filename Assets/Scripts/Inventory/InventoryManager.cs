@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -11,6 +12,12 @@ public class InventoryManager : MonoBehaviour
     // but if a chest is open or we are in a crafting room then this can change.
     public Inventory ActiveInventory { get; private set; }
     [SerializeField] private UnityEvent<Inventory> redrawInventoryTrigger;
+    [SerializeField] private UnityEvent<List<(Item?, VisualElement)>> buildModeToggledTrigger;
+
+    // For testing only - delete later
+    [SerializeField] public List<ItemQuantity> testInventoryToLoad;
+
+    public bool ingestTestPlayerInventory = false;
 
     void Awake()
     {
@@ -26,6 +33,12 @@ public class InventoryManager : MonoBehaviour
 
         PlayerInventory = new(10);
         ActiveInventory = PlayerInventory;
+
+        // For testing only
+        foreach(ItemQuantity iq in testInventoryToLoad)
+        {
+            PlayerInventory.Add(iq);
+        }
     }
 
     public void TogglePlayerInventoryMenuEnabled()
@@ -67,5 +80,16 @@ public class InventoryManager : MonoBehaviour
     public void MakeChangesToInventory(Inventory inv, List<(int, ItemQuantity)> changedIndices)
     {
         inv.MakeChanges(changedIndices);
+    }
+
+    public void ToggleBuildModeCallback()
+    {
+        if (!PlayerInventoryMenu.IsOpen())
+        {
+            // Optimization
+            return;
+        }
+        var data = PlayerInventoryMenu.GetItemToVisualElementMapping();
+        buildModeToggledTrigger.Invoke(data);
     }
 }

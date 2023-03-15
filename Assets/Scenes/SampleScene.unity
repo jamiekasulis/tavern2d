@@ -209,7 +209,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &309285811
 Transform:
   m_ObjectHideFlags: 0
@@ -271,6 +271,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  buildModeDrawCellTrigger:
+    m_PersistentCalls:
+      m_Calls: []
   inventoryTooltip: {fileID: 748556833}
 --- !u!114 &309285814
 MonoBehaviour:
@@ -350,6 +353,24 @@ MonoBehaviour:
   testPrefab: {fileID: 1059182919202152847, guid: 01ef11347e8544bb59bac20a77ac12b5, type: 3}
   tilemap: {fileID: 567657851}
   baseTile: {fileID: 11400000, guid: 0c592e6f5ea674037870292f16be9709, type: 2}
+  toggleBuildModeTrigger:
+    m_PersistentCalls:
+      m_Calls: []
+  inventoryManagerTrigger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1977449618}
+        m_TargetAssemblyTypeName: InventoryManager, GameScriptsAssemblyDefinition
+        m_MethodName: ToggleBuildModeCallback
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -973,6 +994,50 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9136770014896923556, guid: ab3abb1e8f2da4670a3e35df82eede1f, type: 3}
   m_PrefabInstance: {fileID: 9136770013669001995}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1157483839
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1157483841}
+  - component: {fileID: 1157483840}
+  m_Layer: 0
+  m_Name: TestDataIngestor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1157483840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157483839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f83b26a744981465c9d87bbe7ebca858, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1157483841
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157483839}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.15673701, y: -0.03215656, z: 0.069976375}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1408510076
 GameObject:
   m_ObjectHideFlags: 0
@@ -1045,6 +1110,7 @@ GameObject:
   - component: {fileID: 1808072330}
   - component: {fileID: 1808072332}
   - component: {fileID: 1808072333}
+  - component: {fileID: 1808072334}
   m_Layer: 5
   m_Name: PlayerInventoryMenu
   m_TagString: Untagged
@@ -1113,6 +1179,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  buildModeDrawCellTrigger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1808072334}
+        m_TargetAssemblyTypeName: BuildModeInventoryMenu, GameScriptsAssemblyDefinition
+        m_MethodName: SetHighlightForInventoryCell
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   inventoryTooltip: {fileID: 748556833}
 --- !u!114 &1808072333
 MonoBehaviour:
@@ -1128,6 +1209,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numRows: 4
   numCols: 6
+--- !u!114 &1808072334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808072329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb8bad1bf85d74c3b9ae6f7f3d3c13cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1910209087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1186,6 +1279,27 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  buildModeToggledTrigger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1808072334}
+        m_TargetAssemblyTypeName: BuildModeInventoryMenuTriggers, GameScriptsAssemblyDefinition
+        m_MethodName: SetHighlightForAllInventoryCells
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  testInventoryToLoad:
+  - item: {fileID: 11400000, guid: 9225fb6b17d1b45f5b2a38e0f54f7fb1, type: 2}
+    quantity: 2
+  - item: {fileID: 11400000, guid: 5a420c269fa1f4ee4ac23a2166cff4f6, type: 2}
+    quantity: 1
+  ingestTestPlayerInventory: 1
 --- !u!4 &1977449619
 Transform:
   m_ObjectHideFlags: 0
