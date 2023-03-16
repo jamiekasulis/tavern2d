@@ -165,6 +165,8 @@ public class InventoryMenu2 : MonoBehaviour
                 cell.itemData != null
                     ? new StyleBackground(cell.itemData.item.spriteFront)
                     : StyleKeyword.None;
+            // @TODO Move this to the right spot later. Just testing
+            cell.visualElement.styleSheets.Add(BuildModeOKStyleSheet);
         });
     }
 
