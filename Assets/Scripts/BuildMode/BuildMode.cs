@@ -11,8 +11,6 @@ public class BuildMode : MonoBehaviour
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private TileBase baseTile;
 
-    [SerializeField] private UnityEvent<bool> toggleBuildModeTrigger;
-
     private BuildableGridArea buildableGridArea;
     private PlaceableObject placeableObject;
     public bool IsEnabled { get; private set; } = false;
@@ -22,7 +20,7 @@ public class BuildMode : MonoBehaviour
 
     private Color OK_COLOR = Color.green, BAD_COLOR = Color.red;
 
-    [SerializeField] private UnityEvent inventoryManagerTrigger;
+    [SerializeField] private UnityEvent buildModeToggledTrigger;
 
     private void Awake()
     {
@@ -69,7 +67,7 @@ public class BuildMode : MonoBehaviour
                 OnBuildModeDisabled();
             }
 
-            inventoryManagerTrigger.Invoke();
+            buildModeToggledTrigger.Invoke();
         }
     }
 

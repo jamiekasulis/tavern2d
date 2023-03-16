@@ -1,8 +1,42 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
+
+public class CellData2
+{
+    public VisualElement visualElement;
+    public ItemQuantity? itemData;
+    public int row, col;
+    public bool buttonEnabled;
+    public List<InventoryCellStyleEnum> additionalStyles;
+
+    public enum InventoryCellStyleEnum
+    {
+        BuildModeOK = 0,
+        BuildModeNotOK = 1
+    }
+
+    public CellData2(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column)
+    {
+        visualElement = cellVisualElement;
+        this.itemData = itemData;
+        this.row = row;
+        col = column;
+        buttonEnabled = true;
+        additionalStyles = new List<InventoryCellStyleEnum>();
+    }
+
+    public CellData2(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column, List<InventoryCellStyleEnum> additionalStyles)
+    {
+        visualElement = cellVisualElement;
+        this.itemData = itemData;
+        this.row = row;
+        col = column;
+        buttonEnabled = true;
+        this.additionalStyles = additionalStyles;
+    }
+}
 
 public class InventoryMenu2 : MonoBehaviour
 {
@@ -29,41 +63,6 @@ public class InventoryMenu2 : MonoBehaviour
     public CellData2[,] cellsByRow { get; private set; } // We assume these to be using InventoryCell.uxml
     private CellData2? selectedCell = null;
     private Inventory inventory;
-    private IStyle defaultCellStyle;
-
-    public enum InventoryCellStyleEnum
-    {
-        BUILD_MODE_STYLE = 0
-    }
-
-    public class CellData2
-    {
-        public VisualElement visualElement;
-        public ItemQuantity? itemData;
-        public int row, col;
-        public bool buttonEnabled;
-        public List<InventoryCellStyleEnum> additionalStyles;
-
-        public CellData2(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column)
-        {
-            visualElement = cellVisualElement;
-            this.itemData = itemData;
-            this.row = row;
-            col = column;
-            buttonEnabled = true;
-            additionalStyles = new List<InventoryCellStyleEnum>();
-        }
-
-        public CellData2(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column, List<InventoryCellStyleEnum> additionalStyles)
-        {
-            visualElement = cellVisualElement;
-            this.itemData = itemData;
-            this.row = row;
-            col = column;
-            buttonEnabled = true;
-            this.additionalStyles = additionalStyles;
-        }
-    }
 
     private void Awake()
     {
@@ -124,14 +123,14 @@ public class InventoryMenu2 : MonoBehaviour
         }
     }
 
+    #region Draw functions
+
     /**
      * Draws the given inventory data into the inventory menu.
      * Uses default styling and properties for all slots.
      */
     public void DrawInventory(Inventory inv)
     {
-        Debug.Log($"InventoryMenu2.DrawInventory");
-
         inventory = inv;
         title.text = MenuTitle;
 
@@ -150,13 +149,16 @@ public class InventoryMenu2 : MonoBehaviour
 
     /**
      * Updates the visuals of each cell according to the cell data passed in.
+     * Will first set the cell to its default styling, then apply specialized
+     * styling from CellData.additionalStyles on top of that.
      */
     public void RedrawCells(List<CellData2> cellsToRedraw)
     {
-        Debug.Log($"InventoryMenu2.RedrawCells");
+        Debug.Log($"Invoked InventoryMenu2.RedrawCells");
 
         cellsToRedraw.ForEach(cell =>
         {
+            cell.visualElement.styleSheets.Clear();
             Label qtyLabel = cell.visualElement.Q<Label>("QuantityLabel");
             Button rootButton = cell.visualElement.Q<Button>("RootButton");
 
@@ -165,9 +167,38 @@ public class InventoryMenu2 : MonoBehaviour
                 cell.itemData != null
                     ? new StyleBackground(cell.itemData.item.spriteFront)
                     : StyleKeyword.None;
-            // @TODO Move this to the right spot later. Just testing
-            cell.visualElement.styleSheets.Add(BuildModeOKStyleSheet);
+
+            if (cell.additionalStyles.Count > 0)
+            {
+                LoadAdditionalStyles(cell);
+            }
         });
+    }
+
+    #endregion
+
+    /**
+     * Attaches all of the additional style sheet(s) to the cell.
+     * Which styles get attached is determined by the cell's additionalStyles
+     * property.
+     */
+    private void LoadAdditionalStyles(CellData2 cell)
+    {
+        foreach (CellData2.InventoryCellStyleEnum style in cell.additionalStyles)
+        {
+            StyleSheet? styleSheet =
+                style == CellData2.InventoryCellStyleEnum.BuildModeOK ? BuildModeOKStyleSheet
+                : style == CellData2.InventoryCellStyleEnum.BuildModeNotOK ? BuildModeNotOKStyleSheet
+                : null;
+
+            if (styleSheet == null)
+            {
+                Debug.Log($"Did not find stylesheet corresponding to {style}. Skipping");
+                continue;
+            }
+            Debug.Log($"Applying stylesheet for {style} to cell ({cell.row},{cell.col})");
+            cell.visualElement.styleSheets.Add(styleSheet);
+        }
     }
 
     #region Helper functions

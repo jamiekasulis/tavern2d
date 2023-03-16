@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.Events;
 
 /**
  * This class contains the build mode-related functionailities of the inventory
@@ -8,60 +8,55 @@ using UnityEngine.UIElements;
  */
 public class BuildModeInventoryMenuTriggers : MonoBehaviour
 {
+
     /**
-     * Determines if the given visual element should be highlighted
-     * (if build mode is ON and the item is a build mode-approved item.)
-     * Then highlights the item.
-     * 
-     * If it is determined the item should NOT be highlighted,
-     * any highlights will be removed.
+     * This should be the callback that triggers the UI to reflect the changes
+     * made by these functions.
      */
-    public void SetHighlightForInventoryCell(Item? item, VisualElement visualElt)
+    [SerializeField] private UnityEvent<List<CellData2>> RedrawInventoryMenuCells;
+
+    /**
+     * Invoke me when build mode is enabled/disabled
+     */
+    public void ApplyBuildModeStylingToInventory()
     {
-        bool shouldHighlight =
-            BuildMode.Instance.IsEnabled &&
-            item != null &&
-            item.buildMode;
+        Debug.Log($"Invoked ApplyBuildModeStylingToInventory. BuildModeEnabled={BuildMode.Instance.IsEnabled}");
+        // @TODO Change this to PLAYER Inventory Menu, not CHEST!
+        CellData2[,] cellData = InventoryManager.Instance.ChestInventoryMenu.cellsByRow;
 
-        Button btn = visualElt.Q<Button>("RootButton");
-
-        if (shouldHighlight)
+        if (BuildMode.Instance.IsEnabled)
         {
-            btn.style.borderTopWidth = new StyleFloat(2);
-            btn.style.borderTopColor = InventoryMenu.HighlightColor;
-
-            btn.style.borderBottomWidth = new StyleFloat(2);
-            btn.style.borderBottomColor = InventoryMenu.HighlightColor;
-
-            btn.style.borderLeftWidth = new StyleFloat(2);
-            btn.style.borderLeftColor = InventoryMenu.HighlightColor;
-
-            btn.style.borderRightWidth = new StyleFloat(2);
-            btn.style.borderRightColor = InventoryMenu.HighlightColor;
+            // Apply styles
+            foreach (CellData2 cell in cellData)
+            {
+                if (cell.itemData != null && cell.itemData.item.buildMode)
+                {
+                    Debug.Log($"Applying OK styling on cell with {cell.itemData.item.itemName}");
+                    cell.additionalStyles.Add(CellData2.InventoryCellStyleEnum.BuildModeOK);
+                }
+                else if (cell.itemData != null && !cell.itemData.item.buildMode)
+                {
+                    Debug.Log($"Applying NOT_OK styling on cell with {cell.itemData.item.itemName}");
+                    cell.additionalStyles.Add(CellData2.InventoryCellStyleEnum.BuildModeNotOK);
+                }
+                else
+                {
+                    // Do nothing if the cell has no item in it.
+                }
+            }
         }
         else
         {
-            btn.style.borderTopColor = Color.clear;
-            btn.style.borderTopWidth = StyleKeyword.None;
-
-            btn.style.borderBottomColor = Color.clear;
-            btn.style.borderBottomWidth = StyleKeyword.None;
-
-            btn.style.borderLeftColor = Color.clear;
-            btn.style.borderLeftWidth = StyleKeyword.None;
-
-            btn.style.borderRightColor = Color.clear;
-            btn.style.borderRightWidth = StyleKeyword.None;
+            // Remove build mode-related styles
+            foreach (CellData2 cell in cellData)
+            {
+                cell.additionalStyles.Remove(CellData2.InventoryCellStyleEnum.BuildModeOK);
+                cell.additionalStyles.Remove(CellData2.InventoryCellStyleEnum.BuildModeNotOK);
+            }
         }
-    }
-
-    /**
-     * See <see cref="SetHighlightForInventoryCell"/>
-     */
-    public void SetHighlightForAllInventoryCells(List<(Item?, VisualElement)> itemsToVisualElt) {
-        itemsToVisualElt.ForEach(i =>
-            SetHighlightForInventoryCell(i.Item1, i.Item2)
-        );
+        List<CellData2> flatList = ListUtils.FlattenToList(cellData);
+        Debug.Log($"Flattened list: {flatList.Count}");
+        RedrawInventoryMenuCells.Invoke(flatList);
     }
 
     public void OnCellClick()
