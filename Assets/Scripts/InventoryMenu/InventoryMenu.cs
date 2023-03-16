@@ -13,6 +13,7 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private string MenuTitle;
 
     [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeInventoryTrigger;
+
     [SerializeField] private UnityEvent<Item?, VisualElement> buildModeDrawCellTrigger;
 
     public RearrangeInventoryTooltip inventoryTooltip;
