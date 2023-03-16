@@ -201,8 +201,8 @@ GameObject:
   m_Component:
   - component: {fileID: 309285811}
   - component: {fileID: 309285812}
-  - component: {fileID: 309285813}
   - component: {fileID: 309285814}
+  - component: {fileID: 309285815}
   m_Layer: 0
   m_Name: ChestInventoryMenu
   m_TagString: Untagged
@@ -241,7 +241,7 @@ MonoBehaviour:
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 220202011c93d41458d11c17a16cd108, type: 3}
   m_SortingOrder: 0
---- !u!114 &309285813
+--- !u!114 &309285814
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -250,11 +250,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 309285810}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e474b0071ff484636ae88f1b1a393c1c, type: 3}
+  m_Script: {fileID: 11500000, guid: 63be6d6e3d4f84d419386e142010f59f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
-  GridRowTemplate: {fileID: 9197481963319205126, guid: 8970577c214ce4dfeb783a9cf5397b23, type: 3}
+  numRows: 6
+  numCols: 6
+--- !u!114 &309285815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309285810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fc7f05218b2d41cdb3b06705dbf4029, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CellTemplate: {fileID: 0}
+  GridRowTemplate: {fileID: 0}
   MenuTitle: Chest
   rearrangeInventoryTrigger:
     m_PersistentCalls:
@@ -271,24 +285,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  buildModeDrawCellTrigger:
-    m_PersistentCalls:
-      m_Calls: []
-  inventoryTooltip: {fileID: 748556833}
---- !u!114 &309285814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309285810}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63be6d6e3d4f84d419386e142010f59f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  numRows: 6
-  numCols: 6
 --- !u!1 &399621412
 GameObject:
   m_ObjectHideFlags: 0
@@ -994,11 +990,11 @@ PrefabInstance:
     - target: {fileID: 171469709158765958, guid: 89d18da05656d41dea465109a10fb924, type: 3}
       propertyPath: OpenInventoryTrigger.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 309285813}
+      objectReference: {fileID: 0}
     - target: {fileID: 171469709158765958, guid: 89d18da05656d41dea465109a10fb924, type: 3}
       propertyPath: CloseInventoryTrigger.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 309285813}
+      objectReference: {fileID: 0}
     - target: {fileID: 171469709158765958, guid: 89d18da05656d41dea465109a10fb924, type: 3}
       propertyPath: OpenInventoryTrigger.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: ToggleMenuOpen
@@ -1132,7 +1128,7 @@ MonoBehaviour:
   OpenInventoryTrigger:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 309285813}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: InventoryMenu, GameScriptsAssemblyDefinition
         m_MethodName: ToggleMenuOpen
         m_Mode: 0
@@ -1159,7 +1155,7 @@ MonoBehaviour:
   CloseInventoryTrigger:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 309285813}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: InventoryMenu, GameScriptsAssemblyDefinition
         m_MethodName: ToggleMenuOpen
         m_Mode: 0
