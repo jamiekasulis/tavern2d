@@ -1,0 +1,10 @@
+#RootButton {
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(245, 186, 29, 255);
+    border-right-color: rgba(245, 186, 29, 255);
+    border-top-color: rgba(245, 186, 29, 255);
+    border-bottom-color: rgba(245, 186, 29, 255);
+}
