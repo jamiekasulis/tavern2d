@@ -106,7 +106,6 @@ public class PlayerController : MonoBehaviour
             if (isInteractable)
             {
                 interactable = i;
-                Debug.Log($"Found interactable {interactable.gameObject.name}");
                 return;
             }
         }

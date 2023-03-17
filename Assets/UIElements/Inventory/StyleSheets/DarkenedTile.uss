@@ -1,0 +1,3 @@
+#RootButton * {
+    background-color: rgba(123, 123, 123, 0.92);
+}

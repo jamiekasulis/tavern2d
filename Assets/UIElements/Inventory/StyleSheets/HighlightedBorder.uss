@@ -1,0 +1,10 @@
+#ButtonInnerContainer {
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(243, 202, 15, 0.76);
+    border-right-color: rgba(243, 202, 15, 0.76);
+    border-top-color: rgba(243, 202, 15, 0.76);
+    border-bottom-color: rgba(243, 202, 15, 0.76);
+}

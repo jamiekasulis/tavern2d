@@ -6,12 +6,10 @@ public class BuildMode : MonoBehaviour
 {
     public static BuildMode Instance;
 
-    public GameObject testPrefab; // object to place. @TODO Select this from Inventory.
+    private GameObject objectToPlacePrefab;
 
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private TileBase baseTile;
-
-    [SerializeField] private UnityEvent<bool> toggleBuildModeTrigger;
 
     private BuildableGridArea buildableGridArea;
     private PlaceableObject placeableObject;
@@ -22,7 +20,7 @@ public class BuildMode : MonoBehaviour
 
     private Color OK_COLOR = Color.green, BAD_COLOR = Color.red;
 
-    [SerializeField] private UnityEvent inventoryManagerTrigger;
+    [SerializeField] private UnityEvent buildModeToggledTrigger;
 
     private void Awake()
     {
@@ -48,6 +46,16 @@ public class BuildMode : MonoBehaviour
             return;
         }
 
+        if (objectToPlacePrefab == null)
+        {
+            return;
+        }
+
+        if (placeableObject == null || instantiatedPrefab == null)
+        {
+            InstantiatePlaceableObject();
+        }
+
         UpdateObjectPosition();
         HandleRotateObject();
         HandlePlaceObject();
@@ -58,7 +66,6 @@ public class BuildMode : MonoBehaviour
         if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_BUILD_MODE))
         {
             IsEnabled = !IsEnabled;
-            InstantiateOrDestroyPlaceableObject();
 
             if (IsEnabled)
             {
@@ -69,7 +76,7 @@ public class BuildMode : MonoBehaviour
                 OnBuildModeDisabled();
             }
 
-            inventoryManagerTrigger.Invoke();
+            buildModeToggledTrigger.Invoke();
         }
     }
 
@@ -81,6 +88,10 @@ public class BuildMode : MonoBehaviour
     private void OnBuildModeDisabled()
     {
         tilemap.ClearAllTiles();
+        if (placeableObject != null)
+        {
+            DestroyPlaceableObject();
+        }
     }
 
     private void HandleRotateObject()
@@ -102,6 +113,7 @@ public class BuildMode : MonoBehaviour
             if (placeableObject.PlacementIsValid(buildableGridArea))
             {
                 instantiatedPrefab = null;
+                placeableObject.TintSprite(Color.white);
                 placeableObject = null;
                 IsEnabled = false;
                 OnBuildModeDisabled();
@@ -113,24 +125,21 @@ public class BuildMode : MonoBehaviour
         }
     }
 
-    private void InstantiateOrDestroyPlaceableObject()
+    private void InstantiatePlaceableObject()
     {
-        if (IsEnabled)
-        {
-            instantiatedPrefab = Instantiate(testPrefab, mouseWorldPosition, Quaternion.identity, gameObject.transform);
-            placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
-            placeableObject.Initialize();
-        }
-        else
-        {
-            if (instantiatedPrefab != null || placeableObject != null)
-            {
-                Destroy(instantiatedPrefab, 0);
-                instantiatedPrefab = null;
-                Destroy(placeableObject);
-                placeableObject = null;
-            }
-        }
+        instantiatedPrefab = Instantiate(objectToPlacePrefab, mouseWorldPosition, Quaternion.identity, gameObject.transform);
+        placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
+        placeableObject.Initialize();
+    }
+
+    private void DestroyPlaceableObject()
+    {
+        Destroy(instantiatedPrefab, 0);
+        instantiatedPrefab = null;
+        Destroy(placeableObject); // @TODO Is this needed? Shouldnt it get destroyed by destroying instantiatedPrefab?
+        placeableObject = null;
+        objectToPlacePrefab = null;
+
     }
 
     private void FillBuildableArea()
@@ -152,21 +161,11 @@ public class BuildMode : MonoBehaviour
         tilemap.ResizeBounds(); // Will affect the changes done by the last 2 lines.
     }
 
-    private void PaintTiles(BoundsInt area, TileBase tile)
-    {
-        // Whenever you clear the tilemap it resets the bounds to 0. Before filling it, we need to resize the tilemap
-        // so that it will be able to fit the entire boxfill we do below.
-        EnforceTilemapSize();
-        tilemap.BoxFill(area.position, tile, area.xMin, area.yMin, area.xMax, area.yMax);
-    }
-
     private void UpdateObjectPosition()
     {
         mouseWorldPosition = GetMouseWorldPosition();
-        instantiatedPrefab.transform.position = CenterInCell(mouseWorldPosition);
-
-        Bounds floorBounds = GetPlaceableObjFloorBoundsGrid();
-
+        placeableObject.transform.position = CenterInCell(mouseWorldPosition);
+            
         // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
         // This does not work, for whatever reason, when the z dimension is empty. I fuckin hate Unity. . .
         bool placementOK = placeableObject.PlacementIsValid(buildableGridArea);
@@ -200,5 +199,14 @@ public class BuildMode : MonoBehaviour
     public Bounds GetPlaceableObjFloorBoundsGrid()
     {
         return placeableObject.GetFloorGridBounds(buildableGridArea);
+    }
+
+    public void SetObjectToPlace(Item item)
+    {
+        if (!item.buildMode)
+        {
+            throw new System.Exception($"Attemted to set Build Mode's object to place to a non-build mode approved item! {item}");
+        }
+        objectToPlacePrefab = item.prefab;
     }
 }

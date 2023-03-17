@@ -13,6 +13,7 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private string MenuTitle;
 
     [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> rearrangeInventoryTrigger;
+
     [SerializeField] private UnityEvent<Item?, VisualElement> buildModeDrawCellTrigger;
 
     public RearrangeInventoryTooltip inventoryTooltip;
@@ -22,7 +23,7 @@ public class InventoryMenu : MonoBehaviour
 
     public static Color HighlightColor { get; private set; } = new Color(255, 215, 25);
 
-    GridSizeSpecification gridSize;
+    public GridSizeSpecification GridSizeSpecification { get; private set; }
 
 
     // UI Elements
@@ -60,27 +61,27 @@ public class InventoryMenu : MonoBehaviour
         GridContainer.Clear(); // Do this since Awake() gets called 2x sometimes?
         title = root.Q<Label>("Title");
 
-        gridSize = gameObject.GetComponent<GridSizeSpecification>();
+        GridSizeSpecification = gameObject.GetComponent<GridSizeSpecification>();
 
         /* Create the grid of cells.
          * These are just some GridRow templates holding
          * InventoryCell templates.
          */
-        rows = new VisualElement[gridSize.GetNumRows()];
-        cellsByRow = new CellData[gridSize.GetNumRows(), gridSize.GetNumCols()];
+        rows = new VisualElement[GridSizeSpecification.GetNumRows()];
+        cellsByRow = new CellData[GridSizeSpecification.GetNumRows(), GridSizeSpecification.GetNumCols()];
 
         // Compose the 2D array of cells mapped to rows
         // Create GridRows
-        for (int r = 0; r < gridSize.GetNumRows(); r++)
+        for (int r = 0; r < GridSizeSpecification.GetNumRows(); r++)
         {
             rows[r] = GridRowTemplate.Instantiate();
             GridContainer.contentContainer.Add(rows[r]);
         }
 
         // Populate GridRows with InventoryCells
-        for(int r = 0; r < gridSize.GetNumRows(); r++)
+        for(int r = 0; r < GridSizeSpecification.GetNumRows(); r++)
         {
-            for (int c = 0; c < gridSize.GetNumCols(); c++)
+            for (int c = 0; c < GridSizeSpecification.GetNumCols(); c++)
             {
                 CellData cell = new(CellTemplate.Instantiate(), null, r, c);
                 cell.visualElement.RegisterCallback<MouseDownEvent, CellData>(HandleCellClick, cell, useTrickleDown: TrickleDown.TrickleDown);
@@ -128,12 +129,12 @@ public class InventoryMenu : MonoBehaviour
 
     private (int, int) InventoryToGridIndex(int inventoryIndex)
     {
-        return (inventoryIndex / gridSize.GetNumCols(), inventoryIndex % gridSize.GetNumCols());
+        return (inventoryIndex / GridSizeSpecification.GetNumCols(), inventoryIndex % GridSizeSpecification.GetNumCols());
     }
 
     private int GridToInventoryIndex(int row, int col)
     {
-        int result = gridSize.GetNumCols() * row + col;
+        int result = GridSizeSpecification.GetNumCols() * row + col;
         return result;
     }
 
