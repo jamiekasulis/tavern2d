@@ -43,19 +43,16 @@ public class BuildMode : MonoBehaviour
         HandleToggleBuildMode();
         if (!IsEnabled)
         {
-            Debug.Log("RETURNING because build mode is OFF.");
             return;
         }
 
         if (objectToPlacePrefab == null)
         {
-            Debug.Log("RETURNING because objectToPlacePrefab is NULL.");
             return;
         }
 
         if (placeableObject == null || instantiatedPrefab == null)
         {
-            Debug.Log($"RETURNING because placeableObject {placeableObject} or instantiatedPrefab {instantiatedPrefab} is NULL.");
             InstantiatePlaceableObject();
         }
 

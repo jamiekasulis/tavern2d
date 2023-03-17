@@ -25,6 +25,7 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
      */
     public void ApplyBuildModeStylingToInventory()
     {
+        Debug.Log($"Called ApplyBuildModeStylingToInventory");
         CellData2[,] cellData = InventoryManager.Instance.PlayerInventoryMenu.cellsByRow;
 
         if (BuildMode.Instance.IsEnabled)
