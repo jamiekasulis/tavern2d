@@ -116,6 +116,7 @@ public class BuildMode : MonoBehaviour
             if (placeableObject.PlacementIsValid(buildableGridArea))
             {
                 instantiatedPrefab = null;
+                placeableObject.TintSprite(Color.white);
                 placeableObject = null;
                 IsEnabled = false;
                 OnBuildModeDisabled();
