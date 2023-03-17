@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /**
- * This class contains the build mode-related functionailities of the inventory
- * menu.
+ * This class extracts the callbacks which coordinate between different
+ * components (like inventory and UI) and build mode.
  */
 public class BuildModeInventoryMenuTriggers : MonoBehaviour
 {
@@ -14,15 +14,18 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
      * made by these functions.
      */
     [SerializeField] private UnityEvent<List<CellData2>> RedrawInventoryMenuCells;
+    /**
+     * This callback is responsible for making sure the Inventoy backend is updated
+     * with the correct inventory data.
+     */
+    [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> ReflectChangesToInventoryBackendCallback;
 
     /**
      * Invoke me when build mode is enabled/disabled
      */
     public void ApplyBuildModeStylingToInventory()
     {
-        Debug.Log($"Invoked ApplyBuildModeStylingToInventory. BuildModeEnabled={BuildMode.Instance.IsEnabled}");
-        // @TODO Change this to PLAYER Inventory Menu, not CHEST!
-        CellData2[,] cellData = InventoryManager.Instance.ChestInventoryMenu.cellsByRow;
+        CellData2[,] cellData = InventoryManager.Instance.PlayerInventoryMenu.cellsByRow;
 
         if (BuildMode.Instance.IsEnabled)
         {
@@ -55,8 +58,54 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
             }
         }
         List<CellData2> flatList = ListUtils.FlattenToList(cellData);
-        Debug.Log($"Flattened list: {flatList.Count}");
         RedrawInventoryMenuCells.Invoke(flatList);
+    }
+
+    public void SelectBuildModeObjectCallback(CellData2 cell)
+    {
+        // Invoke callbacks to set the objectToPlace in build mode and
+        // reflect the changes in inventory (backend & UI redraw)
+        if (cell.itemData != null && cell.itemData.item.buildMode)
+        {
+            // Set the object that will be placed in Build Mode
+            BuildMode.Instance.SetObjectToPlace(cell.itemData.item);
+
+            // Decrement qty=1 of that item from the inventory backend
+            ItemQuantity updated = new()
+            {
+                item = cell.itemData.item,
+                quantity = cell.itemData.quantity - 1
+            };
+            if (updated.quantity <= 0)
+            {
+                updated.item = null;
+                updated.quantity = 0;
+            }
+            int inventoryArrayIndex = InventoryMenu2.GridToInventoryIndex(
+                cell.row, cell.col,
+                InventoryManager.Instance.PlayerInventoryMenu.GridSizeSpecification
+            );
+
+            ReflectChangesToInventoryBackendCallback.Invoke(
+                InventoryManager.Instance.PlayerInventory,
+                new List<(int, ItemQuantity)>
+                {
+                    (inventoryArrayIndex, updated)
+                }
+            );
+
+            // Redraw the affected UI cell
+            RedrawInventoryMenuCells.Invoke(new List<CellData2>() { cell });
+        }
+        else
+        {
+            Debug.LogWarning($"SelectBuildModeObjectCallback was called, but " +
+                $"for a cell containing a non-build mode-approved item " +
+                $"({cell.itemData}). Will do nothing.");
+            return;
+        }
+        
+
     }
 
     public void OnCellClick()

@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
-    [SerializeField] InventoryMenu PlayerInventoryMenu;
+    [SerializeField] public InventoryMenu2 PlayerInventoryMenu;
     [SerializeField] public InventoryMenu2 ChestInventoryMenu; // @TODO Remove-- just for testing.
     public Inventory PlayerInventory { get; private set; }
     // The current inventory to consider. This is usually the player inventory,
@@ -83,14 +83,14 @@ public class InventoryManager : MonoBehaviour
         inv.MakeChanges(changedIndices);
     }
 
-    public void ToggleBuildModeCallback()
-    {
-        if (!PlayerInventoryMenu.IsOpen())
-        {
-            // Optimization
-            return;
-        }
-        var data = PlayerInventoryMenu.GetItemToVisualElementMapping();
-        buildModeToggledTrigger.Invoke(data);
-    }
+    //public void ToggleBuildModeCallback()
+    //{
+    //    if (!PlayerInventoryMenu.IsOpen())
+    //    {
+    //        // Optimization
+    //        return;
+    //    }
+    //    var data = PlayerInventoryMenu.GetItemToVisualElementMapping();
+    //    buildModeToggledTrigger.Invoke(data);
+    //}
 }

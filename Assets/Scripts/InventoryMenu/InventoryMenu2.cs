@@ -46,15 +46,23 @@ public class InventoryMenu2 : MonoBehaviour
     [SerializeField] private VisualTreeAsset GridRowTemplate;
     [SerializeField] private string MenuTitle;
 
+    public GridSizeSpecification GridSizeSpecification { get; private set; }
+
     // Callbacks
     /**
      * Callback responsible for reflecting changes made to the data rendered in the Inventory Menu to the
      * backend Inventory representation
      */
     [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> reflectChangesToBackendInventoryCallback;
+    /**
+     * Callback responsible for handling selecting an item from inventory
+     * that is to be placed during build mode.
+     * This should set the objectToPlace in build mode AND remove
+     * the item from the inventory.
+     */
+    [SerializeField] private UnityEvent<CellData2> SelectBuildModeObjectCallback;
 
     // Private unserializeds
-    GridSizeSpecification gridSize;
     // UI Elements
     private VisualElement root;
     private ScrollView GridContainer;
@@ -71,30 +79,30 @@ public class InventoryMenu2 : MonoBehaviour
         GridContainer.Clear(); // Do this since Awake() gets called 2x sometimes?
         title = root.Q<Label>("Title");
 
-        gridSize = gameObject.GetComponent<GridSizeSpecification>();
+        GridSizeSpecification = gameObject.GetComponent<GridSizeSpecification>();
 
         /* Create the grid of cells.
          * These are just some GridRow templates holding
          * InventoryCell templates.
          */
-        rows = new VisualElement[gridSize.GetNumRows()];
-        cellsByRow = new CellData2[gridSize.GetNumRows(), gridSize.GetNumCols()];
+        rows = new VisualElement[GridSizeSpecification.GetNumRows()];
+        cellsByRow = new CellData2[GridSizeSpecification.GetNumRows(), GridSizeSpecification.GetNumCols()];
 
         // Compose the 2D array of cells mapped to rows
         // Create GridRows
-        for (int r = 0; r < gridSize.GetNumRows(); r++)
+        for (int r = 0; r < GridSizeSpecification.GetNumRows(); r++)
         {
             rows[r] = GridRowTemplate.Instantiate();
             GridContainer.contentContainer.Add(rows[r]);
         }
 
         // Populate GridRows with InventoryCells
-        for (int r = 0; r < gridSize.GetNumRows(); r++)
+        for (int r = 0; r < GridSizeSpecification.GetNumRows(); r++)
         {
-            for (int c = 0; c < gridSize.GetNumCols(); c++)
+            for (int c = 0; c < GridSizeSpecification.GetNumCols(); c++)
             {
                 CellData2 cell = new(CellTemplate.Instantiate(), null, r, c);
-                //cell.visualElement.RegisterCallback<MouseDownEvent, CellData2>(HandleCellClick, cell, useTrickleDown: TrickleDown.TrickleDown);
+                cell.visualElement.RegisterCallback<MouseDownEvent, CellData2>(HandleCellClick, cell, useTrickleDown: TrickleDown.TrickleDown);
 
                 cellsByRow[r, c] = cell;
                 rows[r].Q<IMGUIContainer>("Row").Add(cellsByRow[r, c].visualElement);
@@ -103,8 +111,6 @@ public class InventoryMenu2 : MonoBehaviour
 
         root.style.display = DisplayStyle.None;
         root.SetEnabled(false);
-
-        
     }
 
     /**
@@ -154,8 +160,6 @@ public class InventoryMenu2 : MonoBehaviour
      */
     public void RedrawCells(List<CellData2> cellsToRedraw)
     {
-        Debug.Log($"Invoked InventoryMenu2.RedrawCells");
-
         cellsToRedraw.ForEach(cell =>
         {
             cell.visualElement.styleSheets.Clear();
@@ -174,8 +178,6 @@ public class InventoryMenu2 : MonoBehaviour
             }
         });
     }
-
-    #endregion
 
     /**
      * Attaches all of the additional style sheet(s) to the cell.
@@ -201,18 +203,56 @@ public class InventoryMenu2 : MonoBehaviour
         }
     }
 
+    #endregion
+
+    private void HandleCellClick(MouseDownEvent evt, CellData2 cell)
+    {
+        bool isHoldingItem = selectedCell != null;
+        bool cellHasItem = cell.itemData != null;
+
+        // Check if we are selecting an object to place while in build mode
+        if (BuildMode.Instance.IsEnabled)
+        {
+            if (cell.itemData != null &&
+                cell.itemData.item.buildMode)
+            {
+                if (isHoldingItem)
+                {
+                    // Shouldn't happen but just in case
+                    throw new System.Exception($"Somehow we are in build mode, clicking an item, while still holding some items to rearrange. Will do nothing.");
+                }
+
+                if (!cellHasItem)
+                {
+                    // do nothing
+                }
+                else
+                {
+                    SelectBuildModeObjectCallback.Invoke(cell);
+                }
+            }
+        }
+    }
+
     #region Helper functions
 
     private (int, int) InventoryToGridIndex(int inventoryIndex)
     {
-        return (inventoryIndex / gridSize.GetNumCols(), inventoryIndex % gridSize.GetNumCols());
+        return (inventoryIndex / GridSizeSpecification.GetNumCols(), inventoryIndex % GridSizeSpecification.GetNumCols());
     }
 
-    private int GridToInventoryIndex(int row, int col)
+    // @TODO Move me to an InventoryMenuUtils class
+    public static int GridToInventoryIndex(int row, int col, GridSizeSpecification gridSizeSpecification)
     {
-        int result = gridSize.GetNumCols() * row + col;
+        int result = gridSizeSpecification.GetNumCols() * row + col;
         return result;
     }
 
     #endregion
+
+    public bool IsOpen()
+    {
+        return root.style.display != DisplayStyle.None &&
+            root.enabledInHierarchy;
+    }
 }
