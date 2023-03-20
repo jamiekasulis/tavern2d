@@ -75,7 +75,7 @@ public class BuildMode : MonoBehaviour
             {
                 OnBuildModeDisabled();
             }
-
+            
             buildModeToggledTrigger.Invoke();
         }
     }
