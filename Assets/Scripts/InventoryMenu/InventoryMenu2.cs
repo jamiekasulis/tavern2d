@@ -220,19 +220,19 @@ public class InventoryMenu2 : MonoBehaviour
         // Picking up an item
         if (!isHoldingItem && cellHasItem)
         {
-            HandleItemPickup(evt, cell, changedIndices);
+            changedIndices = HandleItemPickup(evt, cell);
         }
         // Placing an item
         // Subcase: Swapping and combining
         else if (isHoldingItem && cellHasItem)
         {
-            HandleSwapOrCombine(evt, cell, changedIndices);
+            changedIndices = HandleSwapOrCombine(evt, cell);
         }
 
         // Subcase: Place into empty slot
         else if (isHoldingItem && !cellHasItem)
         {
-            HandleItemPlacement(evt, cell, changedIndices);
+            changedIndices = HandleItemPlacement(evt, cell);
         }
 
         UpdatedTooltipCallback.Invoke(itemInHand);
@@ -262,7 +262,7 @@ public class InventoryMenu2 : MonoBehaviour
         return result;
     }
 
-    private void HandleItemPickup(MouseDownEvent evt, CellData2 cell, List<(int, ItemQuantity)> changedIndices)
+    private List<(int, ItemQuantity)> HandleItemPickup(MouseDownEvent evt, CellData2 cell)
     {
         int pickupQty;
         if (MouseUtils.IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
@@ -279,21 +279,25 @@ public class InventoryMenu2 : MonoBehaviour
         }
         else
         {
-            return;
+            return new();
         }
 
-        changedIndices = PickUpQuantity(cell, pickupQty);
+        return PickUpQuantity(cell, pickupQty);
     }
 
-    private void HandleSwapOrCombine(MouseDownEvent evt, CellData2 cell, List<(int, ItemQuantity)> changedIndices)
+    private List<(int, ItemQuantity)> HandleSwapOrCombine(MouseDownEvent evt, CellData2 cell)
     {
         if (MouseUtils.IsLeftClickOnly(evt))
         {
-            changedIndices = PlaceIntoOccupiedSlot(cell, itemInHand.quantity);
+            return PlaceIntoOccupiedSlot(cell, itemInHand.quantity);
+        }
+        else
+        {
+            return new();
         }
     }
 
-    private void HandleItemPlacement(MouseDownEvent evt, CellData2 cell, List<(int, ItemQuantity)> changedIndices)
+    private List<(int, ItemQuantity)> HandleItemPlacement(MouseDownEvent evt, CellData2 cell)
     {
         int qtyToPlace;
         if (MouseUtils.IsShiftLeftClick(evt))
@@ -310,10 +314,10 @@ public class InventoryMenu2 : MonoBehaviour
         }
         else
         {
-            return;
+            return new();
         }
 
-        changedIndices = PlaceIntoEmptySlot(cell, qtyToPlace);
+        return PlaceIntoEmptySlot(cell, qtyToPlace);
     }
 
     private List<(int, ItemQuantity?)> PickUpQuantity(CellData2 cell, int qtyToPickUp)
@@ -353,25 +357,25 @@ public class InventoryMenu2 : MonoBehaviour
     private List<(int, ItemQuantity?)> PlaceIntoOccupiedSlot(CellData2 cell, int qtyToPlace)
     {
         bool sameItem = itemInHand.item == cell.itemData.item;
-        if (sameItem)
+
+        if (sameItem) // Combining
         {
             cell.itemData = new() { item = cell.itemData.item, quantity = cell.itemData.quantity + qtyToPlace };
             RedrawCells(new List<CellData2> { cell });
+
+            itemInHand.quantity -= qtyToPlace;
+            if (itemInHand.quantity <= 0)
+            {
+                itemInHand = null;
+            }
         }
         else // Swapping
         {
-            CellData2 temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
-
-            cell.itemData = itemInHand;
+            ItemQuantity temp = cell.itemData;
+            cell.itemData = new ItemQuantity() { item = itemInHand.item, quantity = itemInHand.quantity };
             RedrawCells(new List<CellData2> { cell });
 
-            itemInHand = temp.itemData;
-        }
-
-        itemInHand.quantity -= qtyToPlace;
-        if (itemInHand.quantity <= 0)
-        {
-            itemInHand = null;
+            itemInHand = new ItemQuantity() { item = temp.item, quantity = temp.quantity };
         }
 
         return new()
