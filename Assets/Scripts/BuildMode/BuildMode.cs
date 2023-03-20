@@ -18,6 +18,9 @@ public class BuildMode : MonoBehaviour
     private Vector2 mouseWorldPosition;
     private BoundsInt buildAreaBounds;
 
+    private PlaceableObject mousedOverPlaceableObject;
+
+    // Styling
     private Color OK_COLOR = Color.green, BAD_COLOR = Color.red;
 
     [SerializeField] private UnityEvent buildModeToggledTrigger;
@@ -112,10 +115,7 @@ public class BuildMode : MonoBehaviour
         {
             if (placeableObject.PlacementIsValid(buildableGridArea))
             {
-                instantiatedPrefab = null;
-                placeableObject.TintSprite(Color.white);
-                placeableObject = null;
-                IsEnabled = false;
+                PlaceObject();
                 OnBuildModeDisabled();
             }
             else
@@ -123,6 +123,15 @@ public class BuildMode : MonoBehaviour
                 Debug.Log("Invalid placement!");
             }
         }
+    }
+
+    private void PlaceObject()
+    {
+        instantiatedPrefab = null;
+        placeableObject.TintSprite(Color.white);
+        placeableObject.OnPlaced();
+        placeableObject = null;
+        IsEnabled = false;
     }
 
     private void InstantiatePlaceableObject()
@@ -136,7 +145,6 @@ public class BuildMode : MonoBehaviour
     {
         Destroy(instantiatedPrefab, 0);
         instantiatedPrefab = null;
-        Destroy(placeableObject); // @TODO Is this needed? Shouldnt it get destroyed by destroying instantiatedPrefab?
         placeableObject = null;
         objectToPlacePrefab = null;
 

@@ -8,6 +8,7 @@ public class PlaceableObject : MonoBehaviour
 {
     public SpriteRenderer Renderer;
     private MeshSwapper MeshSwapper;
+    public bool Placed;
 
     [SerializeField] public Item item;
 
@@ -113,5 +114,10 @@ public class PlaceableObject : MonoBehaviour
             }
         }
         return true;
+    }
+
+    public void OnPlaced()
+    {
+        Placed = true;
     }
 }
