@@ -3,41 +3,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
 
-public class CellData2
-{
-    public VisualElement visualElement;
-    public ItemQuantity? itemData;
-    public int row, col;
-    public bool buttonEnabled;
-    public List<InventoryCellStyleEnum> additionalStyles;
-
-    public enum InventoryCellStyleEnum
-    {
-        BuildModeOK = 0,
-        BuildModeNotOK = 1
-    }
-
-    public CellData2(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column)
-    {
-        visualElement = cellVisualElement;
-        this.itemData = itemData;
-        this.row = row;
-        col = column;
-        buttonEnabled = true;
-        additionalStyles = new List<InventoryCellStyleEnum>();
-    }
-
-    public CellData2(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column, List<InventoryCellStyleEnum> additionalStyles)
-    {
-        visualElement = cellVisualElement;
-        this.itemData = itemData;
-        this.row = row;
-        col = column;
-        buttonEnabled = true;
-        this.additionalStyles = additionalStyles;
-    }
-}
-
 public class InventoryMenu2 : MonoBehaviour
 {
     [SerializeField] private StyleSheet BuildModeOKStyleSheet;
@@ -47,8 +12,10 @@ public class InventoryMenu2 : MonoBehaviour
     [SerializeField] private string MenuTitle;
 
     public GridSizeSpecification GridSizeSpecification { get; private set; }
+    public RearrangeInventoryTooltip inventoryTooltip;
 
-    // Callbacks
+    #region Callbacks
+
     /**
      * Callback responsible for reflecting changes made to the data rendered in the Inventory Menu to the
      * backend Inventory representation
@@ -62,6 +29,13 @@ public class InventoryMenu2 : MonoBehaviour
      */
     [SerializeField] private UnityEvent<CellData2> SelectBuildModeObjectCallback;
 
+    /**
+     * Handles updating the inventory rearrangement tooltip.
+     */
+    [SerializeField] private UnityEvent<ItemQuantity?> UpdatedTooltipCallback;
+
+    #endregion
+
     // Private unserializeds
     // UI Elements
     private VisualElement root;
@@ -69,7 +43,7 @@ public class InventoryMenu2 : MonoBehaviour
     private Label title;
     private VisualElement[] rows; // GridRows
     public CellData2[,] cellsByRow { get; private set; } // We assume these to be using InventoryCell.uxml
-    private CellData2? selectedCell = null;
+    private ItemQuantity? itemInHand = null;
     private Inventory inventory;
 
     private void Awake()
@@ -195,10 +169,8 @@ public class InventoryMenu2 : MonoBehaviour
 
             if (styleSheet == null)
             {
-                Debug.Log($"Did not find stylesheet corresponding to {style}. Skipping");
                 continue;
             }
-            Debug.Log($"Applying stylesheet for {style} to cell ({cell.row},{cell.col})");
             cell.visualElement.styleSheets.Add(styleSheet);
         }
     }
@@ -207,7 +179,7 @@ public class InventoryMenu2 : MonoBehaviour
 
     private void HandleCellClick(MouseDownEvent evt, CellData2 cell)
     {
-        bool isHoldingItem = selectedCell != null;
+        bool isHoldingItem = itemInHand != null;
         bool cellHasItem = cell.itemData != null;
 
         // Check if we are selecting an object to place while in build mode
@@ -232,6 +204,43 @@ public class InventoryMenu2 : MonoBehaviour
                 }
             }
         }
+
+        // No-op
+        if (!isHoldingItem && !cellHasItem)
+        {
+            return;
+        }
+
+        // Tracks which indices of the INVENTORY object were changed,
+        // with the item quantity being what to change it to.
+        // This will be passed to a callback at the end which will
+        // reflect the visual changes in the UI to the backend inventory object.
+        List<(int, ItemQuantity)> changedIndices = new();
+
+        // Picking up an item
+        if (!isHoldingItem && cellHasItem)
+        {
+            HandleItemPickup(evt, cell, changedIndices);
+        }
+        // Placing an item
+        // Subcase: Swapping and combining
+        else if (isHoldingItem && cellHasItem)
+        {
+            HandleSwapOrCombine(evt, cell, changedIndices);
+        }
+
+        // Subcase: Place into empty slot
+        else if (isHoldingItem && !cellHasItem)
+        {
+            HandleItemPlacement(evt, cell, changedIndices);
+        }
+
+        UpdatedTooltipCallback.Invoke(itemInHand);
+
+        if (changedIndices.Count > 0)
+        {
+            reflectChangesToBackendInventoryCallback.Invoke(inventory, changedIndices);
+        }
     }
 
     #region Helper functions
@@ -241,11 +250,162 @@ public class InventoryMenu2 : MonoBehaviour
         return (inventoryIndex / GridSizeSpecification.GetNumCols(), inventoryIndex % GridSizeSpecification.GetNumCols());
     }
 
-    // @TODO Move me to an InventoryMenuUtils class
+    private int GridToInventoryIndex(int row, int col)
+    {
+        int result = GridSizeSpecification.GetNumCols() * row + col;
+        return result;
+    }
+
     public static int GridToInventoryIndex(int row, int col, GridSizeSpecification gridSizeSpecification)
     {
         int result = gridSizeSpecification.GetNumCols() * row + col;
         return result;
+    }
+
+    private void HandleItemPickup(MouseDownEvent evt, CellData2 cell, List<(int, ItemQuantity)> changedIndices)
+    {
+        int pickupQty;
+        if (MouseUtils.IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
+        {
+            pickupQty = cell.itemData.quantity % 2 == 0 ? cell.itemData.quantity / 2 : cell.itemData.quantity / 2 + 1;
+        }
+        else if (MouseUtils.IsLeftClickOnly(evt)) // Left click: select whole stack
+        {
+            pickupQty = cell.itemData.quantity;
+        }
+        else if (MouseUtils.IsRightClick(evt)) // Right click: select 1
+        {
+            pickupQty = 1;
+        }
+        else
+        {
+            return;
+        }
+
+        changedIndices = PickUpQuantity(cell, pickupQty);
+    }
+
+    private void HandleSwapOrCombine(MouseDownEvent evt, CellData2 cell, List<(int, ItemQuantity)> changedIndices)
+    {
+        if (MouseUtils.IsLeftClickOnly(evt))
+        {
+            changedIndices = PlaceIntoOccupiedSlot(cell, itemInHand.quantity);
+        }
+    }
+
+    private void HandleItemPlacement(MouseDownEvent evt, CellData2 cell, List<(int, ItemQuantity)> changedIndices)
+    {
+        int qtyToPlace;
+        if (MouseUtils.IsShiftLeftClick(evt))
+        {
+            qtyToPlace = itemInHand.quantity % 2 == 0 ? itemInHand.quantity / 2 : itemInHand.quantity / 2 + 1;
+        }
+        else if (MouseUtils.IsLeftClickOnly(evt))
+        {
+            qtyToPlace = itemInHand.quantity;
+        }
+        else if (MouseUtils.IsRightClick(evt))
+        {
+            qtyToPlace = 1;
+        }
+        else
+        {
+            return;
+        }
+
+        changedIndices = PlaceIntoEmptySlot(cell, qtyToPlace);
+    }
+
+    private List<(int, ItemQuantity?)> PickUpQuantity(CellData2 cell, int qtyToPickUp)
+    {
+        if (cell.itemData.quantity < qtyToPickUp)
+        {
+            throw new InvalidQuantityException($"Requested to pick up {qtyToPickUp} from cell ({cell.row},{cell.col}) but there is only {cell.itemData.quantity} available!");
+        }
+        else if (qtyToPickUp <= 0)
+        {
+            throw new InvalidQuantityException($"Requested to pick up an invalid quantity: {qtyToPickUp}");
+        }
+
+        itemInHand = new ItemQuantity() { item = cell.itemData.item, quantity = qtyToPickUp };
+
+        int qtyLeftBehind = cell.itemData.quantity - qtyToPickUp;
+        cell.itemData.quantity = qtyLeftBehind;
+
+        if (qtyLeftBehind == 0)
+        {
+            cell.itemData = null;
+        }
+        else
+        {
+            cell.itemData.quantity = qtyLeftBehind;
+        }
+
+        RedrawCells(new List<CellData2> { cell });
+
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            qtyLeftBehind == 0 ? null : cell.itemData)
+        };
+    }
+
+    private List<(int, ItemQuantity?)> PlaceIntoOccupiedSlot(CellData2 cell, int qtyToPlace)
+    {
+        bool sameItem = itemInHand.item == cell.itemData.item;
+        if (sameItem)
+        {
+            cell.itemData = new() { item = cell.itemData.item, quantity = cell.itemData.quantity + qtyToPlace };
+            RedrawCells(new List<CellData2> { cell });
+        }
+        else // Swapping
+        {
+            CellData2 temp = new(cell.visualElement, cell.itemData, cell.row, cell.col);
+
+            cell.itemData = itemInHand;
+            RedrawCells(new List<CellData2> { cell });
+
+            itemInHand = temp.itemData;
+        }
+
+        itemInHand.quantity -= qtyToPlace;
+        if (itemInHand.quantity <= 0)
+        {
+            itemInHand = null;
+        }
+
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            cell.itemData)
+        };
+    }
+
+    private List<(int, ItemQuantity?)> PlaceIntoEmptySlot(CellData2 cell, int qtyToPlace)
+    {
+        if (cell.itemData != null)
+        {
+            throw new CellNotEmptyException($"Requested to place into empty cell, but given cell ({cell.row},{cell.col}) is not empty!");
+        }
+        if (itemInHand == null)
+        {
+            throw new NothingToPlaceException($"Requested to place into empty cell, but player is not holding any item to place!");
+        }
+
+        // Place into the clicked cell
+        cell.itemData = new() { item = itemInHand.item, quantity = qtyToPlace };
+        RedrawCells(new List<CellData2> { cell });
+        itemInHand.quantity -= qtyToPlace;
+        if (itemInHand.quantity <= 0)
+        {
+            itemInHand = null;
+        }
+
+        return new()
+        {
+            (GridToInventoryIndex(cell.row, cell.col),
+            cell.itemData)
+        };
     }
 
     #endregion

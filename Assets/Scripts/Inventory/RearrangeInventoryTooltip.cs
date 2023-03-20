@@ -20,8 +20,15 @@ public class RearrangeInventoryTooltip : MonoBehaviour
         Clear();
     }
 
-    public void Draw(ItemQuantity iq)
+    public void Draw(ItemQuantity? iq)
     {
+        if (iq == null)
+        {
+            Clear();
+            return;
+        }
+
+        Debug.Log($"Drawing inventory tooltip");
         rootButton.style.backgroundImage = new StyleBackground(iq.item.spriteFront);
         quantityLabel.text = iq.quantity.ToString();
         IsShowingImage = true;
@@ -30,6 +37,7 @@ public class RearrangeInventoryTooltip : MonoBehaviour
 
     public void Clear()
     {
+        Debug.Log($"Clearing inventory tooltip");
         rootButton.style.display = DisplayStyle.None;
         quantityLabel.text = "";
         IsShowingImage = false;
