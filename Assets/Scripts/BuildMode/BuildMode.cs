@@ -24,7 +24,7 @@ public class BuildMode : MonoBehaviour
     private PlaceableObject mousedOverPlaceableObject;
 
     // Styling
-    private Color OK_COLOR = Color.green, BAD_COLOR = Color.red, MOUSEOVER_COLOR = new Color(244, 255, 0, 0.19f);
+    private Color OK_COLOR = Color.green, BAD_COLOR = Color.red, MOUSEOVER_COLOR = new Color(244, 255, 0, 1);
 
     [SerializeField] private UnityEvent buildModeToggledTrigger;
 
@@ -105,18 +105,19 @@ public class BuildMode : MonoBehaviour
     private void HandleMouseoverPlacedObject()
     {
         RaycastHit2D[] hits = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-        Debug.Log($"Hit count: ${hits.Length}");
-
         PlaceableObject? firstEligibleHit = null;
+        if (mousedOverPlaceableObject != null)
+        {
+            spriteStyler.Tint(mousedOverPlaceableObject.Renderer, Color.white); // untint
+        }
+
         foreach (var hit in hits)
         {
-            bool isPO = hit.collider.gameObject.TryGetComponent<PlaceableObject>(out PlaceableObject po);
-            if (isPO)
+            PlaceableObject po = hit.collider.gameObject.GetComponentInParent<PlaceableObject>(); // Mesh2D will be hit by the ray. It has a PO parent.
+            if (po != null)
             {
-                Debug.Log($"This is a placeable object.");
                 if (po.Placed)
                 {
-                    Debug.Log("This is placed.");
                     firstEligibleHit = po;
                     break;
                 }
@@ -126,8 +127,9 @@ public class BuildMode : MonoBehaviour
         if (firstEligibleHit != null)
         {
             Debug.Log($"Mouse hit a placed object named {firstEligibleHit.gameObject.name}");
-            // We can assume PlaceableObject will have a parent MeshSwapper
+            mousedOverPlaceableObject = firstEligibleHit;
             spriteStyler.Tint(firstEligibleHit.Renderer, MOUSEOVER_COLOR);
+            
         }
     }
 
