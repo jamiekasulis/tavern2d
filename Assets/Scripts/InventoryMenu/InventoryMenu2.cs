@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
+using System.Linq;
 
 public class CellData2
 {
@@ -172,10 +173,18 @@ public class InventoryMenu2 : MonoBehaviour
                     ? new StyleBackground(cell.itemData.item.spriteFront)
                     : StyleKeyword.None;
 
+            // Remove any styling if a cell is empty
+            if (cell.itemData == null || cell.itemData?.quantity <= 0) // <=0 shouldn't happen, but just in case
+            {
+                cell.additionalStyles.Clear();
+            }
+
             if (cell.additionalStyles.Count > 0)
             {
                 LoadAdditionalStyles(cell);
             }
+
+            //cellsByRow[cell.row, cell.col] = cell; // Do this so that the UI is holding onto the correct
         });
     }
 
@@ -195,7 +204,7 @@ public class InventoryMenu2 : MonoBehaviour
 
             if (styleSheet == null)
             {
-                Debug.Log($"Did not find stylesheet corresponding to {style}. Skipping");
+                Debug.LogWarning($"Did not find stylesheet corresponding to {style}. Skipping");
                 continue;
             }
             Debug.Log($"Applying stylesheet for {style} to cell ({cell.row},{cell.col})");
