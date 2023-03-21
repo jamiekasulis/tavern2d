@@ -75,7 +75,6 @@ public class BuildMode : MonoBehaviour
             HandleToggleBuildMode();
             if (!IsEnabled)
             {
-                Debug.Log("Returning becaues build mode is off.");
                 return;
             }
         }
@@ -83,12 +82,10 @@ public class BuildMode : MonoBehaviour
         // Get the object we're working with (if any)
         if (placeableObject == null && objectToPlacePrefab != null)
         {
-            Debug.Log("Attempting to instantiate PO.");
             InstantiatePlaceableObject();
         }
         else if (placeableObject == null)
         {
-            Debug.Log($"placeableObject is null, therefore checking for mouseover.");
             HandleMouseoverPlacedObject();
         }
 
@@ -98,20 +95,13 @@ public class BuildMode : MonoBehaviour
         // allow ourselves to always check for mouse clicks.
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("Left click detected.");
             if (placeableObject != null)
             {
-                Debug.Log("Attempting to place object.");
                 HandlePlaceObject();
             }
             else if (placeableObject == null && mousedOverPlaceableObject != null)
             {
-                Debug.Log("Attempting to pick up placed object.");
                 HandlePickUpPlacedObject();
-            }
-            else
-            {
-                Debug.Log("A useless left click.");
             }
         }
         // Right click: Picks up object and immediately places in player
@@ -232,7 +222,6 @@ public class BuildMode : MonoBehaviour
             Debug.Log("Left clicked the moused-over object.");
             placeableObject = mousedOverPlaceableObject;
             instantiatedPrefab = mousedOverPlaceableObject.gameObject;
-            placeableObject.OnPickedUp();
             objectToPlacePrefab = placeableObject.item.prefab;
         }
     }
@@ -257,6 +246,7 @@ public class BuildMode : MonoBehaviour
             // Return to inventory
             PlaceInPlayerInventory(placeableObject.item, 1);
             Destroy(placeableObject.gameObject.transform.parent.gameObject, 0);
+            placeableObject.OnPickedUp();
             placeableObject = null;
             objectToPlacePrefab = null;
         }
