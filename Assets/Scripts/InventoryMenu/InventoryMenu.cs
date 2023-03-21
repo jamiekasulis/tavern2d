@@ -215,16 +215,16 @@ public class InventoryMenu : MonoBehaviour
                 return;
             }
 
-            if (IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
+            if (MouseUtils.IsShiftLeftClick(evt)) // Shift+Left click: select half the stack (round up)
             {
                 int pickupQty = cell.itemData.quantity % 2 == 0 ? cell.itemData.quantity / 2 : cell.itemData.quantity / 2 + 1;
                 changedIndices = PickUpQuantity(cell, pickupQty);
             }
-            else if (IsLeftClickOnly(evt)) // Left click: select whole stack
+            else if (MouseUtils.IsLeftClickOnly(evt)) // Left click: select whole stack
             {
                 changedIndices = PickUpQuantity(cell, cell.itemData.quantity);
             }
-            else if (IsRightClick(evt)) // Right click: select 1
+            else if (MouseUtils.IsRightClick(evt)) // Right click: select 1
             {
                 changedIndices = PickUpQuantity(cell, 1);
             }
@@ -234,7 +234,7 @@ public class InventoryMenu : MonoBehaviour
         // Subcase: Swapping and combining
         else if (isHoldingItem && cellHasItem)
         {
-            if (IsLeftClickOnly(evt))
+            if (MouseUtils.IsLeftClickOnly(evt))
             {
                 changedIndices = PlaceIntoOccupiedSlot(cell, selectedCell.itemData.quantity);
             }
@@ -244,15 +244,15 @@ public class InventoryMenu : MonoBehaviour
         else if (isHoldingItem && !cellHasItem)
         {
             int qtyToPlace;
-            if (IsShiftLeftClick(evt))
+            if (MouseUtils.IsShiftLeftClick(evt))
             {
                 qtyToPlace = selectedCell.itemData.quantity % 2 == 0 ? selectedCell.itemData.quantity / 2 : selectedCell.itemData.quantity / 2 + 1;
             }
-            else if (IsLeftClickOnly(evt))
+            else if (MouseUtils.IsLeftClickOnly(evt))
             {
                 qtyToPlace = selectedCell.itemData.quantity;
             }
-            else if (IsRightClick(evt))
+            else if (MouseUtils.IsRightClick(evt))
             {
                 qtyToPlace = 1;
             }
@@ -365,23 +365,6 @@ public class InventoryMenu : MonoBehaviour
         };
     }
 
-    private bool IsLeftClickOnly(MouseDownEvent evt)
-    {
-        // Do not use evt.shiftKey as from my testing this is inaccurate 1/2 the time
-        return evt.button == 0 && !Input.GetKey(KeyCode.LeftShift);
-    }
-
-    private bool IsShiftLeftClick(MouseDownEvent evt)
-    {
-        // Do not use evt.shiftKey as from my testing this is inaccurate 1/2 the time
-        return evt.button == 0 && Input.GetKey(KeyCode.LeftShift);
-    }
-
-    private bool IsRightClick(MouseDownEvent evt)
-    {
-        return evt.button == 1;
-    }
-
     public List<(Item?, VisualElement)> GetItemToVisualElementMapping()
     {
         List<(Item?, VisualElement)> data = new(cellsByRow.Length);
@@ -399,4 +382,9 @@ public class InventoryMenu : MonoBehaviour
 public class CellNotEmptyException : Exception
 {
     public CellNotEmptyException(string message) : base(message) { }
+}
+
+public class NothingToPlaceException : Exception
+{
+    public NothingToPlaceException(string message) : base(message) { }
 }
