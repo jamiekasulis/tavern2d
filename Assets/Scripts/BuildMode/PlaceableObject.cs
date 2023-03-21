@@ -75,11 +75,6 @@ public class PlaceableObject : MonoBehaviour
         Left, Right
     }
 
-    public void TintSprite(Color color)
-    {
-        Renderer.color = color;
-    }
-
     /**
      * Determines if the object's current position is a valid placement position
      * for the placeable object. It will check for collisions against other 

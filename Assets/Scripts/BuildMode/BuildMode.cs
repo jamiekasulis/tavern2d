@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.Events;
+using System.Linq;
 
+[RequireComponent(typeof(SpriteStyler))]
 public class BuildMode : MonoBehaviour
 {
     public static BuildMode Instance;
@@ -10,6 +12,7 @@ public class BuildMode : MonoBehaviour
 
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private TileBase baseTile;
+    private SpriteStyler spriteStyler;
 
     private BuildableGridArea buildableGridArea;
     private PlaceableObject placeableObject;
@@ -21,7 +24,7 @@ public class BuildMode : MonoBehaviour
     private PlaceableObject mousedOverPlaceableObject;
 
     // Styling
-    private Color OK_COLOR = Color.green, BAD_COLOR = Color.red;
+    private Color OK_COLOR = Color.green, BAD_COLOR = Color.red, MOUSEOVER_COLOR = new Color(244, 255, 0, 0.19f);
 
     [SerializeField] private UnityEvent buildModeToggledTrigger;
 
@@ -39,6 +42,7 @@ public class BuildMode : MonoBehaviour
         buildableGridArea = gameObject.GetComponent<BuildableGridArea>();
         buildAreaBounds = buildableGridArea.GetGridAreaBounds();
         mouseWorldPosition = Vector3.zero;
+        spriteStyler = gameObject.GetComponent<SpriteStyler>();
     }
 
     void Update()
@@ -128,7 +132,7 @@ public class BuildMode : MonoBehaviour
     private void PlaceObject()
     {
         instantiatedPrefab = null;
-        placeableObject.TintSprite(Color.white);
+        spriteStyler.Tint(placeableObject.Renderer, Color.white);
         placeableObject.OnPlaced();
         placeableObject = null;
         IsEnabled = false;
@@ -179,11 +183,11 @@ public class BuildMode : MonoBehaviour
         bool placementOK = placeableObject.PlacementIsValid(buildableGridArea);
         if (placementOK)
         {
-            placeableObject.TintSprite(OK_COLOR);
+            spriteStyler.Tint(placeableObject.Renderer, OK_COLOR);
         }
         else
         {
-            placeableObject.TintSprite(BAD_COLOR);
+            spriteStyler.Tint(placeableObject.Renderer, BAD_COLOR);
         }
         
     }
