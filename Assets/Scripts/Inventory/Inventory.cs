@@ -38,14 +38,22 @@ public class Inventory
         return InventoryUtils.ContainsItem(item, Stacks);
     }
 
-    public void Add(ItemQuantity iq, bool strict)
+    /**
+     * Returns the index where the item is added.
+     */
+    public int Add(ItemQuantity iq, bool strict)
     {
-        InventoryUtils.Add(iq, Stacks, strict);
+        return InventoryUtils.Add(iq, Stacks, strict);
     }
 
-    public void Add(ItemQuantity iq)
+    public int Add(ItemQuantity iq)
     {
-        InventoryUtils.Add(iq, Stacks, true);
+        return InventoryUtils.Add(iq, Stacks, true);
+    }
+
+    public ItemQuantity? Get(int idx)
+    {
+        return InventoryUtils.Get(idx, Stacks);
     }
 
     /**

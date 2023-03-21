@@ -17,14 +17,30 @@ public class InventoryUtils
         return GetIndexInInventory(item, inv) >= 0;
     }
 
-    public static void Add(ItemQuantity iq, List<ItemQuantity> inv, bool strict)
+    
+    public static ItemQuantity? Get(int idx, List<ItemQuantity> inv)
+    {
+        if (idx >= inv.Capacity)
+        {
+            return null;
+        }
+        return inv[idx];
+    }
+
+    /**
+     * Returns the index where the item is added, or -1 if it was not
+     * added.
+     */
+    public static int Add(ItemQuantity iq, List<ItemQuantity> inv, bool strict)
     {
         int idx = GetIndexInInventory(iq.item, inv);
         if (idx < 0)
         {
             if (HasEmptySpace(inv))
             {
-                inv[FirstEmptyIndex(inv)] = iq;
+                int placedIndex = FirstEmptyIndex(inv);
+                inv[placedIndex] = iq;
+                return placedIndex;
             } else
             {
                 // No more space to add a new stack
@@ -36,7 +52,7 @@ public class InventoryUtils
                 else
                 {
                     Debug.Log(msg);
-                    return;
+                    return -1;
                 }
             }
         }
@@ -45,6 +61,7 @@ public class InventoryUtils
             ItemQuantity updated = inv[idx];
             updated.quantity += iq.quantity;
             inv[idx] = updated;
+            return idx;
         }
     }
 

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.Events;
-using System.Linq;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(SpriteStyler))]
 public class BuildMode : MonoBehaviour
@@ -38,6 +38,12 @@ public class BuildMode : MonoBehaviour
      * Redraw the inventory after making changes to it.
      */
     [SerializeField] private UnityEvent<Inventory> redrawPlayerInventoryCallback;
+    /**
+     * This callback is responsible for making sure the Inventoy backend is updated
+     * with the correct inventory data.
+     */
+    [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> ReflectChangesToInventoryBackendCallback;
+
 
     private void Awake()
     {
@@ -257,8 +263,13 @@ public class BuildMode : MonoBehaviour
         Inventory playerInv = InventoryManager.Instance.PlayerInventory;
         if (playerInv.ContainsItem(item) || playerInv.HasEmptySpace())
         {
-            playerInv.Add(new() { item = item, quantity = quantity });
+            ItemQuantity iq = new() { item = item, quantity = quantity };
+            int idx = playerInv.Add(iq);
             redrawPlayerInventoryCallback.Invoke(playerInv);
+
+            ItemQuantity iqInInv = playerInv.Get(idx);
+            ReflectChangesToInventoryBackendCallback.Invoke(playerInv, new List<(int, ItemQuantity?)> { (idx, iqInInv) });
+            Debug.Log(playerInv);
         }
     }
 
