@@ -58,39 +58,77 @@ public class BuildMode : MonoBehaviour
 
     void Update()
     {
-        HandleToggleBuildMode();
-        if (!IsEnabled)
+        /*
+         * Note: Check for key presses in this function and dispatch to the correct
+         * handler accordingly.
+         * This prevents multiple functions acting on the same key press occurring
+         * within the same frame.
+         * 
+         * In general, we want to check the input and current state to see if a
+         * set of functionality is relevant before calling that function.
+         *
+         * Let's also try to keep the most expensive functions from being executed 
+         * when they do not need to be.
+         */
+        if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_BUILD_MODE))
         {
-            Debug.Log($"Returning bc build mode is OFF.");
-            return;
-        }
-
-        if (objectToPlacePrefab == null)
-        {
-            HandleMouseoverPlacedObject();
-
-            if (mousedOverPlaceableObject != null)
+            HandleToggleBuildMode();
+            if (!IsEnabled)
             {
-                HandleRightClickPlacedObject();
+                Debug.Log("Returning becaues build mode is off.");
+                return;
             }
-            //Debug.Log($"Returning early because mouseover object is not null.");
-            //return;
         }
 
-        if ((placeableObject == null || instantiatedPrefab == null) && objectToPlacePrefab != null)
+        // Get the object we're working with (if any)
+        if (placeableObject == null && objectToPlacePrefab != null)
         {
+            Debug.Log("Attempting to instantiate PO.");
             InstantiatePlaceableObject();
         }
-
-        HandleCancelPlacement();
-        if (placeableObject == null)
+        else if (placeableObject == null)
         {
-            Debug.Log($"Returning early because PO is null.");
-            return;
+            Debug.Log($"placeableObject is null, therefore checking for mouseover.");
+            HandleMouseoverPlacedObject();
         }
+
+        // Left click: Can either be (1) placing an object, (2) picking up
+        // a placed object
+        // Note: The flow of if's and if-else's is very important here. We should
+        // allow ourselves to always check for mouse clicks.
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("Left click detected.");
+            if (placeableObject != null)
+            {
+                Debug.Log("Attempting to place object.");
+                HandlePlaceObject();
+            }
+            else if (placeableObject == null && mousedOverPlaceableObject != null)
+            {
+                Debug.Log("Attempting to pick up placed object.");
+                HandlePickUpPlacedObject();
+            }
+            else
+            {
+                Debug.Log("A useless left click.");
+            }
+        }
+        // Right click: Picks up object and immediately places in player
+        // inventory
+        else if (Input.GetMouseButtonDown(1))
+        {
+            if (mousedOverPlaceableObject != null && placeableObject == null)
+            {
+                HandlePickUpPlacedObjectToInventory();
+            }
+        } else if (Input.GetKeyDown(MouseKeyboardControlsMapping.CANCEL_GENERAL))
+        {
+            HandleCancelPlacement();
+        }
+        
         UpdateObjectPosition();
         HandleRotateObject();
-        HandlePlaceObject();
     }
 
     private void HandleToggleBuildMode()
@@ -120,6 +158,10 @@ public class BuildMode : MonoBehaviour
     private void OnBuildModeDisabled()
     {
         tilemap.ClearAllTiles();
+        if (mousedOverPlaceableObject != null)
+        {
+            spriteStyler.Tint(mousedOverPlaceableObject.Renderer, Color.white); // Untint
+        }
         if (placeableObject != null)
         {
             DestroyPlaceableObject();
@@ -150,16 +192,17 @@ public class BuildMode : MonoBehaviour
 
         if (firstEligibleHit != null)
         {
-            Debug.Log($"Mouse hit a placed object named {firstEligibleHit.gameObject.name}");
             mousedOverPlaceableObject = firstEligibleHit;
-            spriteStyler.Tint(firstEligibleHit.Renderer, MOUSEOVER_COLOR);
-            
+            spriteStyler.Tint(firstEligibleHit.Renderer, MOUSEOVER_COLOR);   
         }
     }
 
-    private void HandleRightClickPlacedObject()
+    /**
+     * Places item back into inventory.
+     */
+    private void HandlePickUpPlacedObjectToInventory()
     {
-        if (mousedOverPlaceableObject == null)
+        if (mousedOverPlaceableObject == null || placeableObject != null)
         {
             return;
         }
@@ -174,31 +217,48 @@ public class BuildMode : MonoBehaviour
         }
     }
 
+    /**
+     * Allows you to reposition the item.
+     */
+    private void HandlePickUpPlacedObject()
+    {
+        if (mousedOverPlaceableObject == null || placeableObject != null)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("Left clicked the moused-over object.");
+            placeableObject = mousedOverPlaceableObject;
+            instantiatedPrefab = mousedOverPlaceableObject.gameObject;
+            placeableObject.OnPickedUp();
+            objectToPlacePrefab = placeableObject.item.prefab;
+        }
+    }
+
     public void HandleCancelPlacement()
     {
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.CANCEL_GENERAL))
+        if (placeableObject == null)
         {
-            if (placeableObject == null)
-            {
-                return;
-            }
-            if (placeableObject.placedPosition != null)
-            {
-                // Return to its original spot
-                placeableObject.transform.position = placeableObject.placedPosition ?? Vector3.zero; // Vector3.zero case should not happen. ?? is to satisfy compiler.
-                spriteStyler.Tint(placeableObject.Renderer, Color.white);
-                placeableObject = null;
-                instantiatedPrefab = null;
-                objectToPlacePrefab = null;
-            }
-            else
-            {
-                // Return to inventory
-                PlaceInPlayerInventory(placeableObject.item, 1);
-                Destroy(placeableObject.gameObject.transform.parent.gameObject, 0);
-                placeableObject = null;
-                objectToPlacePrefab = null;
-            }
+            return;
+        }
+        if (placeableObject.placedPosition != null)
+        {
+            // Return to its original spot
+            placeableObject.transform.position = placeableObject.placedPosition ?? Vector3.zero; // Vector3.zero case should not happen. ?? is to satisfy compiler.
+            spriteStyler.Tint(placeableObject.Renderer, Color.white);
+            placeableObject = null;
+            instantiatedPrefab = null;
+            objectToPlacePrefab = null;
+        }
+        else
+        {
+            // Return to inventory
+            PlaceInPlayerInventory(placeableObject.item, 1);
+            Destroy(placeableObject.gameObject.transform.parent.gameObject, 0);
+            placeableObject = null;
+            objectToPlacePrefab = null;
         }
     }
 
@@ -226,27 +286,25 @@ public class BuildMode : MonoBehaviour
 
     private void HandlePlaceObject()
     {
-        if (Input.GetMouseButtonDown(0)) // Left click
+        if (placeableObject.PlacementIsValid(buildableGridArea))
         {
-            if (placeableObject.PlacementIsValid(buildableGridArea))
-            {
-                PlaceObject();
-                OnBuildModeDisabled();
-            }
-            else
-            {
-                Debug.Log("Invalid placement!");
-            }
+            PlaceObject();
+        }
+        else
+        {
+            Debug.Log("Invalid placement!");
         }
     }
 
     private void PlaceObject()
     {
-        instantiatedPrefab = null;
-        spriteStyler.Tint(placeableObject.Renderer, Color.white);
         placeableObject.OnPlaced(placeableObject.transform.position);
+        spriteStyler.Tint(placeableObject.Renderer, Color.white);
+        
         placeableObject = null;
-        IsEnabled = false;
+        instantiatedPrefab = null;
+        objectToPlacePrefab = null;
+        mousedOverPlaceableObject = null;
     }
 
     private void InstantiatePlaceableObject()
@@ -258,11 +316,10 @@ public class BuildMode : MonoBehaviour
 
     private void DestroyPlaceableObject()
     {
-        Destroy(instantiatedPrefab, 0);
+        Destroy(placeableObject.gameObject, 0);
         instantiatedPrefab = null;
         placeableObject = null;
         objectToPlacePrefab = null;
-
     }
 
     private void FillBuildableArea()
@@ -286,6 +343,11 @@ public class BuildMode : MonoBehaviour
 
     private void UpdateObjectPosition()
     {
+        if (placeableObject == null)
+        {
+            return;
+        }
+
         mouseWorldPosition = GetMouseWorldPosition();
         placeableObject.transform.position = CenterInCell(mouseWorldPosition);
             

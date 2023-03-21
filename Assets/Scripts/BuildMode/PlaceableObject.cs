@@ -115,4 +115,9 @@ public class PlaceableObject : MonoBehaviour
     {
         this.placedPosition = placedPosition;
     }
+
+    public void OnPickedUp()
+    {
+        this.placedPosition = null;
+    }
 }
