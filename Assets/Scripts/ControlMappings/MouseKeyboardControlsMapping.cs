@@ -5,6 +5,8 @@ public class MouseKeyboardControlsMapping : MonoBehaviour
     public static MouseKeyboardControlsMapping Instance { get; private set; }
 
     // Mappings
+    // General / multi-use
+    public static KeyCode CANCEL_GENERAL = KeyCode.Escape;
 
     // Player movement
     public static KeyCode MOVE_PLAYER_LEFT = KeyCode.A;

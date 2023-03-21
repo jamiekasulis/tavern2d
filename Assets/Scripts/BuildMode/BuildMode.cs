@@ -61,6 +61,7 @@ public class BuildMode : MonoBehaviour
         HandleToggleBuildMode();
         if (!IsEnabled)
         {
+            Debug.Log($"Returning bc build mode is OFF.");
             return;
         }
 
@@ -72,15 +73,21 @@ public class BuildMode : MonoBehaviour
             {
                 HandleRightClickPlacedObject();
             }
-
-            return;
+            //Debug.Log($"Returning early because mouseover object is not null.");
+            //return;
         }
 
-        if (placeableObject == null || instantiatedPrefab == null)
+        if ((placeableObject == null || instantiatedPrefab == null) && objectToPlacePrefab != null)
         {
             InstantiatePlaceableObject();
         }
 
+        HandleCancelPlacement();
+        if (placeableObject == null)
+        {
+            Debug.Log($"Returning early because PO is null.");
+            return;
+        }
         UpdateObjectPosition();
         HandleRotateObject();
         HandlePlaceObject();
@@ -133,7 +140,7 @@ public class BuildMode : MonoBehaviour
             PlaceableObject po = hit.collider.gameObject.GetComponentInParent<PlaceableObject>(); // Mesh2D will be hit by the ray. It has a PO parent.
             if (po != null)
             {
-                if (po.Placed)
+                if (po.placedPosition != null)
                 {
                     firstEligibleHit = po;
                     break;
@@ -161,6 +168,37 @@ public class BuildMode : MonoBehaviour
         {
             Debug.Log("Right clicked the moused-over object.");
             PlaceItemInPlayerInventoryCallback.Invoke(mousedOverPlaceableObject.item, 1);
+            Destroy(mousedOverPlaceableObject.gameObject, 0);
+            mousedOverPlaceableObject = null;
+            objectToPlacePrefab = null;
+        }
+    }
+
+    public void HandleCancelPlacement()
+    {
+        if (Input.GetKeyDown(MouseKeyboardControlsMapping.CANCEL_GENERAL))
+        {
+            if (placeableObject == null)
+            {
+                return;
+            }
+            if (placeableObject.placedPosition != null)
+            {
+                // Return to its original spot
+                placeableObject.transform.position = placeableObject.placedPosition ?? Vector3.zero; // Vector3.zero case should not happen. ?? is to satisfy compiler.
+                spriteStyler.Tint(placeableObject.Renderer, Color.white);
+                placeableObject = null;
+                instantiatedPrefab = null;
+                objectToPlacePrefab = null;
+            }
+            else
+            {
+                // Return to inventory
+                PlaceInPlayerInventory(placeableObject.item, 1);
+                Destroy(placeableObject.gameObject.transform.parent.gameObject, 0);
+                placeableObject = null;
+                objectToPlacePrefab = null;
+            }
         }
     }
 
@@ -171,9 +209,6 @@ public class BuildMode : MonoBehaviour
         {
             playerInv.Add(new() { item = item, quantity = quantity });
             redrawPlayerInventoryCallback.Invoke(playerInv);
-
-            Destroy(mousedOverPlaceableObject.gameObject, 0);
-            mousedOverPlaceableObject = null;
         }
     }
 
@@ -209,7 +244,7 @@ public class BuildMode : MonoBehaviour
     {
         instantiatedPrefab = null;
         spriteStyler.Tint(placeableObject.Renderer, Color.white);
-        placeableObject.OnPlaced();
+        placeableObject.OnPlaced(placeableObject.transform.position);
         placeableObject = null;
         IsEnabled = false;
     }

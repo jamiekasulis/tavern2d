@@ -8,7 +8,7 @@ public class PlaceableObject : MonoBehaviour
 {
     public SpriteRenderer Renderer;
     private MeshSwapper MeshSwapper;
-    public bool Placed;
+    public Vector3? placedPosition;
 
     [SerializeField] public Item item;
 
@@ -111,8 +111,8 @@ public class PlaceableObject : MonoBehaviour
         return true;
     }
 
-    public void OnPlaced()
+    public void OnPlaced(Vector3 placedPosition)
     {
-        Placed = true;
+        this.placedPosition = placedPosition;
     }
 }
