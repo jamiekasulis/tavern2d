@@ -55,6 +55,7 @@ public class BuildMode : MonoBehaviour
 
         if (objectToPlacePrefab == null)
         {
+            HandleMouseoverPlacedObject();
             return;
         }
 
@@ -98,6 +99,35 @@ public class BuildMode : MonoBehaviour
         if (placeableObject != null)
         {
             DestroyPlaceableObject();
+        }
+    }
+
+    private void HandleMouseoverPlacedObject()
+    {
+        RaycastHit2D[] hits = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+        Debug.Log($"Hit count: ${hits.Length}");
+
+        PlaceableObject? firstEligibleHit = null;
+        foreach (var hit in hits)
+        {
+            bool isPO = hit.collider.gameObject.TryGetComponent<PlaceableObject>(out PlaceableObject po);
+            if (isPO)
+            {
+                Debug.Log($"This is a placeable object.");
+                if (po.Placed)
+                {
+                    Debug.Log("This is placed.");
+                    firstEligibleHit = po;
+                    break;
+                }
+            }
+        }
+
+        if (firstEligibleHit != null)
+        {
+            Debug.Log($"Mouse hit a placed object named {firstEligibleHit.gameObject.name}");
+            // We can assume PlaceableObject will have a parent MeshSwapper
+            spriteStyler.Tint(firstEligibleHit.Renderer, MOUSEOVER_COLOR);
         }
     }
 
