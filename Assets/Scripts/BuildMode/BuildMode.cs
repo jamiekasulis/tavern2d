@@ -26,7 +26,18 @@ public class BuildMode : MonoBehaviour
     // Styling
     private Color OK_COLOR = Color.green, BAD_COLOR = Color.red, MOUSEOVER_COLOR = new Color(244, 255, 0, 1);
 
+    /**
+     * When build mode is toggled, style or unstyle the Inventory UI accordingly.
+     */
     [SerializeField] private UnityEvent buildModeToggledTrigger;
+    /**
+     * When an object is picked up, put it in the player inventory if there's space.
+     */
+    [SerializeField] private UnityEvent<Item, int> PlaceItemInPlayerInventoryCallback;
+    /**
+     * Redraw the inventory after making changes to it.
+     */
+    [SerializeField] private UnityEvent<Inventory> redrawPlayerInventoryCallback;
 
     private void Awake()
     {
@@ -56,6 +67,12 @@ public class BuildMode : MonoBehaviour
         if (objectToPlacePrefab == null)
         {
             HandleMouseoverPlacedObject();
+
+            if (mousedOverPlaceableObject != null)
+            {
+                HandleRightClickPlacedObject();
+            }
+
             return;
         }
 
@@ -130,6 +147,33 @@ public class BuildMode : MonoBehaviour
             mousedOverPlaceableObject = firstEligibleHit;
             spriteStyler.Tint(firstEligibleHit.Renderer, MOUSEOVER_COLOR);
             
+        }
+    }
+
+    private void HandleRightClickPlacedObject()
+    {
+        if (mousedOverPlaceableObject == null)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            Debug.Log("Right clicked the moused-over object.");
+            PlaceItemInPlayerInventoryCallback.Invoke(mousedOverPlaceableObject.item, 1);
+        }
+    }
+
+    public void PlaceInPlayerInventory(Item item, int quantity)
+    {
+        Inventory playerInv = InventoryManager.Instance.PlayerInventory;
+        if (playerInv.ContainsItem(item) || playerInv.HasEmptySpace())
+        {
+            playerInv.Add(new() { item = item, quantity = quantity });
+            redrawPlayerInventoryCallback.Invoke(playerInv);
+
+            Destroy(mousedOverPlaceableObject.gameObject, 0);
+            mousedOverPlaceableObject = null;
         }
     }
 
