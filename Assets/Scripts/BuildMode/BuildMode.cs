@@ -141,7 +141,7 @@ public class BuildMode : MonoBehaviour
             {
                 OnBuildModeDisabled();
             }
-
+            
             buildModeToggledTrigger.Invoke();
         }
     }
@@ -348,7 +348,7 @@ public class BuildMode : MonoBehaviour
             return;
         }
 
-        mouseWorldPosition = GetMouseWorldPosition();
+        mouseWorldPosition = MouseUtils.GetMouseWorldPosition();
         placeableObject.transform.position = CenterInCell(mouseWorldPosition);
             
         // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
@@ -374,11 +374,6 @@ public class BuildMode : MonoBehaviour
             0
         );
         return centeredPos;
-    }
-
-    public static Vector2 GetMouseWorldPosition()
-    {
-        return Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
     public Bounds GetPlaceableObjFloorBoundsGrid()

@@ -21,7 +21,12 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
     [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> ReflectChangesToInventoryBackendCallback;
 
     /**
-     * Invoke me when build mode is enabled/disabled
+     * Invoke me when build mode is enabled/disabled.
+     * This is responsible for updating the CellData in the InventoryMenu,
+     * specifically the additionalStyles property to attach the correct build 
+     * mode-related styling.
+     * 
+     * Then this ensures any impacted cells are redrawn.
      */
     public void ApplyBuildModeStylingToInventory()
     {
@@ -52,6 +57,7 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
         }
         else
         {
+            Debug.Log($"ApplyBuildModeStyling: Removing styled since build mode is DISABLED.");
             // Remove build mode-related styles
             foreach (CellData2 cell in cellData)
             {
