@@ -171,6 +171,7 @@ public class BuildMode : MonoBehaviour
         if (mousedOverPlaceableObject != null)
         {
             spriteStyler.Tint(mousedOverPlaceableObject.Renderer, Color.white); // untint
+            mousedOverPlaceableObject = null;
         }
 
         foreach (var hit in hits)
@@ -205,7 +206,6 @@ public class BuildMode : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            Debug.Log("Right clicked the moused-over object.");
             PlaceItemInPlayerInventoryCallback.Invoke(mousedOverPlaceableObject.item, 1);
             Destroy(mousedOverPlaceableObject.gameObject, 0);
             mousedOverPlaceableObject = null;
@@ -225,7 +225,6 @@ public class BuildMode : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("Left clicked the moused-over object.");
             placeableObject = mousedOverPlaceableObject;
             instantiatedPrefab = mousedOverPlaceableObject.gameObject;
             objectToPlacePrefab = placeableObject.item.prefab;
@@ -251,10 +250,11 @@ public class BuildMode : MonoBehaviour
         {
             // Return to inventory
             PlaceInPlayerInventory(placeableObject.item, 1);
-            Destroy(placeableObject.gameObject.transform.parent.gameObject, 0);
             placeableObject.OnPickedUp();
+            Destroy(placeableObject.gameObject, 0);
             placeableObject = null;
             objectToPlacePrefab = null;
+            instantiatedPrefab = null;
         }
     }
 
@@ -269,7 +269,6 @@ public class BuildMode : MonoBehaviour
 
             ItemQuantity iqInInv = playerInv.Get(idx);
             ReflectChangesToInventoryBackendCallback.Invoke(playerInv, new List<(int, ItemQuantity?)> { (idx, iqInInv) });
-            Debug.Log(playerInv);
         }
     }
 
@@ -394,5 +393,6 @@ public class BuildMode : MonoBehaviour
             throw new System.Exception($"Attemted to set Build Mode's object to place to a non-build mode approved item! {item}");
         }
         objectToPlacePrefab = item.prefab;
+        Debug.Log($"Set objectToPlacePrefab to {item.prefab.name}");
     }
 }

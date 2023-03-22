@@ -25,7 +25,6 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
      */
     public void ApplyBuildModeStylingToInventory()
     {
-        Debug.Log($"Called ApplyBuildModeStylingToInventory");
         CellData2[,] cellData = InventoryManager.Instance.PlayerInventoryMenu.cellsByRow;
 
         List<CellData2> updatedCells = new List<CellData2>();
@@ -37,13 +36,11 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
             {
                 if (cell.itemData != null && cell.itemData.item.buildMode)
                 {
-                    Debug.Log($"Applying OK styling on cell with {cell.itemData.item.itemName}");
                     cell.additionalStyles.Add(CellData2.InventoryCellStyleEnum.BuildModeOK);
                     updatedCells.Add(cell);
                 }
                 else if (cell.itemData != null && !cell.itemData.item.buildMode)
                 {
-                    Debug.Log($"Applying NOT_OK styling on cell with {cell.itemData.item.itemName}");
                     cell.additionalStyles.Add(CellData2.InventoryCellStyleEnum.BuildModeNotOK);
                     updatedCells.Add(cell);
                 }
@@ -67,6 +64,7 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
 
     public void SelectBuildModeObjectCallback(CellData2 cell)
     {
+        Debug.Log("Invoked SelectBuildModeObjectCallback");
         // Invoke callbacks to set the objectToPlace in build mode and
         // reflect the changes in inventory (backend & UI redraw)
         if (cell.itemData != null && cell.itemData.item.buildMode)
