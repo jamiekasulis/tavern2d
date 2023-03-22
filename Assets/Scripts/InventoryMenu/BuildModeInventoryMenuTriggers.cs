@@ -30,23 +30,24 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
      */
     public void ApplyBuildModeStylingToInventory()
     {
-        Debug.Log($"Called ApplyBuildModeStylingToInventory");
         CellData2[,] cellData = InventoryManager.Instance.PlayerInventoryMenu.cellsByRow;
 
+        List<CellData2> updatedCells = new List<CellData2>();
         if (BuildMode.Instance.IsEnabled)
         {
             // Apply styles
+            
             foreach (CellData2 cell in cellData)
             {
                 if (cell.itemData != null && cell.itemData.item.buildMode)
                 {
-                    Debug.Log($"Applying OK styling on cell with {cell.itemData.item.itemName}");
                     cell.additionalStyles.Add(CellData2.InventoryCellStyleEnum.BuildModeOK);
+                    updatedCells.Add(cell);
                 }
                 else if (cell.itemData != null && !cell.itemData.item.buildMode)
                 {
-                    Debug.Log($"Applying NOT_OK styling on cell with {cell.itemData.item.itemName}");
                     cell.additionalStyles.Add(CellData2.InventoryCellStyleEnum.BuildModeNotOK);
+                    updatedCells.Add(cell);
                 }
                 else
                 {
@@ -64,12 +65,12 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
                 cell.additionalStyles.Remove(CellData2.InventoryCellStyleEnum.BuildModeNotOK);
             }
         }
-        List<CellData2> flatList = ListUtils.FlattenToList(cellData);
-        RedrawInventoryMenuCells.Invoke(flatList);
+        RedrawInventoryMenuCells.Invoke(updatedCells);
     }
 
     public void SelectBuildModeObjectCallback(CellData2 cell)
     {
+        Debug.Log("Invoked SelectBuildModeObjectCallback");
         // Invoke callbacks to set the objectToPlace in build mode and
         // reflect the changes in inventory (backend & UI redraw)
         if (cell.itemData != null && cell.itemData.item.buildMode)
@@ -83,11 +84,7 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
                 item = cell.itemData.item,
                 quantity = cell.itemData.quantity - 1
             };
-            if (updated.quantity <= 0)
-            {
-                updated.item = null;
-                updated.quantity = 0;
-            }
+            
             int inventoryArrayIndex = InventoryMenu2.GridToInventoryIndex(
                 cell.row, cell.col,
                 InventoryManager.Instance.PlayerInventoryMenu.GridSizeSpecification
@@ -97,11 +94,12 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
                 InventoryManager.Instance.PlayerInventory,
                 new List<(int, ItemQuantity)>
                 {
-                    (inventoryArrayIndex, updated)
+                    (inventoryArrayIndex, updated.quantity > 0 ? updated : null)
                 }
             );
 
             // Redraw the affected UI cell
+            cell.itemData = updated.quantity > 0 ? updated : null;
             RedrawInventoryMenuCells.Invoke(new List<CellData2>() { cell });
         }
         else

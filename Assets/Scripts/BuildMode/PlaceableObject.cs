@@ -8,6 +8,7 @@ public class PlaceableObject : MonoBehaviour
 {
     public SpriteRenderer Renderer;
     private MeshSwapper MeshSwapper;
+    public Vector3? placedPosition;
 
     [SerializeField] public Item item;
 
@@ -74,11 +75,6 @@ public class PlaceableObject : MonoBehaviour
         Left, Right
     }
 
-    public void TintSprite(Color color)
-    {
-        Renderer.color = color;
-    }
-
     /**
      * Determines if the object's current position is a valid placement position
      * for the placeable object. It will check for collisions against other 
@@ -113,5 +109,15 @@ public class PlaceableObject : MonoBehaviour
             }
         }
         return true;
+    }
+
+    public void OnPlaced(Vector3 placedPosition)
+    {
+        this.placedPosition = placedPosition;
+    }
+
+    public void OnPickedUp()
+    {
+        this.placedPosition = null;
     }
 }

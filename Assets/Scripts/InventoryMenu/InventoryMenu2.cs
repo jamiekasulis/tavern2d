@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
+using System.Linq;
 
 public class InventoryMenu2 : MonoBehaviour
 {
@@ -146,10 +147,18 @@ public class InventoryMenu2 : MonoBehaviour
                     ? new StyleBackground(cell.itemData.item.spriteFront)
                     : StyleKeyword.None;
 
+            // Remove any styling if a cell is empty
+            if (cell.itemData == null || cell.itemData?.quantity <= 0) // <=0 shouldn't happen, but just in case
+            {
+                cell.additionalStyles.Clear();
+            }
+
             if (cell.additionalStyles.Count > 0)
             {
                 LoadAdditionalStyles(cell);
             }
+
+            //cellsByRow[cell.row, cell.col] = cell; // Do this so that the UI is holding onto the correct
         });
     }
 

@@ -22,6 +22,35 @@ public class InventoryUtilsTest
         testItem2.id = "2";
     }
 
+    #region Get
+
+    [Test]
+    public void TestGet_IndexTooGreat()
+    {
+        List<ItemQuantity> inv = new(1);
+        inv.Add(new ItemQuantity()
+        {
+            item = testItem1,
+            quantity = 1
+        });
+        Assert.AreEqual(null, InventoryUtils.Get(1, inv));
+        Assert.AreEqual(null, InventoryUtils.Get(2, inv));
+    }
+
+    [Test]
+    public void TestGet_PositiveCase()
+    {
+        List<ItemQuantity> inv = new(1);
+        inv.Add(new ItemQuantity()
+        {
+            item = testItem1,
+            quantity = 1
+        });
+        Assert.AreEqual(inv[0], InventoryUtils.Get(0, inv));
+    }
+
+    #endregion
+
     #region GetIndexInInventory
 
     [Test]
