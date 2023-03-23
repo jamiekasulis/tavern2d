@@ -260,7 +260,7 @@ public class BuildMode : MonoBehaviour
 
     public void PlaceInPlayerInventory(Item item, int quantity)
     {
-        Inventory playerInv = InventoryManager.Instance.PlayerInventory;
+        Inventory playerInv = GameState.Instance.Player.Inventory;
         if (playerInv.ContainsItem(item) || playerInv.HasEmptySpace())
         {
             ItemQuantity iq = new() { item = item, quantity = quantity };

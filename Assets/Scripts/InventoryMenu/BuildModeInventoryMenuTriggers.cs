@@ -91,7 +91,7 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
             );
 
             ReflectChangesToInventoryBackendCallback.Invoke(
-                InventoryManager.Instance.PlayerInventory,
+                GameState.Instance.Player.Inventory,
                 new List<(int, ItemQuantity)>
                 {
                     (inventoryArrayIndex, updated.quantity > 0 ? updated : null)
