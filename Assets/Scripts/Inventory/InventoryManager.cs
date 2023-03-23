@@ -7,16 +7,8 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
     [SerializeField] public InventoryMenu2 PlayerInventoryMenu;
-    [SerializeField] public InventoryMenu2 ChestInventoryMenu; // @TODO Remove-- just for testing.
-    public Inventory PlayerInventory { get; private set; }
-    // The current inventory to consider. This is usually the player inventory,
-    // but if a chest is open or we are in a crafting room then this can change.
-    public Inventory ActiveInventory { get; private set; }
     [SerializeField] private UnityEvent<Inventory> redrawInventoryTrigger;
     [SerializeField] private UnityEvent<List<(Item?, VisualElement)>> buildModeToggledTrigger;
-
-    // For testing only - delete later
-    [SerializeField] public List<ItemQuantity> testInventoryToLoad;
 
     public bool ingestTestPlayerInventory = false;
 
@@ -30,38 +22,30 @@ public class InventoryManager : MonoBehaviour
         {
             Instance = this;
         }
-        DontDestroyOnLoad(this.gameObject);
-
-        PlayerInventory = new(10);
-        ActiveInventory = PlayerInventory;
-
-        // For testing only
-        foreach(ItemQuantity iq in testInventoryToLoad)
-        {
-            PlayerInventory.Add(iq);
-        }
+        DontDestroyOnLoad(gameObject);
     }
 
     public void TogglePlayerInventoryMenuEnabled()
     {
-        PlayerInventoryMenu.ToggleMenuOpen(Instance.PlayerInventory);
+        PlayerInventoryMenu.ToggleMenuOpen(GameState.Instance.Player.Inventory);
     }
 
     public void PickupToPlayerInventory(PickUp pickup)
     {
+        Inventory playerInventory = GameState.Instance.Player.Inventory;
 
         void handlePickup(PickUp pickup)
         {
-            PlayerInventory.Add(pickup.itemQuantity);
+            playerInventory.Add(pickup.itemQuantity);
             Destroy(pickup.gameObject, 0);
-            redrawInventoryTrigger.Invoke(PlayerInventory);
+            redrawInventoryTrigger.Invoke(playerInventory);
         }
 
-        int idx = PlayerInventory.GetIndexInInventory(pickup.itemQuantity.item);
+        int idx = playerInventory.GetIndexInInventory(pickup.itemQuantity.item);
         if (idx < 0)
         {
             // Check if there's space in player inventory
-            if (PlayerInventory.HasEmptySpace())
+            if (playerInventory.HasEmptySpace())
             {
                 handlePickup(pickup);
             }
@@ -82,15 +66,4 @@ public class InventoryManager : MonoBehaviour
     {
         inv.MakeChanges(changedIndices);
     }
-
-    //public void ToggleBuildModeCallback()
-    //{
-    //    if (!PlayerInventoryMenu.IsOpen())
-    //    {
-    //        // Optimization
-    //        return;
-    //    }
-    //    var data = PlayerInventoryMenu.GetItemToVisualElementMapping();
-    //    buildModeToggledTrigger.Invoke(data);
-    //}
 }
