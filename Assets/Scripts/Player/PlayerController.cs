@@ -133,10 +133,18 @@ public class PlayerController : MonoBehaviour
 
     public void SetFacedDirection(Vector2 direction)
     {
-        if (validDirections.Contains(direction))
+        Vector2 dirNormalized = new (
+            direction.x < 0 ? -1
+                : direction.x == 0 ? 0
+                : 1,
+            direction.y < 0 ? -1
+                : direction.y == 0 ? 0
+                : 1
+        );
+        if (validDirections.Contains(dirNormalized))
         {
             // @TODO Also swap the sprite
-            facedDirection = direction;
+            facedDirection = dirNormalized;
         }
         else
         {

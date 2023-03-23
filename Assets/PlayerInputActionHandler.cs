@@ -28,13 +28,12 @@ public class PlayerInputActionHandler : MonoBehaviour
      */
     public void OnMove(InputValue value)
     {
-        Debug.Log("InputValue is " + value.Get<Vector2>().ToString());
         movementDirection = value.Get<Vector2>();
     }
 
     private void Move()
     {
-        //playerController.SetFacedDirection(new(movementDirection.x, movementDirection.y));
+        playerController.SetFacedDirection(new(movementDirection.x, movementDirection.y));
 
         float playerSpeed = player.speed;
         Vector2 difference = new Vector3(playerSpeed * movementDirection.x, playerSpeed * movementDirection.y);
