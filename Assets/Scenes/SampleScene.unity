@@ -4309,6 +4309,7 @@ MonoBehaviour:
   CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
   GridRowTemplate: {fileID: 9197481963319205126, guid: 8970577c214ce4dfeb783a9cf5397b23, type: 3}
   MenuTitle: Chest
+  inventoryTooltip: {fileID: 0}
   reflectChangesToBackendInventoryCallback:
     m_PersistentCalls:
       m_Calls:
@@ -4325,6 +4326,9 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   SelectBuildModeObjectCallback:
+    m_PersistentCalls:
+      m_Calls: []
+  UpdatedTooltipCallback:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &312925375
@@ -7844,6 +7848,7 @@ GameObject:
   - component: {fileID: 937006378}
   - component: {fileID: 937006379}
   - component: {fileID: 937006382}
+  - component: {fileID: 937006383}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -8037,6 +8042,26 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &937006383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 937006372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8461c1ae682849c8be2efea9469c842, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerName: Player1
+  testInventoryContents:
+  - item: {fileID: 11400000, guid: 5a420c269fa1f4ee4ac23a2166cff4f6, type: 2}
+    quantity: 1
+  - item: {fileID: 11400000, guid: 9225fb6b17d1b45f5b2a38e0f54f7fb1, type: 2}
+    quantity: 2
+  - item: {fileID: 11400000, guid: 33b818554231144d7bbf395e939be279, type: 2}
+    quantity: 10
 --- !u!1 &938305093
 GameObject:
   m_ObjectHideFlags: 0
@@ -12890,6 +12915,132 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1672230065
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1672230066}
+  - component: {fileID: 1672230069}
+  - component: {fileID: 1672230068}
+  - component: {fileID: 1672230067}
+  m_Layer: 0
+  m_Name: WoodenCrate_Front(Clone)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1672230066
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672230065}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 57005914}
+  m_RootOrder: 111
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1672230067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672230065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7528f2d25efb543879568614c40902fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 21300000, guid: 8b8685546c6574344a6039408af69e42, type: 3}
+  direction: 0
+--- !u!61 &1672230068
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672230065}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.059631586}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2, y: 2}
+    newSize: {x: 2, y: 2}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.628959, y: 1.5096958}
+  m_EdgeRadius: 0
+--- !u!212 &1672230069
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672230065}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: 8b8685546c6574344a6039408af69e42, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 2, y: 2}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &1679386211
 GameObject:
   m_ObjectHideFlags: 0
@@ -13266,6 +13417,7 @@ MonoBehaviour:
   CellTemplate: {fileID: 9197481963319205126, guid: f1d55eb66c8fa4ae6b9402f5066f0eac, type: 3}
   GridRowTemplate: {fileID: 9197481963319205126, guid: 8970577c214ce4dfeb783a9cf5397b23, type: 3}
   MenuTitle: Backpack
+  inventoryTooltip: {fileID: 0}
   reflectChangesToBackendInventoryCallback:
     m_PersistentCalls:
       m_Calls:
@@ -13296,6 +13448,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  UpdatedTooltipCallback:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1823565534
 GameObject:
   m_ObjectHideFlags: 0
