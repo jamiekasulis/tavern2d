@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 /**
  * Handles InputAction behavior.
@@ -8,6 +9,8 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerController))]
 public class PlayerInputActionHandler : MonoBehaviour
 {
+    [SerializeField] private UnityEvent<PickUp> PickedUp;
+
     private PlayerController playerController;
     private Player player;
     private Vector2 movementDirection = Vector2.zero;
@@ -28,6 +31,7 @@ public class PlayerInputActionHandler : MonoBehaviour
      */
     public void OnMove(InputValue value)
     {
+        Debug.Log("moved");
         movementDirection = value.Get<Vector2>();
     }
 
@@ -46,8 +50,16 @@ public class PlayerInputActionHandler : MonoBehaviour
 
     public void OnInteract()
     {
-        Debug.Log("Interacted");
         playerController.interactable?.Interact();
+    }
+
+    public void OnPickUpItem()
+    {
+        if (playerController.pickup != null)
+        {
+            PickedUp.Invoke(playerController.pickup);
+            playerController.pickup = null;
+        }
     }
 
 
