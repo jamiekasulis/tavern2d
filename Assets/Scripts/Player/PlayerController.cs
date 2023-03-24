@@ -37,7 +37,6 @@ public class PlayerController : MonoBehaviour
     {
         DetectPickUpAndPickUpAutomatic();
         HandleManualPickup();
-        HandleToggleInventoryMenu();
 
         DetectInteraction();
     }
@@ -139,17 +138,4 @@ public class PlayerController : MonoBehaviour
             facedDirection = dirNormalized;
         }
     }
-
-    private void HandleToggleInventoryMenu()
-    {
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_INVENTORY_MENU))
-        {
-            InventoryManager.Instance.TogglePlayerInventoryMenuEnabled();
-        }
-    }
-}
-
-public class InvalidDirectionException : Exception
-{
-    public InvalidDirectionException(string message) : base(message) { }
 }
