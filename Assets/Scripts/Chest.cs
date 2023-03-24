@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,7 +5,7 @@ using UnityEngine.Events;
 public class Chest : Interactable
 {
     // Need a better way to designate the items in a chest. This is just for testing.
-    [SerializeField] List<Item> itemsInChest;
+    [SerializeField] List<ItemQuantity> testInventoryContents;
     private Inventory inventory;
     private string chestName = "Chest";
     public bool IsOpen { get; private set; }
@@ -17,9 +16,9 @@ public class Chest : Interactable
     {
         IsOpen = false;
         inventory = new(20);
-        foreach (Item i in itemsInChest)
+        foreach (var iq in testInventoryContents)
         {
-            inventory.Add(new() { item = i, quantity = 5 });
+            inventory.Add(iq);
         }
     }
 

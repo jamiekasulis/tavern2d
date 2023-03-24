@@ -1,15 +1,14 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
-    private PickUp pickup;
-    private Interactable interactable;
+    public PickUp pickup;
+    public Interactable interactable { get; private set; }
 
     public Vector2 facedDirection { get; private set; }
-    private List<Vector2> validDirections = new(8)
+    private List<Vector2> VALID_DIRECTIONS = new(8)
     {
         // cardinals
         Vector2.up, Vector2.down, Vector2.left, Vector2.right,
@@ -20,13 +19,11 @@ public class PlayerController : MonoBehaviour
     // Item pickup
     public Vector2 pickupBoxCastSize = new(1, 1);
     public float pickupBoxCastDistance = 1f;
+    [SerializeField] private UnityEvent<PickUp> PickedUp;
 
     // Interaction
     public Vector2 interactBoxCastSize = new(0.5f, 0.5f);
     public float interactBoxCastDistance = 0.5f;
-
-    // UnityEvent stuff
-    [SerializeField] private UnityEvent<PickUp> pickupEventTrigger;
 
     private void Awake()
     {
@@ -36,11 +33,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         DetectPickUpAndPickUpAutomatic();
-        HandleManualPickup();
-        HandleToggleInventoryMenu();
-
         DetectInteraction();
-        HandleInteraction();
     }
 
     /**
@@ -72,7 +65,7 @@ public class PlayerController : MonoBehaviour
             {
                 if (pu.automaticPickup)
                 {
-                    pickupEventTrigger.Invoke(pu);
+                    PickedUp.Invoke(pu);
                     pickup = null;
                 }
                 else
@@ -111,63 +104,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void HandleInteraction()
-    {
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.INTERACT) && interactable != null)
-        {
-            interactable.Interact();
-        }
-    }
-
-    private void HandleManualPickup()
-    {
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.PICKUP_ITEM))
-        {
-            if (pickup != null)
-            {
-                pickupEventTrigger.Invoke(pickup);
-                pickup = null;
-            }
-        }
-    }
-
     public void SetFacedDirection(Vector2 direction)
     {
-        if (validDirections.Contains(direction))
+        Vector2 dirNormalized = new (
+            direction.x < 0 ? -1
+                : direction.x == 0 ? 0
+                : 1,
+            direction.y < 0 ? -1
+                : direction.y == 0 ? 0
+                : 1
+        );
+
+        if (VALID_DIRECTIONS.Contains(dirNormalized))
         {
             // @TODO Also swap the sprite
-            facedDirection = direction;
-        }
-        else
-        {
-            throw new InvalidDirectionException("Given direction " + direction.ToString() + " is not an accepted direction to face");
+            facedDirection = dirNormalized;
         }
     }
-
-    private void HandleToggleInventoryMenu()
-    {
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_INVENTORY_MENU))
-        {
-            InventoryManager.Instance.TogglePlayerInventoryMenuEnabled();
-        }
-    }
-
-    #region Gizmos
-
-    private void OnDrawGizmos()
-    {
-        DrawBoxcast();
-    }
-
-    private void DrawBoxcast()
-    {
-        // @TODO at cafe
-    }
-
-    #endregion
-}
-
-public class InvalidDirectionException : Exception
-{
-    public InvalidDirectionException(string message) : base(message) { }
 }
