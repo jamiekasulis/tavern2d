@@ -31,7 +31,6 @@ public class PlayerInputActionHandler : MonoBehaviour
      */
     public void OnMove(InputValue value)
     {
-        Debug.Log("moved");
         movementDirection = value.Get<Vector2>();
     }
 
@@ -62,5 +61,35 @@ public class PlayerInputActionHandler : MonoBehaviour
         }
     }
 
+    public void OnToggleBuildMode()
+    {
+        BuildMode.Instance.ToggleBuildMode();
+    }
+
+    public void OnRotateLeft()
+    {
+        Debug.Log("Rotate left");
+        if (BuildMode.Instance.IsEnabled)
+        {
+            BuildMode.Instance.RotateObject(PlaceableObject.RotationDirectionEnum.Left);
+        }
+    }
+
+    public void OnRotateRight()
+    {
+        Debug.Log("Rotate right");
+        if (BuildMode.Instance.IsEnabled)
+        {
+            BuildMode.Instance.RotateObject(PlaceableObject.RotationDirectionEnum.Right);
+        }
+    }
+
+    public void OnCancelGeneral()
+    {
+        if (BuildMode.Instance.IsPlacingObject())
+        {
+            BuildMode.Instance.CancelPlacement();
+        }
+}
 
 }

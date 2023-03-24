@@ -115,9 +115,6 @@ public class BuildMode : MonoBehaviour
             {
                 HandlePickUpPlacedObjectToInventory();
             }
-        } else if (Input.GetKeyDown(MouseKeyboardControlsMapping.CANCEL_GENERAL))
-        {
-            HandleCancelPlacement();
         }
         
         UpdateObjectPosition();
@@ -206,6 +203,11 @@ public class BuildMode : MonoBehaviour
         }
     }
 
+    public bool IsPlacingObject()
+    {
+        return placeableObject != null && IsEnabled;
+    }
+
     /**
      * Allows you to reposition the item.
      */
@@ -224,7 +226,7 @@ public class BuildMode : MonoBehaviour
         }
     }
 
-    public void HandleCancelPlacement()
+    public void CancelPlacement()
     {
         if (placeableObject == null)
         {
