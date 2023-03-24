@@ -13,7 +13,7 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
      * This should be the callback that triggers the UI to reflect the changes
      * made by these functions.
      */
-    [SerializeField] private UnityEvent<List<CellData2>> RedrawInventoryMenuCells;
+    [SerializeField] private UnityEvent<List<CellData>> RedrawInventoryMenuCells;
     /**
      * This callback is responsible for making sure the Inventoy backend is updated
      * with the correct inventory data.
@@ -30,23 +30,23 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
      */
     public void ApplyBuildModeStylingToInventory()
     {
-        CellData2[,] cellData = InventoryManager.Instance.PlayerInventoryMenu.cellsByRow;
+        CellData[,] cellData = InventoryManager.Instance.PlayerInventoryMenu.cellsByRow;
 
-        List<CellData2> updatedCells = new List<CellData2>();
+        List<CellData> updatedCells = new List<CellData>();
         if (BuildMode.Instance.IsEnabled)
         {
             // Apply styles
             
-            foreach (CellData2 cell in cellData)
+            foreach (CellData cell in cellData)
             {
                 if (cell.itemData != null && cell.itemData.item.buildMode)
                 {
-                    cell.additionalStyles.Add(CellData2.InventoryCellStyleEnum.BuildModeOK);
+                    cell.additionalStyles.Add(CellData.InventoryCellStyleEnum.BuildModeOK);
                     updatedCells.Add(cell);
                 }
                 else if (cell.itemData != null && !cell.itemData.item.buildMode)
                 {
-                    cell.additionalStyles.Add(CellData2.InventoryCellStyleEnum.BuildModeNotOK);
+                    cell.additionalStyles.Add(CellData.InventoryCellStyleEnum.BuildModeNotOK);
                     updatedCells.Add(cell);
                 }
                 else
@@ -59,16 +59,16 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
         {
             Debug.Log($"ApplyBuildModeStyling: Removing styled since build mode is DISABLED.");
             // Remove build mode-related styles
-            foreach (CellData2 cell in cellData)
+            foreach (CellData cell in cellData)
             {
-                cell.additionalStyles.Remove(CellData2.InventoryCellStyleEnum.BuildModeOK);
-                cell.additionalStyles.Remove(CellData2.InventoryCellStyleEnum.BuildModeNotOK);
+                cell.additionalStyles.Remove(CellData.InventoryCellStyleEnum.BuildModeOK);
+                cell.additionalStyles.Remove(CellData.InventoryCellStyleEnum.BuildModeNotOK);
             }
         }
         RedrawInventoryMenuCells.Invoke(updatedCells);
     }
 
-    public void SelectBuildModeObjectCallback(CellData2 cell)
+    public void SelectBuildModeObjectCallback(CellData cell)
     {
         Debug.Log("Invoked SelectBuildModeObjectCallback");
         // Invoke callbacks to set the objectToPlace in build mode and
@@ -85,7 +85,7 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
                 quantity = cell.itemData.quantity - 1
             };
             
-            int inventoryArrayIndex = InventoryMenu2.GridToInventoryIndex(
+            int inventoryArrayIndex = InventoryMenu.GridToInventoryIndex(
                 cell.row, cell.col,
                 InventoryManager.Instance.PlayerInventoryMenu.GridSizeSpecification
             );
@@ -100,7 +100,7 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
 
             // Redraw the affected UI cell
             cell.itemData = updated.quantity > 0 ? updated : null;
-            RedrawInventoryMenuCells.Invoke(new List<CellData2>() { cell });
+            RedrawInventoryMenuCells.Invoke(new List<CellData>() { cell });
         }
         else
         {

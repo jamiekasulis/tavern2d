@@ -6,11 +6,9 @@ using UnityEngine.UIElements;
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
-    [SerializeField] public InventoryMenu2 PlayerInventoryMenu;
+    [SerializeField] public InventoryMenu PlayerInventoryMenu;
     [SerializeField] private UnityEvent<Inventory> redrawInventoryTrigger;
     [SerializeField] private UnityEvent<List<(Item?, VisualElement)>> buildModeToggledTrigger;
-
-    public bool ingestTestPlayerInventory = false;
 
     void Awake()
     {
