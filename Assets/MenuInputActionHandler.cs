@@ -6,4 +6,25 @@ public class MenuInputActionHandler : MonoBehaviour
     {
         InventoryManager.Instance.TogglePlayerInventoryMenuEnabled();
     }
+
+    public void OnToggleBuildMode()
+    {
+        BuildMode.Instance.ToggleBuildMode();
+    }
+
+    public void OnRotateLeft()
+    {
+        if (BuildMode.Instance.IsEnabled)
+        {
+            BuildMode.Instance.RotateObject(PlaceableObject.RotationDirectionEnum.Left);
+        }
+    }
+
+    public void OnRotateRight()
+    {
+        if (BuildMode.Instance.IsEnabled)
+        {
+            BuildMode.Instance.RotateObject(PlaceableObject.RotationDirectionEnum.Right);
+        }
+    }
 }

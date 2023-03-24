@@ -97,16 +97,17 @@ public class PlaceableObject : MonoBehaviour
         }
 
         // Object does not collide with other placeable object colliders.
-        List<Collider2D> overlappingColliders = new(100);
+        List<Collider2D> overlappingColliders = new(10);
         MeshSwapper.Current.collider.OverlapCollider(new ContactFilter2D().NoFilter(), overlappingColliders);
         foreach (Collider2D col in overlappingColliders)
         {
             // Check if these belong to a placeable object
             Transform parent = col.gameObject.transform.parent;
-            if (parent.TryGetComponent<PlaceableObject>(out PlaceableObject p))
-            {
-                return false;
-            }
+            //bool hasPO = parent.TryGetComponent<PlaceableObject>(out PlaceableObject p);
+            //if (hasPO)
+            //{
+            //    return false;
+            //}
         }
         return true;
     }

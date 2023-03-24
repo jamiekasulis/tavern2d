@@ -76,13 +76,10 @@ public class BuildMode : MonoBehaviour
          * Let's also try to keep the most expensive functions from being executed 
          * when they do not need to be.
          */
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_BUILD_MODE))
+
+        if (!IsEnabled)
         {
-            HandleToggleBuildMode();
-            if (!IsEnabled)
-            {
-                return;
-            }
+            return;
         }
 
         // Get the object we're working with (if any)
@@ -124,26 +121,22 @@ public class BuildMode : MonoBehaviour
         }
         
         UpdateObjectPosition();
-        HandleRotateObject();
     }
 
-    private void HandleToggleBuildMode()
+    public void ToggleBuildMode()
     {
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.TOGGLE_BUILD_MODE))
-        {
-            IsEnabled = !IsEnabled;
+        IsEnabled = !IsEnabled;
 
-            if (IsEnabled)
-            {
-                OnBuildModeEnabled();
-            }
-            else
-            {
-                OnBuildModeDisabled();
-            }
-            
-            buildModeToggledTrigger.Invoke();
+        if (IsEnabled)
+        {
+            OnBuildModeEnabled();
         }
+        else
+        {
+            OnBuildModeDisabled();
+        }
+
+        buildModeToggledTrigger.Invoke();
     }
 
     private void OnBuildModeEnabled()
@@ -272,16 +265,9 @@ public class BuildMode : MonoBehaviour
         }
     }
 
-    private void HandleRotateObject()
+    public void RotateObject(PlaceableObject.RotationDirectionEnum direction)
     {
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_LEFT))
-        {
-            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Left, mouseWorldPosition);
-        }
-        else if (Input.GetKeyDown(MouseKeyboardControlsMapping.ROTATE_RIGHT))
-        {
-            placeableObject.Rotate(PlaceableObject.RotationDirectionEnum.Right, mouseWorldPosition);
-        }
+        placeableObject.Rotate(direction, mouseWorldPosition);
     }
 
     private void HandlePlaceObject()
