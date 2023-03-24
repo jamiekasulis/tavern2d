@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 
-public class CellData2
+public class CellData
 {
     public VisualElement visualElement;
     public ItemQuantity? itemData;
@@ -15,7 +15,7 @@ public class CellData2
         BuildModeNotOK = 1
     }
 
-    public CellData2(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column)
+    public CellData(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column)
     {
         visualElement = cellVisualElement;
         this.itemData = itemData;
@@ -25,7 +25,7 @@ public class CellData2
         additionalStyles = new List<InventoryCellStyleEnum>();
     }
 
-    public CellData2(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column, List<InventoryCellStyleEnum> additionalStyles)
+    public CellData(VisualElement cellVisualElement, ItemQuantity? itemData, int row, int column, List<InventoryCellStyleEnum> additionalStyles)
     {
         visualElement = cellVisualElement;
         this.itemData = itemData;
