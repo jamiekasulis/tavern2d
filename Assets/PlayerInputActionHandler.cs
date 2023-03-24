@@ -44,5 +44,11 @@ public class PlayerInputActionHandler : MonoBehaviour
         player.RigidBody.MovePosition(player.RigidBody.position + difference);
     }
 
+    public void OnInteract()
+    {
+        Debug.Log("Interacted");
+        playerController.interactable?.Interact();
+    }
+
 
 }

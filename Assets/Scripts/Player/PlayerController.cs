@@ -6,10 +6,10 @@ using UnityEngine.Events;
 public class PlayerController : MonoBehaviour
 {
     private PickUp pickup;
-    private Interactable interactable;
+    public Interactable interactable { get; private set; }
 
     public Vector2 facedDirection { get; private set; }
-    private List<Vector2> validDirections = new(8)
+    private List<Vector2> VALID_DIRECTIONS = new(8)
     {
         // cardinals
         Vector2.up, Vector2.down, Vector2.left, Vector2.right,
@@ -40,7 +40,6 @@ public class PlayerController : MonoBehaviour
         HandleToggleInventoryMenu();
 
         DetectInteraction();
-        HandleInteraction();
     }
 
     /**
@@ -111,14 +110,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void HandleInteraction()
-    {
-        if (Input.GetKeyDown(MouseKeyboardControlsMapping.INTERACT) && interactable != null)
-        {
-            interactable.Interact();
-        }
-    }
-
     private void HandleManualPickup()
     {
         if (Input.GetKeyDown(MouseKeyboardControlsMapping.PICKUP_ITEM))
@@ -141,14 +132,11 @@ public class PlayerController : MonoBehaviour
                 : direction.y == 0 ? 0
                 : 1
         );
-        if (validDirections.Contains(dirNormalized))
+
+        if (VALID_DIRECTIONS.Contains(dirNormalized))
         {
             // @TODO Also swap the sprite
             facedDirection = dirNormalized;
-        }
-        else
-        {
-            throw new InvalidDirectionException("Given direction " + direction.ToString() + " is not an accepted direction to face");
         }
     }
 
@@ -159,20 +147,6 @@ public class PlayerController : MonoBehaviour
             InventoryManager.Instance.TogglePlayerInventoryMenuEnabled();
         }
     }
-
-    #region Gizmos
-
-    private void OnDrawGizmos()
-    {
-        DrawBoxcast();
-    }
-
-    private void DrawBoxcast()
-    {
-        // @TODO at cafe
-    }
-
-    #endregion
 }
 
 public class InvalidDirectionException : Exception
