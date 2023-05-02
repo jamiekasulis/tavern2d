@@ -1,7 +1,7 @@
 # Notes for Lex
 
 - **Please note: The code can be found in the Assets/Scripts folder.**
-- 
+
 ## The basics
 - This is a completely **solo** game development project that I worked on in January/February of this year. This is very much a **rough prototype** that I'm building to learn the ropes of Unity and game development in general, but it is also a game that I'm very excited about! 
 - This is a cafe management game. You can do things like furnish the cafe, build relationships with the townsfolk, forage for rare ingredients, set the menu, and of course, make delicious food & drink to serve. In its current state, some basic systems are implemented such as inventory, build mode, player movement, interactions, item pick ups, etc.
@@ -24,6 +24,7 @@ This project is the site of experimentation with different design patterns and d
 - More testing. There are some unit tests in the game for more low-level things like the underlying inventory data structure, but I would like to explore how I could make something like a feature test in Unity.
 - Cleaning up the physics, collider, and raycasting code. I think this is the most illegible logic in the entire project. I want to learn to write code in this area that's more readable, especially because I am most likely to forget how these pieces work with time.
 - Making naming and capitalization conventions consistent. I started off the project using conventions I was used to, but these conflict with the traditional C# conventions. Whichever I end up choosing, it should be consistent across the code base.
+- Continuing to refactor to promote clean separations of concern.
 
 # Learnings
 
