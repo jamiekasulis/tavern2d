@@ -8,6 +8,9 @@ public class PlayerController : MonoBehaviour
     public Interactable interactable { get; private set; }
 
     public Vector2 facedDirection { get; private set; }
+
+    // @TODO Refactor direction-facing logic and variables, as these will be
+    // used for NPCs as well.
     private List<Vector2> VALID_DIRECTIONS = new(8)
     {
         // cardinals

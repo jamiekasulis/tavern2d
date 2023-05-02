@@ -1,6 +1,13 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
+/**
+ * This is a UI component that will show the item currently picked up as a 
+ * tooltip around the mouse.
+ * This currently has a specific usage which is the rearrangement of inventory
+ * using the inventory UI, but as the game develops there might be a good
+ * reason to refactor this into a more general mouse tooltip.
+ */
 [RequireComponent(typeof(UIDocument))]
 public class RearrangeInventoryTooltip : MonoBehaviour
 {

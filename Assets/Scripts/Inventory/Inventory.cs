@@ -2,6 +2,9 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+/**
+ * Data structure describing an inventory.
+ */
 [System.Serializable]
 public class Inventory
 {

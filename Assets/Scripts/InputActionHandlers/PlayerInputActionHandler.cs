@@ -3,7 +3,10 @@ using UnityEngine.InputSystem;
 using UnityEngine.Events;
 
 /**
- * Handles InputAction behavior.
+ * This is a layer of abstraction that works with Unity's new 
+ * UnityEngine.InputSystem to convert controller inputs (gamepad, keyboard,
+ * mouse, etc) into in-game actions. These connections are wired in the Unity
+ * Editor.
  */
 [RequireComponent(typeof(Player))]
 [RequireComponent(typeof(PlayerController))]
@@ -63,12 +66,19 @@ public class PlayerInputActionHandler : MonoBehaviour
 
     public void OnToggleBuildMode()
     {
-        BuildMode.Instance.ToggleBuildMode();
+        if (BuildMode.Instance.IsEnabled)
+        {
+            GameEvents.Instance.OnBuildModeEnabled();
+        }
+        else
+        {
+            GameEvents.Instance.OnBuildModeDisabled();
+        }
+        
     }
 
     public void OnRotateLeft()
     {
-        Debug.Log("Rotate left");
         if (BuildMode.Instance.IsEnabled)
         {
             BuildMode.Instance.RotateObject(PlaceableObject.RotationDirectionEnum.Left);
@@ -77,7 +87,6 @@ public class PlayerInputActionHandler : MonoBehaviour
 
     public void OnRotateRight()
     {
-        Debug.Log("Rotate right");
         if (BuildMode.Instance.IsEnabled)
         {
             BuildMode.Instance.RotateObject(PlaceableObject.RotationDirectionEnum.Right);

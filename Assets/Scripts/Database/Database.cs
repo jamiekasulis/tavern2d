@@ -1,6 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Database here is like an official registry of ScriptableObjects that allows
+ * me to do lookup and such.
+ * I will explore using XML or an actual DB later on, but this is a nice
+ * lightweight solution for the prototyping stage.
+ */
 public class Database : MonoBehaviour
 {
     public static Database instance;

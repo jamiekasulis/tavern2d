@@ -57,7 +57,6 @@ public class BuildModeInventoryMenuTriggers : MonoBehaviour
         }
         else
         {
-            Debug.Log($"ApplyBuildModeStyling: Removing styled since build mode is DISABLED.");
             // Remove build mode-related styles
             foreach (CellData cell in cellData)
             {

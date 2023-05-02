@@ -1,7 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
+/**
+ * A PlaceableObject is essentially a Mesh2D that corresponds to an Item
+ * which can be placed in the world by the player.
+ */
 [ExecuteInEditMode]
 [RequireComponent(typeof(MeshSwapper))]
 public class PlaceableObject : MonoBehaviour
@@ -29,6 +32,9 @@ public class PlaceableObject : MonoBehaviour
      */
     public Bounds GetFloorGridBounds(GridArea buildableAreaGrid)
     {
+        // To do this we need to account for the fact that the buildable area
+        // grid might have a scale factor different from Unity's typical world
+        // grid (where 1 unit is 1 Unity unit).
         BoxCollider2D col = MeshSwapper.Current.GetComponent<BoxCollider2D>();
         int scaleFactor = buildableAreaGrid.GetScaleFactor();
         Bounds scaledBounds = new();
@@ -85,7 +91,10 @@ public class PlaceableObject : MonoBehaviour
         Bounds objBounds = GetFloorGridBounds(buildableAreaGrid);
         BoundsInt buildBounds = buildableAreaGrid.GetGridAreaBounds();
 
+        // (1) Ensure the object's floorspace is within the buildable area floor.
         // Object is contained within the buildable area
+        // Unfortunately BoundsInt.Contains(point) has some idiosyncracies, so
+        // althuogh this is verbose it is more dependable.
         if (!(
             objBounds.min.x >= buildBounds.min.x &&
             objBounds.min.y >= buildBounds.min.y &&
@@ -96,7 +105,7 @@ public class PlaceableObject : MonoBehaviour
             return false;
         }
 
-        // Object does not collide with other placeable object colliders.
+        // (2) Ensure object does not collide with other placeable object colliders.
         List<Collider2D> overlappingColliders = new(10);
         MeshSwapper.Current.collider.OverlapCollider(new ContactFilter2D().NoFilter(), overlappingColliders);
         foreach (Collider2D col in overlappingColliders)
