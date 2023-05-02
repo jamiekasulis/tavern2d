@@ -359,7 +359,7 @@ public class BuildMode : MonoBehaviour
         placeableObject.transform.position = CenterInCell(mouseWorldPosition);
 
         // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
-        // This does not work, for whatever reason, when the z dimension is empty. I fuckin hate Unity. . .
+        // This does not work, for whatever reason, when the z dimension is empty.
         bool placementOK = placeableObject.PlacementIsValid(buildableGridArea);
         if (placementOK)
         {
