@@ -1,6 +1,6 @@
 # Notes for Lex
 
-- **Please note: The code can be found in the Assets/Scripts folder.**
+- **Please note: The code can be found in the Assets/Scripts folder, in the files ending with .cs . Unity creates a bunch of other files automatically which can be ignored, such as all the .meta ones.**
 
 ## The basics
 - This is a completely **solo** game development project that I worked on in January/February of this year. This is very much a **rough prototype** that I'm building to learn the ropes of Unity and game development in general, but it is also a game that I'm very excited about! 
