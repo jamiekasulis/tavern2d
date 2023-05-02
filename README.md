@@ -6,6 +6,7 @@
 - Each individual feature is intentionally far from polished. I've learned that over-engineering and over-polishing too early on leads to wasted work since I'm defining the requirements and experimenting with new details as I go.
 - The code is written in C# and makes heavy use of Unity's libraries for things like physics, cameras, sprites, etc. Most of the coding "work" here is in the design: how objects will relate to each other, what patterns promote decoupling, how to structure game events, how to build reusable components that make building out the level easier, etc. There aren't really any complicated algorithms yet.
 - The code is presently in the middle of a refactor. I commited it to main even though it's not complete just to get some comments in there for you to see, which I hope will make the intention behind some of the classes clearer. In most other projects I would be more strict about what I commit, but since this is just a way for me to learn, I've been more relaxed about it.
+- **Please note:** The code can be found in the Assets/Scripts folder.
 
 ## Why I picked this project
 This project has enabled me to build a solid foundation in game development fundamentals. I'm very proud of what I have built so far, including:
