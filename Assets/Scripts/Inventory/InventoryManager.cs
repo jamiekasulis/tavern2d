@@ -3,6 +3,13 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 
+/**
+ * Manager Pattern
+ * 
+ * InventoryManager liases between other entities that work with the concept
+ * of inventory, such as the inventory UI or the actual Inventory data
+ * structure.
+ */
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;

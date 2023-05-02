@@ -1,5 +1,14 @@
 using UnityEngine;
 
+/**
+ * Defines a grid area where Build Mode can happen.
+ * In this area, objects which are PlaceableObjects can be moved around,
+ * rotated, added, or removed.
+ * 
+ * When Build Mode is on, it will use the bounds of the BuildableGridArea to 
+ * highlight the build area for the user to see, and also it will use the bounds
+ * to determine the validity of all placements.
+ */
 [RequireComponent(typeof(BuildMode))]
 public class BuildableGridArea : GridArea
 {

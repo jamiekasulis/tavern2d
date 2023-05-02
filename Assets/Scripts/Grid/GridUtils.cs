@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class GridUtils
 {
-
     public static int GetSnappedToWorldGridCoordinate(float n)
     {
         if (n == 0)

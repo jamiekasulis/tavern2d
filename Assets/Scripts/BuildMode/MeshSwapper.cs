@@ -1,8 +1,7 @@
 using UnityEngine;
 
 /**
- * Responsible for replacing the "mesh" (which actually refers to a game object with
- * a sprite and collider) according to rotations.
+ * Responsible for swapping out a Mesh2D according to rotations.
  */
 [ExecuteInEditMode]
 public class MeshSwapper : MonoBehaviour

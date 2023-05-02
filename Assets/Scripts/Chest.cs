@@ -4,7 +4,8 @@ using UnityEngine.Events;
 
 public class Chest : Interactable
 {
-    // Need a better way to designate the items in a chest. This is just for testing.
+    // This is just for testing. In the future, when I dig into how I want to
+    // design loading custom save data and world data, I should get rid of this.
     [SerializeField] List<ItemQuantity> testInventoryContents;
     private Inventory inventory;
     private string chestName = "Chest";
@@ -24,33 +25,31 @@ public class Chest : Interactable
 
     public void Open()
     {
-        Debug.Log("Opened Chest: " + inventory.ToString());
-
         IsOpen = true;
         OpenInventoryTrigger.Invoke(inventory);
     }
 
     public void Close()
     {
-        Debug.Log("Closed chest.");
         IsOpen = false;
         CloseInventoryTrigger.Invoke(inventory);
     }
 
     public void Take()
     {
-
+        // @TODO
     }
 
     public void Put()
     {
-
+        // @TODO
     }
 
     public void Organize()
     {
         // Consolidate stacks and push all filled spots to the beginning of the
         // inventory.
+        // @TODO
     }
 
     override public void Interact()

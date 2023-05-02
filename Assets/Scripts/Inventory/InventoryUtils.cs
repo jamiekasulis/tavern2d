@@ -3,7 +3,10 @@ using UnityEngine;
 
 /**
  * Holds all the generic list logic for Inventory so that
- * this functionality can be unit testable.
+ * this functionality can be unit-testable.
+ * 
+ * Stil exploring Unity's built-in testing features, but for now
+ * this works well enough.
  */
 public class InventoryUtils
 {

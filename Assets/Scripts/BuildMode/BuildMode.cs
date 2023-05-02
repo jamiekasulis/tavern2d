@@ -44,6 +44,7 @@ public class BuildMode : MonoBehaviour
      */
     [SerializeField] private UnityEvent<Inventory, List<(int, ItemQuantity)>> ReflectChangesToInventoryBackendCallback;
 
+    #region Unity fns
 
     private void Awake()
     {
@@ -116,25 +117,11 @@ public class BuildMode : MonoBehaviour
                 HandlePickUpPlacedObjectToInventory();
             }
         }
-        
+
         UpdateObjectPosition();
     }
 
-    public void ToggleBuildMode()
-    {
-        IsEnabled = !IsEnabled;
-
-        if (IsEnabled)
-        {
-            OnBuildModeEnabled();
-        }
-        else
-        {
-            OnBuildModeDisabled();
-        }
-
-        buildModeToggledTrigger.Invoke();
-    }
+    #region Enabling
 
     private void OnBuildModeEnabled()
     {
@@ -154,9 +141,11 @@ public class BuildMode : MonoBehaviour
         }
     }
 
+    #endregion
+
     private void HandleMouseoverPlacedObject()
     {
-        RaycastHit2D[] hits = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(MouseUtils.GetMouseWorldPosition(), Vector2.zero);
         PlaceableObject? firstEligibleHit = null;
         if (mousedOverPlaceableObject != null)
         {
@@ -180,7 +169,7 @@ public class BuildMode : MonoBehaviour
         if (firstEligibleHit != null)
         {
             mousedOverPlaceableObject = firstEligibleHit;
-            spriteStyler.Tint(firstEligibleHit.Renderer, MOUSEOVER_COLOR);   
+            spriteStyler.Tint(firstEligibleHit.Renderer, MOUSEOVER_COLOR);
         }
     }
 
@@ -203,11 +192,6 @@ public class BuildMode : MonoBehaviour
         }
     }
 
-    public bool IsPlacingObject()
-    {
-        return placeableObject != null && IsEnabled;
-    }
-
     /**
      * Allows you to reposition the item.
      */
@@ -224,6 +208,57 @@ public class BuildMode : MonoBehaviour
             instantiatedPrefab = mousedOverPlaceableObject.gameObject;
             objectToPlacePrefab = placeableObject.item.prefab;
         }
+    }
+
+    #endregion
+
+    #region Object instantiation
+
+    private void InstantiatePlaceableObject()
+    {
+        instantiatedPrefab = Instantiate(objectToPlacePrefab, mouseWorldPosition, Quaternion.identity, gameObject.transform);
+        placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
+        placeableObject.Initialize();
+    }
+
+    private void DestroyPlaceableObject()
+    {
+        Destroy(placeableObject.gameObject, 0);
+        instantiatedPrefab = null;
+        placeableObject = null;
+        objectToPlacePrefab = null;
+    }
+
+    #endregion
+
+    #region Tilemap
+
+    private void FillBuildableArea()
+    {
+        EnforceTilemapSize();
+        tilemap.FloodFill(buildAreaBounds.position, baseTile);
+    }
+
+    /**
+     * Unfortunately, the tilemap seems to keep getting resized when tiles
+     * are drawn.
+     * Run this before boxfilling to enforce the tilemap to have the
+     * correct size.
+     */
+    private void EnforceTilemapSize()
+    {
+        tilemap.size = buildAreaBounds.size;
+        tilemap.origin = buildAreaBounds.position;
+        tilemap.ResizeBounds(); // Will affect the changes done by the last 2 lines.
+    }
+
+    #endregion
+
+    #region Public APIs
+
+    public bool IsPlacingObject()
+    {
+        return placeableObject != null && IsEnabled;
     }
 
     public void CancelPlacement()
@@ -267,6 +302,76 @@ public class BuildMode : MonoBehaviour
         }
     }
 
+    public void ToggleBuildMode()
+    {
+        IsEnabled = !IsEnabled;
+
+        if (IsEnabled)
+        {
+            OnBuildModeEnabled();
+        }
+        else
+        {
+            OnBuildModeDisabled();
+        }
+
+        buildModeToggledTrigger.Invoke();
+    }
+
+    public Bounds GetPlaceableObjFloorBoundsGrid()
+    {
+        return placeableObject.GetFloorGridBounds(buildableGridArea);
+    }
+
+    public void SetObjectToPlace(Item item)
+    {
+        if (!item.buildMode)
+        {
+            throw new System.Exception($"Attemted to set Build Mode's object to place to a non-build mode approved item! {item}");
+        }
+        objectToPlacePrefab = item.prefab;
+        Debug.Log($"Set objectToPlacePrefab to {item.prefab.name}");
+    }
+
+    #endregion
+
+    #region Object placement
+
+    private Vector3 CenterInCell(Vector3 worldPos)
+    {
+        Vector3Int cellPos = tilemap.layoutGrid.WorldToCell(worldPos);
+        Vector3 centeredPos = new(
+            cellPos.x + 0.5f * buildableGridArea.CellSize,
+            cellPos.y + 0.5f * buildableGridArea.CellSize,
+            0
+        );
+        return centeredPos;
+    }
+
+    private void UpdateObjectPosition()
+    {
+        if (placeableObject == null)
+        {
+            return;
+        }
+
+        mouseWorldPosition = MouseUtils.GetMouseWorldPosition();
+        placeableObject.transform.position = CenterInCell(mouseWorldPosition);
+
+        // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
+        // This does not work, for whatever reason, when the z dimension is empty. I fuckin hate Unity. . .
+        bool placementOK = placeableObject.PlacementIsValid(buildableGridArea);
+        if (placementOK)
+        {
+            spriteStyler.Tint(placeableObject.Renderer, OK_COLOR);
+        }
+        else
+        {
+            spriteStyler.Tint(placeableObject.Renderer, BAD_COLOR);
+        }
+
+    }
+
     public void RotateObject(PlaceableObject.RotationDirectionEnum direction)
     {
         placeableObject.Rotate(direction, mouseWorldPosition);
@@ -288,94 +393,12 @@ public class BuildMode : MonoBehaviour
     {
         placeableObject.OnPlaced(placeableObject.transform.position);
         spriteStyler.Tint(placeableObject.Renderer, Color.white);
-        
+
         placeableObject = null;
         instantiatedPrefab = null;
         objectToPlacePrefab = null;
         mousedOverPlaceableObject = null;
     }
 
-    private void InstantiatePlaceableObject()
-    {
-        instantiatedPrefab = Instantiate(objectToPlacePrefab, mouseWorldPosition, Quaternion.identity, gameObject.transform);
-        placeableObject = instantiatedPrefab.GetComponent<PlaceableObject>();
-        placeableObject.Initialize();
-    }
-
-    private void DestroyPlaceableObject()
-    {
-        Destroy(placeableObject.gameObject, 0);
-        instantiatedPrefab = null;
-        placeableObject = null;
-        objectToPlacePrefab = null;
-    }
-
-    private void FillBuildableArea()
-    {
-        EnforceTilemapSize();
-        tilemap.FloodFill(buildAreaBounds.position, baseTile);
-    }
-
-    /**
-     * Unfortunately, the tilemap seems to keep getting resized when tiles
-     * are drawn.
-     * Run this before boxfilling to enforce the tilemap to have the
-     * correct size.
-     */
-    private void EnforceTilemapSize()
-    {
-        tilemap.size = buildAreaBounds.size;
-        tilemap.origin = buildAreaBounds.position;
-        tilemap.ResizeBounds(); // Will affect the changes done by the last 2 lines.
-    }
-
-    private void UpdateObjectPosition()
-    {
-        if (placeableObject == null)
-        {
-            return;
-        }
-
-        mouseWorldPosition = MouseUtils.GetMouseWorldPosition();
-        placeableObject.transform.position = CenterInCell(mouseWorldPosition);
-            
-        // Unfortunately we can't just do buildAreaBounds.Contains(floorBounds.min) && ...Contains(floorBounds.max)
-        // This does not work, for whatever reason, when the z dimension is empty. I fuckin hate Unity. . .
-        bool placementOK = placeableObject.PlacementIsValid(buildableGridArea);
-        if (placementOK)
-        {
-            spriteStyler.Tint(placeableObject.Renderer, OK_COLOR);
-        }
-        else
-        {
-            spriteStyler.Tint(placeableObject.Renderer, BAD_COLOR);
-        }
-        
-    }
-
-    private Vector3 CenterInCell(Vector3 worldPos)
-    {
-        Vector3Int cellPos = tilemap.layoutGrid.WorldToCell(worldPos);
-        Vector3 centeredPos = new (
-            cellPos.x + 0.5f * buildableGridArea.CellSize,
-            cellPos.y + 0.5f * buildableGridArea.CellSize,
-            0
-        );
-        return centeredPos;
-    }
-
-    public Bounds GetPlaceableObjFloorBoundsGrid()
-    {
-        return placeableObject.GetFloorGridBounds(buildableGridArea);
-    }
-
-    public void SetObjectToPlace(Item item)
-    {
-        if (!item.buildMode)
-        {
-            throw new System.Exception($"Attemted to set Build Mode's object to place to a non-build mode approved item! {item}");
-        }
-        objectToPlacePrefab = item.prefab;
-        Debug.Log($"Set objectToPlacePrefab to {item.prefab.name}");
-    }
+    #endregion
 }
