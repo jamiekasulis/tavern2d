@@ -1,6 +1,12 @@
 # Notes for Lex
 
-- **Please note: The code can be found in the Assets/Scripts folder, in the files ending with .cs . Unity creates a bunch of other files automatically which can be ignored, such as all the .meta ones.**
+**Please note: The code can be found in the Assets/Scripts folder, in the files ending with .cs . Unity creates a bunch of other files automatically which can be ignored, such as all the .meta ones.**
+
+I'll also highlight some specific files to look at in case that helps focus the repo a bit:
+
+- [Inventory.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/Inventory/Inventory.cs), [Item.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/Item/Item.cs), [ItemQuantity.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/Item/ItemQuantity.cs), [InventoryManager.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/Inventory/InventoryManager.cs), and [InventoryMenu.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/InventoryMenu/InventoryMenu.cs) work together to compose the inventory system
+- [Mesh2D.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/BuildMode/Mesh2D.cs) and [MeshSwapper.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/BuildMode/MeshSwapper.cs) set up functionality for swapping the visual representation of a game object according to the direction it's facing. (Think rotating furniture, or changing walking directions)
+- [BuildMode.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/BuildMode/BuildMode.cs), [BuildableGridArea.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/BuildMode/BuildableGridArea.cs), and [PlaceableObject.cs](https://github.com/jamiekasulis/tavern2d/blob/main/Assets/Scripts/BuildMode/PlaceableObject.cs) work together to compose the build mode system, where users can move around furniture in a given bounds.
 
 ## The basics
 - This is a completely **solo** game development project that I worked on in January/February of this year. This is very much a **rough prototype** that I'm building to learn the ropes of Unity and game development in general, but it is also a game that I'm very excited about! 
