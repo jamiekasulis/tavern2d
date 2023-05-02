@@ -1,12 +1,13 @@
 # Notes for Lex
 
+- **Please note: The code can be found in the Assets/Scripts folder.**
+- 
 ## The basics
 - This is a completely **solo** game development project that I worked on in January/February of this year. This is very much a **rough prototype** that I'm building to learn the ropes of Unity and game development in general, but it is also a game that I'm very excited about! 
 - This is a cafe management game. You can do things like furnish the cafe, build relationships with the townsfolk, forage for rare ingredients, set the menu, and of course, make delicious food & drink to serve. In its current state, some basic systems are implemented such as inventory, build mode, player movement, interactions, item pick ups, etc.
 - Each individual feature is intentionally far from polished. I've learned that over-engineering and over-polishing too early on leads to wasted work since I'm defining the requirements and experimenting with new details as I go.
 - The code is written in C# and makes heavy use of Unity's libraries for things like physics, cameras, sprites, etc. Most of the coding "work" here is in the design: how objects will relate to each other, what patterns promote decoupling, how to structure game events, how to build reusable components that make building out the level easier, etc. There aren't really any complicated algorithms yet.
 - The code is presently in the middle of a refactor. I commited it to main even though it's not complete just to get some comments in there for you to see, which I hope will make the intention behind some of the classes clearer. In most other projects I would be more strict about what I commit, but since this is just a way for me to learn, I've been more relaxed about it.
-- **Please note:** The code can be found in the Assets/Scripts folder.
 
 ## Why I picked this project
 This project has enabled me to build a solid foundation in game development fundamentals. I'm very proud of what I have built so far, including:
