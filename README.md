@@ -16,14 +16,13 @@ I'll also highlight some specific files to look at in case that helps focus the 
 - The code is presently in the middle of a refactor. I commited it to main even though it's not complete just to get some comments in there for you to see, which I hope will make the intention behind some of the classes clearer. In most other projects I would be more strict about what I commit, but since this is just a way for me to learn, I've been more relaxed about it.
 
 ## Why I picked this project
-This project has enabled me to build a solid foundation in game development fundamentals. I'm very proud of what I have built so far, including:
+This project has enabled me to build a solid foundation in game development fundamentals. It has been the site of experimentation with different design patterns and data models as I figure out better ways to build games through my own trial and error. I'm very proud of what I have built so far, including:
 - Decoupled Inventory & Inventory UI, managed by an intermediary class following the Manager-Managed design pattern
 - Observer pattern and event delegation for game events, which helps me decouple components and makes building levels more scalable
 - Reusable components with smaller areas of concern that allow me to share functionality across game objects. For example, I designed MeshSwapper as a component that handles just the swapping of sprites based on the direction an entity is facing in the game world. This is currently used to handle rotating furniture as you arrange your cafe, but it was designed to also be leveraged for things like player characters and NPCs.
 - Data schema design that allows the number of things in the game (like distinct items or crafting recipes) to scale efficiently in Unity. This is achieved using Unity's concept of ScriptableObjects, plus my version of a lightweight database/ScriptableObject registry that supports rapid prototyping without requiring me to decide just yet on a longterm DB solution.
 - Abstracted UI components that can be reused when I have more UI. Some examples of these are my homegrown grid (Unity's UI engine doesn't have grid layouts natively) and grid cells. As I build more UI, further abstractions can be done.
-
-This project is the site of experimentation with different design patterns and data models as I figure out better ways to build games through my own trial and error.
+- And lastly, I have also been learning/practicing pixel art and 3D modeling for the game!
 
 ## Where it can be improved
 - Further abstracting UI components for reusability. The inventory-specific tooltip can be made into a general customizable component, for example.
